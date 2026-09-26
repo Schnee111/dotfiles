@@ -1,0 +1,18 @@
+# OS & Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.bak
+
+# Logs & Temporary Files
+*.log
+*.tmp
+*.png.tmp.png
+
+# Sensitive & Secrets
+*.key
+*.pem
+*.token
+credentials.json
