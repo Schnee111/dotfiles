@@ -12,7 +12,7 @@ hl.window_rule({ match = { class = "^(kitty-main)$" }, workspace = "2 silent" })
 hl.window_rule({ match = { class = "^(kitty)$" }, workspace = "2" })
 
 -- Workspace 3: Hermes Desktop
-hl.window_rule({ match = { class = "^(Hermes)$" }, workspace = "3 silent" })
+hl.window_rule({ match = { class = "^(Hermes|com\\.nousresearch\\.hermes)$" }, workspace = "3 silent" })
 
 -- Workspace 4: Google Chrome
 hl.window_rule({ match = { class = "^(google-chrome)$" }, workspace = "4 silent" })
