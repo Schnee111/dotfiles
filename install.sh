@@ -114,4 +114,14 @@ link_file "$DOTFILES_DIR/pipewire/10-headphone-balance.conf" "$CONFIG_DIR/pipewi
 # 6. Swappy Screenshot
 link_file "$DOTFILES_DIR/swappy/config" "$CONFIG_DIR/swappy/config"
 
+# 7. Quickshell (Clone personal fork if not present)
+if [[ ! -d "$CONFIG_DIR/quickshell/end4-pC" ]]; then
+    if [[ $DRY_RUN -eq 1 ]]; then
+        print_succ "[Dry-Run] Would clone Schnee111/end4-pC to $CONFIG_DIR/quickshell/end4-pC"
+    else
+        print_msg "Cloning Quickshell end4-pC fork..."
+        git clone https://github.com/Schnee111/end4-pC.git "$CONFIG_DIR/quickshell/end4-pC"
+    fi
+fi
+
 print_succ "Dotfiles installation complete!"
