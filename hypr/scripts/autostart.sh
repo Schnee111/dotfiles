@@ -44,7 +44,7 @@ ptyxis -s -T "btop-ws6" -- btop &
 # ------------------------------------------------------------------------------
 firefox --name whatsapp-app --new-instance -P whatsapp-pwa https://web.whatsapp.com &
 sleep 0.6
-/home/schnee/Downloads/td-setup-linux-x64-7.2.9/Telegram/Telegram &
+/home/schnee/.local/bin/telegram &
 
 # ------------------------------------------------------------------------------
 # Workspace 8: Discord (left), Kitty (top-right), Spotify (bottom-right)
