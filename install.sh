@@ -78,6 +78,9 @@ print_msg "Installing dotfiles from: $DOTFILES_DIR"
 
 # 1. Hyprland
 link_file "$DOTFILES_DIR/hypr/monitors.lua" "$CONFIG_DIR/hypr/monitors.lua"
+if [[ -f "$DOTFILES_DIR/hypr/hyprland/keybinds.lua" ]]; then
+    link_file "$DOTFILES_DIR/hypr/hyprland/keybinds.lua" "$CONFIG_DIR/hypr/hyprland/keybinds.lua"
+fi
 for f in "$DOTFILES_DIR/hypr/custom/"*.lua; do
     [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/custom/$(basename "$f")"
 done
