@@ -9,13 +9,13 @@ exec >/dev/null 2>&1
 # ------------------------------------------------------------------------------
 # Workspace 2: Kitty (Fastfetch top-left), Kitty (Main right), Kitty (Btop bottom-left)
 # ------------------------------------------------------------------------------
-kitty --class kitty-fastfetch fish -c "fastfetch; exec fish" &
+kitty --class kitty-fastfetch -o font_size=10.0 fish -c "fastfetch; exec fish" &
 sleep 0.5
 kitty --class kitty-main &
 sleep 0.5
 hyprctl dispatch focuswindow class:kitty-fastfetch
 sleep 0.2
-kitty --class kitty-btop -e btop &
+kitty --class kitty-btop -o font_size=9.5 -o window_margin_width=6 -e btop &
 sleep 0.3
 
 # ------------------------------------------------------------------------------
