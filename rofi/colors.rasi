@@ -1,0 +1,10 @@
+/* Auto-generated from Quickshell Material You palette */
+* {
+    bg: #1f2020eb;
+    bg-alt: #292a2aaa;
+    fg: #e3e2e2ff;
+    fg-muted: #919190ff;
+    selected: #394a4add;
+    selected-fg: #d4e6e6ff;
+    border-col: #b8caca88;
+}

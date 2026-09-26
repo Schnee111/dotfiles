@@ -1,0 +1,87 @@
+@import "colors.rasi"
+
+configuration {
+    show-icons: false;
+    hover-select: true;
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+}
+
+* {
+    font: "Google Sans Flex 12";
+}
+
+window {
+    transparency: "real";
+    background-color: @bg;
+    text-color: @fg;
+    border: 2px;
+    border-color: @border-col;
+    border-radius: 20px;
+    width: 380px;
+    anchor: center;
+    location: center;
+    padding: 20px;
+}
+
+mainbox {
+    background-color: transparent;
+    orientation: vertical;
+    children: [ "inputbar", "listview" ];
+    spacing: 14px;
+}
+
+inputbar {
+    background-color: @bg-alt;
+    text-color: @fg;
+    border-radius: 14px;
+    padding: 10px 16px;
+    spacing: 10px;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @fg-muted;
+}
+
+entry {
+    background-color: transparent;
+    text-color: @fg;
+    placeholder: "Select display mode...";
+    placeholder-color: @fg-muted;
+    cursor: text;
+}
+
+listview {
+    background-color: transparent;
+    columns: 1;
+    lines: 3;
+    cycle: true;
+    dynamic: true;
+    scrollbar: false;
+    layout: vertical;
+    spacing: 8px;
+}
+
+element {
+    background-color: transparent;
+    text-color: @fg;
+    orientation: horizontal;
+    border-radius: 12px;
+    padding: 10px 14px;
+    spacing: 12px;
+    cursor: pointer;
+}
+
+element selected {
+    background-color: @selected;
+    text-color: @selected-fg;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    cursor: pointer;
+    vertical-align: 0.5;
+}
