@@ -6,7 +6,6 @@ hl.window_rule({ match = { class = "^(Rofi|rofi)$" }, center = true })
 
 -- Application Workspace Rules
 -- Workspace 2: Terminals
-hl.window_rule({ match = { class = "^(kitty.*|org\\.gnome\\.Ptyxis)$" }, opaque = true })
 hl.window_rule({ match = { class = "^(kitty-fastfetch)$" }, workspace = "2 silent" })
 hl.window_rule({ match = { class = "^(kitty-btop)$" }, workspace = "2 silent" })
 hl.window_rule({ match = { class = "^(kitty-main)$" }, workspace = "2 silent" })
