@@ -5,12 +5,12 @@ Personal dotfiles and configurations for **Fedora Linux 44** running **Hyprland*
 ## 📸 Showcase / Gallery
 
 <p align="center">
-  <img src="assets/overview-dark.png" width="49%" alt="Dark Floral Aesthetic" />
+  <img src="assets/overview-reze.png" width="49%" alt="Muted Sage / Reze Theme" />
   <img src="assets/workflow-tiling.png" width="49%" alt="Tiling Workflow (Discord, Kitty, Spotify)" />
 </p>
 <p align="center">
+  <img src="assets/overview-customizer.png" width="49%" alt="Wallpaper & Color Customizer (Material You)" />
   <img src="assets/overview-widgets.png" width="49%" alt="Desktop Widgets & Dashboard" />
-  <img src="assets/overview-reze.png" width="49%" alt="Muted Sage / Reze Theme" />
 </p>
 
 ---
