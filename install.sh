@@ -124,7 +124,18 @@ fi
 # 8. Fontconfig
 link_file "$DOTFILES_DIR/fontconfig/fonts.conf" "$CONFIG_DIR/fontconfig/fonts.conf"
 
-# 9. Quickshell (Clone personal fork if not present)
+# 9. Fastfetch
+link_file "$DOTFILES_DIR/fastfetch/config.jsonc" "$CONFIG_DIR/fastfetch/config.jsonc"
+link_file "$DOTFILES_DIR/fastfetch/set-logo.sh" "$CONFIG_DIR/fastfetch/set-logo.sh"
+chmod +x "$DOTFILES_DIR/fastfetch/set-logo.sh" 2>/dev/null || true
+if [[ -d "$DOTFILES_DIR/fastfetch/logos" ]]; then
+    mkdir -p "$CONFIG_DIR/fastfetch/logos"
+    for f in "$DOTFILES_DIR/fastfetch/logos/"*; do
+        [[ -e "$f" || -L "$f" ]] && link_file "$f" "$CONFIG_DIR/fastfetch/logos/$(basename "$f")"
+    done
+fi
+
+# 10. Quickshell (Clone personal fork if not present)
 if [[ ! -d "$CONFIG_DIR/quickshell/end4-pC" ]]; then
     if [[ $DRY_RUN -eq 1 ]]; then
         print_succ "[Dry-Run] Would clone Schnee111/end4-pC to $CONFIG_DIR/quickshell/end4-pC"

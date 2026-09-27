@@ -1,0 +1,89 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "source": "~/.config/fastfetch/logos/current",
+        "type": "auto",
+        "width": 30,
+        "height": 15,
+        "padding": {
+            "top": 0,
+            "right": 3
+        }
+    },
+    "display": {
+        "separator": "    ",
+        "color": {
+            "separator": "dim_white"
+        }
+    },
+    "modules": [
+        {
+            "type": "title",
+            "format": "{#1}{#36} {user-name}{#} {#37}at{#} {#35}󰌢 {host-name}{#}"
+        },
+        {
+            "type": "separator",
+            "string": "─"
+        },
+        {
+            "type": "os",
+            "key": " OS",
+            "keyColor": "blue"
+        },
+        {
+            "type": "host",
+            "key": "󰌢 Host",
+            "keyColor": "cyan"
+        },
+        {
+            "type": "kernel",
+            "key": " Kernel",
+            "keyColor": "green"
+        },
+        {
+            "type": "uptime",
+            "key": "󰅐 Uptime",
+            "keyColor": "yellow"
+        },
+        {
+            "type": "packages",
+            "key": "󰏖 Packages",
+            "keyColor": "magenta"
+        },
+        {
+            "type": "shell",
+            "key": " Shell",
+            "keyColor": "blue"
+        },
+        {
+            "type": "wm",
+            "key": " WM",
+            "keyColor": "cyan"
+        },
+        {
+            "type": "terminal",
+            "key": " Terminal",
+            "keyColor": "green"
+        },
+        {
+            "type": "cpu",
+            "key": "󰻠 CPU",
+            "keyColor": "yellow"
+        },
+        {
+            "type": "gpu",
+            "key": "󰍛 GPU",
+            "keyColor": "magenta"
+        },
+        {
+            "type": "memory",
+            "key": " Memory",
+            "keyColor": "blue"
+        },
+        "break",
+        {
+            "type": "colors",
+            "symbol": "circle"
+        }
+    ]
+}
