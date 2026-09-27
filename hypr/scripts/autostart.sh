@@ -6,6 +6,13 @@
 # Redirect stdout and stderr to avoid broken pipes (EPIPE) when the launcher exits
 exec >/dev/null 2>&1
 
+# Ensure autostart runs only once per login session
+RUN_LOCK="/tmp/hypr-autostart-${HYPRLAND_INSTANCE_SIGNATURE:-default}.lock"
+if [ -f "$RUN_LOCK" ]; then
+    exit 0
+fi
+touch "$RUN_LOCK"
+
 # ------------------------------------------------------------------------------
 # Workspace 2: Kitty (Fastfetch top-left), Kitty (Main right), Kitty (Btop bottom-left)
 # ------------------------------------------------------------------------------
