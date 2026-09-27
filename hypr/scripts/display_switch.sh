@@ -46,7 +46,7 @@ case "$CHOSEN" in
         # Verify physical HDMI connection before disabling laptop screen
         HDMI_STATUS="/sys/class/drm/card1-HDMI-A-1/status"
         if [ ! -f "$HDMI_STATUS" ] || [ "$(cat "$HDMI_STATUS" 2>/dev/null)" != "connected" ]; then
-            notify-send -u critical -t 3000 -a "Display" "Display Error" "Monitor HDMI tidak terdeteksi! Pembatalan switch." -i dialog-error &
+            notify-send -u critical -t 3000 -a "Display" "Display Error" "HDMI monitor not detected. Switch cancelled." -i dialog-error &
             exit 1
         fi
 
@@ -91,7 +91,7 @@ EOF
         # Verify physical HDMI connection before attempting to extend
         HDMI_STATUS="/sys/class/drm/card1-HDMI-A-1/status"
         if [ ! -f "$HDMI_STATUS" ] || [ "$(cat "$HDMI_STATUS" 2>/dev/null)" != "connected" ]; then
-            notify-send -u critical -t 3000 -a "Display" "Display Error" "Monitor HDMI tidak terdeteksi! Pembatalan switch." -i dialog-error &
+            notify-send -u critical -t 3000 -a "Display" "Display Error" "HDMI monitor not detected. Switch cancelled." -i dialog-error &
             exit 1
         fi
 

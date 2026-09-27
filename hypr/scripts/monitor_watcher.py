@@ -77,8 +77,8 @@ hl.monitor({
     ensure_quickshell()
 
     subprocess.Popen([
-        "notify-send", "-t", "2500", "-a", "Display", "Display Auto-Recovery",
-        "Monitor eksternal dicabut. Layar laptop diaktifkan kembali.",
+        "notify-send", "-t", "2500", "-a", "Display", "Display Output",
+        "External monitor disconnected. Laptop display restored.",
         "-i", "computer"
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
@@ -116,8 +116,8 @@ hl.monitor({
     ensure_quickshell()
 
     subprocess.Popen([
-        "notify-send", "-t", "2500", "-a", "Display", "Display Docked",
-        "Monitor eksternal terhubung. Mode External Only (1080p @ 200Hz) aktif.",
+        "notify-send", "-t", "2500", "-a", "Display", "Display Output",
+        "External monitor connected. Switched to External Only (1080p @ 200Hz).",
         "-i", "video-display"
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
