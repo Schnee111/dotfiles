@@ -89,7 +89,7 @@ if [[ -f "$DOTFILES_DIR/hypr/custom/scripts/__restore_video_wallpaper.sh" ]]; th
 fi
 
 # 2. Hypr Scripts
-for f in "$DOTFILES_DIR/hypr/scripts/"*.sh; do
+for f in "$DOTFILES_DIR/hypr/scripts/"*.sh "$DOTFILES_DIR/hypr/scripts/"*.py; do
     if [[ -f "$f" ]]; then
         chmod +x "$f" 2>/dev/null || true
         link_file "$f" "$CONFIG_DIR/hypr/scripts/$(basename "$f")"
@@ -114,7 +114,14 @@ link_file "$DOTFILES_DIR/pipewire/10-headphone-balance.conf" "$CONFIG_DIR/pipewi
 # 6. Swappy Screenshot
 link_file "$DOTFILES_DIR/swappy/config" "$CONFIG_DIR/swappy/config"
 
-# 7. Quickshell (Clone personal fork if not present)
+# 7. Systemd User Services
+if [[ -d "$DOTFILES_DIR/systemd/user" ]]; then
+    for f in "$DOTFILES_DIR/systemd/user/"*.service; do
+        [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/systemd/user/$(basename "$f")"
+    done
+fi
+
+# 8. Quickshell (Clone personal fork if not present)
 if [[ ! -d "$CONFIG_DIR/quickshell/end4-pC" ]]; then
     if [[ $DRY_RUN -eq 1 ]]; then
         print_succ "[Dry-Run] Would clone Schnee111/end4-pC to $CONFIG_DIR/quickshell/end4-pC"

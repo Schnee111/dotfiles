@@ -1,0 +1,15 @@
+[Unit]
+Description=Hyprland Monitor Hotplug & Zero-Failsafe Watcher
+PartOf=hyprland-session.target
+After=hyprland-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.config/hypr/scripts/monitor_watcher.py
+Restart=always
+RestartSec=1
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=hyprland-session.target
