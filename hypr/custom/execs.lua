@@ -1,3 +1,6 @@
+-- Ensure monitors hardware safeguard is loaded
+pcall(require, "custom.monitors_safeguard")
+
 -- Autostart is executed by Quickshell upon session unlock.
 -- If Quickshell is not running, fallback executes after 10 seconds.
 hl.on("hyprland.start", function ()

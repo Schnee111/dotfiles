@@ -4,12 +4,14 @@
 -- ==============================================================================
 
 local function is_external_connected()
-    local f = io.open("/sys/class/drm/card1-HDMI-A-1/status", "r")
-    if f then
-        local st = f:read("*l")
-        f:close()
-        if st == "connected" then
-            return true
+    for _, card in ipairs({"card1", "card0"}) do
+        local f = io.open("/sys/class/drm/" .. card .. "-HDMI-A-1/status", "r")
+        if f then
+            local st = f:read("*l")
+            f:close()
+            if st == "connected" then
+                return true
+            end
         end
     end
     return false
