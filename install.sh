@@ -121,7 +121,10 @@ if [[ -d "$DOTFILES_DIR/systemd/user" ]]; then
     done
 fi
 
-# 8. Quickshell (Clone personal fork if not present)
+# 8. Fontconfig
+link_file "$DOTFILES_DIR/fontconfig/fonts.conf" "$CONFIG_DIR/fontconfig/fonts.conf"
+
+# 9. Quickshell (Clone personal fork if not present)
 if [[ ! -d "$CONFIG_DIR/quickshell/end4-pC" ]]; then
     if [[ $DRY_RUN -eq 1 ]]; then
         print_succ "[Dry-Run] Would clone Schnee111/end4-pC to $CONFIG_DIR/quickshell/end4-pC"
