@@ -28,6 +28,14 @@ def has_connected_external():
             pass
     return False
 
+def migrate_workspaces(target_monitor):
+    """Migrates all active workspaces to the target monitor."""
+    try:
+        cmd = f"for _, ws in ipairs(hl.get_workspaces()) do if not ws.monitor or ws.monitor.name ~= '{target_monitor}' then hl.dispatch(hl.dsp.workspace.move({{ workspace = ws.id, monitor = '{target_monitor}' }})) end end"
+        subprocess.run(["hyprctl", "repl", cmd], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2)
+    except Exception as e:
+        log(f"Error migrating workspaces: {e}")
+
 def ensure_quickshell():
     """Verify Quickshell is running, respawn if died."""
     try:
@@ -45,44 +53,33 @@ def ensure_quickshell():
 
 last_action_time = 0.0
 
-def is_laptop_only_active():
-    try:
-        if os.path.exists(MONITORS_LUA):
-            with open(MONITORS_LUA, "r") as f:
-                c = f.read()
-            if 'output = "eDP-1"' in c and 'output = "HDMI-A-1"' in c:
-                edp_part = c.split('output = "eDP-1"')[1].split("hl.monitor")[0]
-                hdmi_part = c.split('output = "HDMI-A-1"')[1]
-                if "disabled = true" not in edp_part and "disabled = true" in hdmi_part:
-                    return True
-    except Exception:
-        pass
-    return False
-
-def is_external_only_active():
-    try:
-        if os.path.exists(MONITORS_LUA):
-            with open(MONITORS_LUA, "r") as f:
-                c = f.read()
-            if 'output = "eDP-1"' in c and 'output = "HDMI-A-1"' in c:
-                edp_part = c.split('output = "eDP-1"')[1].split("hl.monitor")[0]
-                hdmi_part = c.split('output = "HDMI-A-1"')[1]
-                if "disabled = true" in edp_part and "disabled = true" not in hdmi_part:
-                    return True
-    except Exception:
-        pass
-    return False
-
 def restore_laptop_display():
     """Switches to Laptop Only mode (eDP-1 @ 2880x1800@90, scale 1.5)."""
     global last_action_time
-    if time.time() - last_action_time < 2.0 or is_laptop_only_active():
+    if time.time() - last_action_time < 1.5:
         return
     last_action_time = time.time()
 
-    log("Restoring laptop screen (eDP-1)...")
+    log("Physical disconnect: Restoring laptop screen (eDP-1)...")
 
-    # Update monitors.lua
+    # 1. Enable eDP-1 first
+    subprocess.run([
+        "hyprctl", "eval",
+        'hl.monitor({ output = "eDP-1", mode = "2880x1800@90", position = "0x0", scale = 1.5, disabled = false })'
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    time.sleep(0.2)
+
+    # 2. Migrate workspaces to eDP-1
+    migrate_workspaces("eDP-1")
+
+    # 3. Disable HDMI-A-1
+    subprocess.run([
+        "hyprctl", "eval",
+        'hl.monitor({ output = "HDMI-A-1", disabled = true })'
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    # 4. Update monitors.lua
     content = """hl.monitor({
     output = "eDP-1",
     mode = "2880x1800@90",
@@ -101,13 +98,6 @@ hl.monitor({
     except Exception as e:
         log(f"Failed to write {MONITORS_LUA}: {e}")
 
-    # Hyprctl eval & reload
-    subprocess.run([
-        "hyprctl", "eval",
-        'hl.monitor({ output = "eDP-1", mode = "2880x1800@90", position = "0x0", scale = 1.5, disabled = false }); hl.monitor({ output = "HDMI-A-1", disabled = true })'
-    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    subprocess.run(["hyprctl", "reload"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
     time.sleep(0.3)
     ensure_quickshell()
 
@@ -120,13 +110,30 @@ hl.monitor({
 def activate_external_display():
     """Switches to External Monitor Only (HDMI-A-1 @ 1920x1080@200, scale 1)."""
     global last_action_time
-    if time.time() - last_action_time < 2.0 or is_external_only_active():
+    if time.time() - last_action_time < 1.5:
         return
     last_action_time = time.time()
 
-    log("External display detected. Docking to External Only (HDMI-A-1)...")
+    log("Physical connect: Docking to External Only (HDMI-A-1)...")
 
-    # Update monitors.lua
+    # 1. Enable HDMI-A-1 first
+    subprocess.run([
+        "hyprctl", "eval",
+        'hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@200", position = "0x0", scale = 1, disabled = false })'
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    time.sleep(0.2)
+
+    # 2. Migrate workspaces to HDMI-A-1
+    migrate_workspaces("HDMI-A-1")
+
+    # 3. Disable eDP-1
+    subprocess.run([
+        "hyprctl", "eval",
+        'hl.monitor({ output = "eDP-1", disabled = true })'
+    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    # 4. Update monitors.lua
     content = """hl.monitor({
     output = "eDP-1",
     disabled = true,
@@ -144,13 +151,6 @@ hl.monitor({
             f.write(content)
     except Exception as e:
         log(f"Failed to write {MONITORS_LUA}: {e}")
-
-    # Always enable target first, then disable internal to avoid zero outputs
-    subprocess.run([
-        "hyprctl", "eval",
-        'hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@200", position = "0x0", scale = 1, disabled = false }); hl.monitor({ output = "eDP-1", disabled = true })'
-    ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    subprocess.run(["hyprctl", "reload"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     time.sleep(0.3)
     ensure_quickshell()
@@ -177,7 +177,6 @@ def get_socket_path():
     return None
 
 def main():
-    # Enforce single instance via non-blocking flock
     lock_file = open("/tmp/hypr-monitor-watcher.lock", "w")
     try:
         import fcntl
@@ -188,19 +187,34 @@ def main():
 
     log("Starting Hyprland Monitor Hotplug Watcher...")
 
-    # Initial safety check on daemon launch
-    if not has_connected_external():
-        log("No external monitor connected at launch.")
+    # Initialize physical DRM connection state
+    last_drm_connected = has_connected_external()
+    log(f"Initial physical DRM external connected: {last_drm_connected}")
+
+    # Initial safety check: if no external monitor physically connected,
+    # make sure eDP-1 is never left disabled
+    if not last_drm_connected:
         try:
-            if not is_laptop_only_active():
-                log("Warning: monitors.lua has eDP-1 not active without external monitor! Restoring...")
-                restore_laptop_display()
+            if os.path.exists(MONITORS_LUA):
+                with open(MONITORS_LUA, "r") as f:
+                    c = f.read()
+                if 'output = "eDP-1"' in c and "disabled = true" in c.split('output = "eDP-1"')[1].split("hl.monitor")[0]:
+                    log("Safety check: eDP-1 disabled without external monitor! Restoring...")
+                    restore_laptop_display()
         except Exception as e:
-            log(f"Initial check error: {e}")
+            log(f"Initial safety check error: {e}")
 
     while True:
         sock_path = get_socket_path()
         if not sock_path or not os.path.exists(sock_path):
+            current = has_connected_external()
+            if current != last_drm_connected:
+                log(f"DRM state change detected via poll: {last_drm_connected} -> {current}")
+                if current:
+                    activate_external_display()
+                else:
+                    restore_laptop_display()
+                last_drm_connected = current
             time.sleep(1)
             continue
 
@@ -208,35 +222,47 @@ def main():
             client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             client.connect(sock_path)
             log(f"Connected to Hyprland event socket: {sock_path}")
+            client.settimeout(2.0)
 
             buffer = ""
             while True:
-                data = client.recv(4096)
-                if not data:
-                    log("Socket closed by Hyprland, reconnecting...")
-                    break
-                buffer += data.decode("utf-8", errors="ignore")
-                lines = buffer.split("\n")
-                buffer = lines.pop()
+                try:
+                    data = client.recv(4096)
+                    if not data:
+                        log("Socket closed by Hyprland, reconnecting...")
+                        break
+                    buffer += data.decode("utf-8", errors="ignore")
+                    lines = buffer.split("\n")
+                    buffer = lines.pop()
 
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
+                    for line in lines:
+                        line = line.strip()
+                        if not line:
+                            continue
 
-                    if line.startswith("monitorremoved>>") or line.startswith("monitorremovedv2>>"):
-                        mon_name = line.split(">>", 1)[1].split(",")[0].strip()
-                        log(f"Event: monitor removed ({mon_name})")
-                        time.sleep(0.3)
-                        if not has_connected_external():
-                            restore_laptop_display()
+                        # Monitor event in Hyprland
+                        if line.startswith("monitoradded") or line.startswith("monitorremoved"):
+                            time.sleep(0.3) # Debounce sysfs update
+                            current = has_connected_external()
+                            if current != last_drm_connected:
+                                log(f"Hardware hotplug event ({line}): {last_drm_connected} -> {current}")
+                                if current:
+                                    activate_external_display()
+                                else:
+                                    restore_laptop_display()
+                                last_drm_connected = current
+                            else:
+                                log(f"Monitor event ({line}) received, but physical DRM state unchanged ({current}). Ignoring software switch.")
 
-                    elif line.startswith("monitoradded>>") or line.startswith("monitoraddedv2>>"):
-                        mon_name = line.split(">>", 1)[1].split(",")[0].strip()
-                        log(f"Event: monitor added ({mon_name})")
-                        time.sleep(0.8)
-                        if "HDMI" in mon_name or has_connected_external():
+                except socket.timeout:
+                    current = has_connected_external()
+                    if current != last_drm_connected:
+                        log(f"Hardware hotplug detected via heartbeat: {last_drm_connected} -> {current}")
+                        if current:
                             activate_external_display()
+                        else:
+                            restore_laptop_display()
+                        last_drm_connected = current
 
         except Exception as e:
             log(f"Socket error: {e}. Retrying in 2 seconds...")

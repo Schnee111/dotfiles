@@ -41,6 +41,12 @@ CHOSEN=$(printf "%b" "$OPTIONS" | rofi -dmenu -i -p "󰍹 " -theme "$HOME/.confi
 
 CONFIG="$HOME/.config/hypr/monitors.lua"
 
+migrate_workspaces() {
+    local target="$1"
+    sleep 0.2
+    hyprctl repl "for _, ws in ipairs(hl.get_workspaces()) do if not ws.monitor or ws.monitor.name ~= '$target' then hl.dispatch(hl.dsp.workspace.move({ workspace = ws.id, monitor = '$target' })) end end" >/dev/null 2>&1
+}
+
 case "$CHOSEN" in
     *"External Monitor Only"*)
         # Verify physical HDMI connection before disabling laptop screen
@@ -50,8 +56,16 @@ case "$CHOSEN" in
             exit 1
         fi
 
-        # Always enable target first, then disable old to avoid 0 active screens
-        hyprctl eval 'hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@200", position = "0x0", scale = 1 }); hl.monitor({ output = "eDP-1", disabled = true })' >/dev/null 2>&1
+        # 1. Enable HDMI-A-1 first
+        hyprctl eval 'hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@200", position = "0x0", scale = 1, disabled = false })' >/dev/null 2>&1
+
+        # 2. Migrate all active workspaces to HDMI-A-1 so none are inaccessible
+        migrate_workspaces "HDMI-A-1"
+
+        # 3. Disable laptop display
+        hyprctl eval 'hl.monitor({ output = "eDP-1", disabled = true })' >/dev/null 2>&1
+
+        # 4. Save to monitors.lua
         cat << 'EOF' > "$CONFIG"
 hl.monitor({
     output = "eDP-1",
@@ -69,8 +83,16 @@ EOF
         ;;
 
     *"Laptop Screen Only"*)
-        # Always enable target first, then disable old to avoid 0 active screens
-        hyprctl eval 'hl.monitor({ output = "eDP-1", mode = "2880x1800@90", position = "0x0", scale = 1.5 }); hl.monitor({ output = "HDMI-A-1", disabled = true })' >/dev/null 2>&1
+        # 1. Enable eDP-1 first
+        hyprctl eval 'hl.monitor({ output = "eDP-1", mode = "2880x1800@90", position = "0x0", scale = 1.5, disabled = false })' >/dev/null 2>&1
+
+        # 2. Migrate all active workspaces to eDP-1 so none are inaccessible
+        migrate_workspaces "eDP-1"
+
+        # 3. Disable HDMI-A-1
+        hyprctl eval 'hl.monitor({ output = "HDMI-A-1", disabled = true })' >/dev/null 2>&1
+
+        # 4. Save to monitors.lua
         cat << 'EOF' > "$CONFIG"
 hl.monitor({
     output = "eDP-1",
@@ -95,7 +117,7 @@ EOF
             exit 1
         fi
 
-        hyprctl eval 'hl.monitor({ output = "eDP-1", mode = "2880x1800@90", position = "0x0", scale = 1.5 }); hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@200", position = "auto-right", scale = 1 })' >/dev/null 2>&1
+        hyprctl eval 'hl.monitor({ output = "eDP-1", mode = "2880x1800@90", position = "0x0", scale = 1.5, disabled = false }); hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@200", position = "auto-right", scale = 1, disabled = false })' >/dev/null 2>&1
         cat << 'EOF' > "$CONFIG"
 hl.monitor({
     output = "eDP-1",
