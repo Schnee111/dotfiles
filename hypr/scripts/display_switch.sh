@@ -44,8 +44,8 @@ CONFIG="$HOME/.config/hypr/monitors.lua"
 case "$CHOSEN" in
     *"External Monitor Only"*)
         # Verify physical HDMI connection before disabling laptop screen
-        HDMI_STATUS="/sys/class/drm/card1-HDMI-A-1/status"
-        if [ ! -f "$HDMI_STATUS" ] || [ "$(cat "$HDMI_STATUS" 2>/dev/null)" != "connected" ]; then
+        HDMI_STATUS=$(ls /sys/class/drm/card*-HDMI-A-1/status 2>/dev/null | head -n1)
+        if [ -z "$HDMI_STATUS" ] || [ ! -f "$HDMI_STATUS" ] || [ "$(cat "$HDMI_STATUS" 2>/dev/null)" != "connected" ]; then
             notify-send -u critical -t 3000 -a "Display" "Display Error" "HDMI monitor not detected. Switch cancelled." -i dialog-error &
             exit 1
         fi
@@ -89,8 +89,8 @@ EOF
 
     *"Extend Displays"*)
         # Verify physical HDMI connection before attempting to extend
-        HDMI_STATUS="/sys/class/drm/card1-HDMI-A-1/status"
-        if [ ! -f "$HDMI_STATUS" ] || [ "$(cat "$HDMI_STATUS" 2>/dev/null)" != "connected" ]; then
+        HDMI_STATUS=$(ls /sys/class/drm/card*-HDMI-A-1/status 2>/dev/null | head -n1)
+        if [ -z "$HDMI_STATUS" ] || [ ! -f "$HDMI_STATUS" ] || [ "$(cat "$HDMI_STATUS" 2>/dev/null)" != "connected" ]; then
             notify-send -u critical -t 3000 -a "Display" "Display Error" "HDMI monitor not detected. Switch cancelled." -i dialog-error &
             exit 1
         fi
