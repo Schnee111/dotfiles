@@ -8,6 +8,12 @@ hl.bind("SUPER + P", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/display_
 hl.bind("SUPER + Space", hl.dsp.exec_cmd("/home/schnee/.config/rofi/launcher.sh"), {description = "App Launcher: Launchpad Grid"})
 hl.bind("SUPER + ALT + V", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/audio_output_toggle.sh"), {description = "Audio: Toggle Headset / Laptop Speaker"})
 
+-- Battery & Power Management
+hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/battery_limit_toggle.sh"), {description = "Battery: Toggle 80% / 100% Charge Limit"})
+hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/power_profile_toggle.sh"), {description = "Power Profile: Cycle Quiet / Balanced / Performance"})
+hl.bind("XF86Launch1", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/power_profile_toggle.sh"), {description = "Power Profile: Asus Fan Key"})
+hl.bind("XF86Launch4", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/power_profile_toggle.sh"), {description = "Power Profile: Asus Fan Key"})
+
 -- Window Switcher (Alt + Tab)
 hl.bind("ALT + Tab", function()
     hl.dispatch(hl.dsp.window.cycle_next())

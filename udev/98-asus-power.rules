@@ -1,0 +1,2 @@
+# ASUS Battery Care: default to 80% charge limit and allow non-root control
+SUBSYSTEM=="power_supply", KERNEL=="BAT0", ATTR{charge_control_end_threshold}="80", RUN+="/bin/chmod 0666 /sys/class/power_supply/BAT0/charge_control_end_threshold"

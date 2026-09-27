@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import glob
 import os
+import select
 import subprocess
 import sys
+import threading
 import time
 
 HOME = os.path.expanduser("~")
@@ -143,6 +145,58 @@ hl.monitor({
         "-i", "video-display"
     ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+def watch_platform_profile():
+    """Monitors ACPI platform profile sysfs changes (Fn+F hotkey or script toggles)."""
+    profile_path = "/sys/firmware/acpi/platform_profile"
+    if not os.path.exists(profile_path):
+        return
+
+    try:
+        fd = os.open(profile_path, os.O_RDONLY)
+        poller = select.poll()
+        poller.register(fd, select.POLLPRI | select.POLLERR)
+
+        # Initial read to prime sysfs poll
+        last_profile = os.read(fd, 32).decode().strip()
+        log(f"Platform profile watcher active. Current mode: {last_profile}")
+
+        icons = {
+            "quiet": "power-profile-power-saver-symbolic",
+            "balanced": "power-profile-balanced-symbolic",
+            "performance": "power-profile-performance-symbolic",
+        }
+        titles = {
+            "quiet": "Power Mode: Quiet",
+            "balanced": "Power Mode: Balanced",
+            "performance": "Power Mode: Performance",
+        }
+        descs = {
+            "quiet": "Whisper silent fans & power saving active.",
+            "balanced": "Standard dynamic fan & performance scaling.",
+            "performance": "Turbo cooling & maximum performance active.",
+        }
+
+        while True:
+            events = poller.poll()
+            if not events:
+                continue
+
+            os.lseek(fd, 0, os.SEEK_SET)
+            new_profile = os.read(fd, 32).decode().strip()
+
+            if new_profile != last_profile and new_profile in icons:
+                last_profile = new_profile
+                log(f"Platform profile changed: {new_profile}")
+                subprocess.Popen([
+                    "notify-send", "-a", "Power Profile",
+                    "-i", icons[new_profile],
+                    "-t", "2500",
+                    titles[new_profile],
+                    descs[new_profile]
+                ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception as e:
+        log(f"Platform profile watcher error: {e}")
+
 def main():
     lock_file = open("/tmp/hypr-monitor-watcher.lock", "w")
     try:
@@ -153,6 +207,10 @@ def main():
         sys.exit(0)
 
     log("Starting Hyprland Kernel Uevent Monitor Watcher...")
+
+    # Start ACPI platform profile watcher in background thread
+    profile_thread = threading.Thread(target=watch_platform_profile, daemon=True)
+    profile_thread.start()
 
     # Initialize physical DRM connection state
     last_drm_connected = has_connected_external()
