@@ -3,8 +3,8 @@
     "logo": {
         "source": "~/.config/fastfetch/logos/current",
         "type": "auto",
-        "width": 30,
-        "height": 15,
+        "width": 20,
+        "height": 10,
         "padding": {
             "top": 0,
             "right": 3
