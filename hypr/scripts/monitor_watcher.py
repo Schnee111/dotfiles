@@ -43,8 +43,43 @@ def ensure_quickshell():
     except Exception as e:
         log(f"Error checking quickshell: {e}")
 
+last_action_time = 0.0
+
+def is_laptop_only_active():
+    try:
+        if os.path.exists(MONITORS_LUA):
+            with open(MONITORS_LUA, "r") as f:
+                c = f.read()
+            if 'output = "eDP-1"' in c and 'output = "HDMI-A-1"' in c:
+                edp_part = c.split('output = "eDP-1"')[1].split("hl.monitor")[0]
+                hdmi_part = c.split('output = "HDMI-A-1"')[1]
+                if "disabled = true" not in edp_part and "disabled = true" in hdmi_part:
+                    return True
+    except Exception:
+        pass
+    return False
+
+def is_external_only_active():
+    try:
+        if os.path.exists(MONITORS_LUA):
+            with open(MONITORS_LUA, "r") as f:
+                c = f.read()
+            if 'output = "eDP-1"' in c and 'output = "HDMI-A-1"' in c:
+                edp_part = c.split('output = "eDP-1"')[1].split("hl.monitor")[0]
+                hdmi_part = c.split('output = "HDMI-A-1"')[1]
+                if "disabled = true" in edp_part and "disabled = true" not in hdmi_part:
+                    return True
+    except Exception:
+        pass
+    return False
+
 def restore_laptop_display():
     """Switches to Laptop Only mode (eDP-1 @ 2880x1800@90, scale 1.5)."""
+    global last_action_time
+    if time.time() - last_action_time < 2.0 or is_laptop_only_active():
+        return
+    last_action_time = time.time()
+
     log("Restoring laptop screen (eDP-1)...")
 
     # Update monitors.lua
@@ -84,6 +119,11 @@ hl.monitor({
 
 def activate_external_display():
     """Switches to External Monitor Only (HDMI-A-1 @ 1920x1080@200, scale 1)."""
+    global last_action_time
+    if time.time() - last_action_time < 2.0 or is_external_only_active():
+        return
+    last_action_time = time.time()
+
     log("External display detected. Docking to External Only (HDMI-A-1)...")
 
     # Update monitors.lua
@@ -152,12 +192,9 @@ def main():
     if not has_connected_external():
         log("No external monitor connected at launch.")
         try:
-            if os.path.exists(MONITORS_LUA):
-                with open(MONITORS_LUA, "r") as f:
-                    content = f.read()
-                if 'output = "eDP-1"' in content and 'disabled = true' in content:
-                    log("Warning: monitors.lua has eDP-1 disabled without external monitor! Restoring...")
-                    restore_laptop_display()
+            if not is_laptop_only_active():
+                log("Warning: monitors.lua has eDP-1 not active without external monitor! Restoring...")
+                restore_laptop_display()
         except Exception as e:
             log(f"Initial check error: {e}")
 
