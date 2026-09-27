@@ -8,7 +8,9 @@ if [[ $# -eq 0 ]]; then
     echo ""
     echo "Available anime logos:"
     echo "  [ASCII / Text Art]"
-    echo "    - megumin         : Megumin (Konosuba) ASCII art (compact)"
+    echo "    - cute_frieren    : Frieren detailed portrait ASCII (16 lines, pas)"
+    echo "    - megumin         : Megumin (Konosuba) ASCII art (14 lines, compact)"
+    echo "    - anime_girl      : Detailed anime girl bust ASCII (original proportion)"
     echo "    - uwu             : Anime Girl face ASCII art (compact)"
     echo "    - anya            : Anya Forger (Spy x Family) ASCII art"
     echo "    - frieren_ascii   : Frieren ASCII art (compact)"
@@ -24,6 +26,7 @@ if [[ $# -eq 0 ]]; then
 fi
 
 case "$1" in
+    cute_frieren)     TARGET="cute_frieren.txt" ;;
     megumin)          TARGET="megumin_ascii.txt" ;;
     uwu)              TARGET="uwu_ascii.txt" ;;
     anya)             TARGET="anya_ascii.txt" ;;
