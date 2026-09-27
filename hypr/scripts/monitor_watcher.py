@@ -189,7 +189,7 @@ def watch_platform_profile():
                 log(f"Platform profile changed: {new_profile}")
                 subprocess.Popen([
                     "notify-send", "-a", "Power Profile",
-                    "-i", icons[new_profile],
+                    "-i", "power",
                     "-t", "2500",
                     titles[new_profile],
                     descs[new_profile]

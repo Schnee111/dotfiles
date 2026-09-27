@@ -17,12 +17,12 @@ if [[ "$CURRENT_VAL" -le 80 ]]; then
     NEW_VAL=100
     MSG_TITLE="Battery Limit: 100%"
     MSG_DESC="Full capacity charging active. Ideal for travel."
-    ICON="battery-full-charging-symbolic"
+    ICON="power"
 else
     NEW_VAL=80
     MSG_TITLE="Battery Limit: 80%"
     MSG_DESC="Battery health protection active. Ideal for AC plug."
-    ICON="battery-charging-symbolic"
+    ICON="power"
 fi
 
 apply_limit() {

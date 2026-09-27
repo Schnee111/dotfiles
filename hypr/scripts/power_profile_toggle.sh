@@ -18,19 +18,19 @@ case "$CURRENT_PROFILE" in
         NEW_PROFILE="balanced"
         MSG_TITLE="Power Mode: Balanced"
         MSG_DESC="Standard dynamic fan & performance scaling."
-        ICON="power-profile-balanced-symbolic"
+        ICON="power"
         ;;
     "balanced")
         NEW_PROFILE="performance"
         MSG_TITLE="Power Mode: Performance"
         MSG_DESC="Turbo cooling & maximum performance active."
-        ICON="power-profile-performance-symbolic"
+        ICON="power"
         ;;
     "performance"|*)
         NEW_PROFILE="quiet"
         MSG_TITLE="Power Mode: Quiet"
         MSG_DESC="Whisper silent fans & power saving active."
-        ICON="power-profile-power-saver-symbolic"
+        ICON="power"
         ;;
 esac
 
