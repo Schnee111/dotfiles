@@ -14,3 +14,11 @@ hl.monitor({
     position = "auto",
     scale = 1,
 })
+
+-- Prevent DPMS wake race condition from triggering lockdead ("Oopsie daisy") emergency screen
+hl.config({
+    misc = {
+        lockdead_screen_delay = 100000000,
+        allow_session_lock_restore = true,
+    }
+})
