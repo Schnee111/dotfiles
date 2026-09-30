@@ -20,5 +20,8 @@ hl.config({
     misc = {
         lockdead_screen_delay = 100000000,
         allow_session_lock_restore = true,
+    },
+    render = {
+        direct_scanout = 1,
     }
 })

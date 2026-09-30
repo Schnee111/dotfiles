@@ -17,8 +17,9 @@ hl.window_rule({ match = { class = "^(Hermes|com\\.nousresearch\\.hermes)$" }, w
 -- Workspace 4: Google Chrome
 hl.window_rule({ match = { class = "^(google-chrome)$" }, workspace = "4 silent" })
 
--- Workspace 5: osu!
-hl.window_rule({ match = { class = "^(osu!\\.exe)$" }, workspace = "5" })
+-- osu! (free workspace, allow tearing for low latency & disable compositor blur)
+hl.window_rule({ match = { class = "^(osu!\\.exe)$" }, immediate = true })
+hl.window_rule({ match = { class = "^(osu!\\.exe)$" }, no_blur = true })
 
 -- Workspace 6: Pinterest PWA, Firefox, and Ptyxis btop
 hl.window_rule({ match = { class = "^(chrome-.*fbibgohghoobeeljoejfdmdhgoadhjbc.*)$" }, workspace = "6 silent" })

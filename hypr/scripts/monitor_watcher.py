@@ -45,6 +45,23 @@ def ensure_quickshell():
 
 last_action_time = 0.0
 
+def is_dpms_off():
+    """Checks if Hyprland has disabled DPMS (displays powered down for idle/sleep)."""
+    try:
+        res = subprocess.run(
+            ["hyprctl", "monitors", "all", "-j"],
+            capture_output=True, text=True, timeout=1
+        )
+        if res.returncode == 0:
+            import json
+            monitors = json.loads(res.stdout)
+            for m in monitors:
+                if not m.get("dpmsStatus", True):
+                    return True
+    except Exception:
+        pass
+    return False
+
 def restore_laptop_display():
     """Switches to Laptop Only mode (eDP-1 @ 2880x1800@90, scale 1.5)."""
     global last_action_time
@@ -65,6 +82,13 @@ def restore_laptop_display():
 hl.monitor({
     output = "HDMI-A-1",
     disabled = true,
+})
+
+hl.monitor({
+    output = "FALLBACK",
+    mode = "1920x1080@60",
+    position = "auto",
+    scale = 1,
 })
 """
     try:
@@ -106,6 +130,13 @@ hl.monitor({
     position = "1920x0",
     scale = 1.5,
 })
+
+hl.monitor({
+    output = "FALLBACK",
+    mode = "1920x1080@60",
+    position = "auto",
+    scale = 1,
+})
 """
     try:
         with open(MONITORS_LUA, "w") as f:
@@ -127,6 +158,13 @@ hl.monitor({
 hl.monitor({
     output = "eDP-1",
     disabled = true,
+})
+
+hl.monitor({
+    output = "FALLBACK",
+    mode = "1920x1080@60",
+    position = "auto",
+    scale = 1,
 })
 """
     try:
@@ -248,6 +286,11 @@ def main():
                         time.sleep(1.2)
                         current = has_connected_external()
 
+                    # Guard against DPMS sleep falsely looking like a physical disconnect:
+                    if not current and is_dpms_off():
+                        log("DRM disconnect signal received while DPMS is OFF (monitor sleeping). Skipping switch.")
+                        continue
+
                     if current != last_drm_connected:
                         log(f"Confirmed hardware cable event: {last_drm_connected} -> {current}")
                         last_drm_connected = current
@@ -262,6 +305,10 @@ def main():
             if not current:
                 time.sleep(1.2)
                 current = has_connected_external()
+
+            if not current and is_dpms_off():
+                continue
+
             if current != last_drm_connected:
                 log(f"Polling detected state change: {last_drm_connected} -> {current}")
                 last_drm_connected = current
