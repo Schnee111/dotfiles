@@ -38,3 +38,9 @@ hl.window_rule({ match = { class = "^(spotify)$" }, workspace = "8 silent" })
 
 -- Headless monitor anchor: isolate virtual display from active user workspaces
 hl.workspace_rule({ workspace = "99", monitor = "HEADLESS-1", default = true })
+
+-- Tablet input mapping: bind OpenTabletDriver directly to current focused display
+hl.device({
+    name = "opentabletdriver-virtual-artist-tablet",
+    output = "current",
+})
