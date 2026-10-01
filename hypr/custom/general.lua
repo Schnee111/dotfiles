@@ -22,6 +22,6 @@ hl.config({
         allow_session_lock_restore = true,
     },
     render = {
-        direct_scanout = 1,
+        direct_scanout = 0,
     }
 })
