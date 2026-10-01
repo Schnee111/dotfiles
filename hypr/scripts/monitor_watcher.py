@@ -47,6 +47,11 @@ last_action_time = 0.0
 
 def is_dpms_off():
     """Checks if Hyprland has disabled DPMS (displays powered down for idle/sleep)."""
+    # 1. State marker from hypridle (most accurate & immediate)
+    if os.path.exists("/tmp/hypr-dpms-sleeping"):
+        return True
+
+    # 2. Check Hyprland monitors json as secondary source
     try:
         res = subprocess.run(
             ["hyprctl", "monitors", "all", "-j"],
