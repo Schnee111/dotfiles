@@ -17,8 +17,17 @@ local function is_external_connected()
     return false
 end
 
--- If external monitor is NOT physically connected, enforce internal laptop screen
-if not is_external_connected() then
+local function is_dpms_sleeping()
+    local f = io.open("/tmp/hypr-dpms-sleeping", "r")
+    if f then
+        f:close()
+        return true
+    end
+    return false
+end
+
+-- If external monitor is NOT physically connected and not DPMS sleeping, enforce internal laptop screen
+if not is_external_connected() and not is_dpms_sleeping() then
     hl.monitor({
         output = "eDP-1",
         mode = "2880x1800@90",
@@ -29,5 +38,11 @@ if not is_external_connected() then
     hl.monitor({
         output = "HDMI-A-1",
         disabled = true,
+    })
+    hl.monitor({
+        output = "HEADLESS-1",
+        mode = "1920x1080@60",
+        position = "99999x99999",
+        scale = 1,
     })
 end

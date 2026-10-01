@@ -68,9 +68,9 @@ hl.monitor({
 })
 
 hl.monitor({
-    output = "FALLBACK",
+    output = "HEADLESS-1",
     mode = "1920x1080@60",
-    position = "auto",
+    position = "99999x99999",
     scale = 1,
 })
 EOF
@@ -92,9 +92,9 @@ hl.monitor({
 })
 
 hl.monitor({
-    output = "FALLBACK",
+    output = "HEADLESS-1",
     mode = "1920x1080@60",
-    position = "auto",
+    position = "99999x99999",
     scale = 1,
 })
 EOF
@@ -121,9 +121,9 @@ hl.monitor({
 })
 
 hl.monitor({
-    output = "FALLBACK",
+    output = "HEADLESS-1",
     mode = "1920x1080@60",
-    position = "auto",
+    position = "99999x99999",
     scale = 1,
 })
 EOF
@@ -145,9 +145,9 @@ hl.monitor({
 })
 
 hl.monitor({
-    output = "FALLBACK",
+    output = "HEADLESS-1",
     mode = "1920x1080@60",
-    position = "auto",
+    position = "99999x99999",
     scale = 1,
 })
 EOF
@@ -178,9 +178,9 @@ hl.monitor({
 })
 
 hl.monitor({
-    output = "FALLBACK",
+    output = "HEADLESS-1",
     mode = "1920x1080@60",
-    position = "auto",
+    position = "99999x99999",
     scale = 1,
 })
 EOF

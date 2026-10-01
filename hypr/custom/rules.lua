@@ -35,3 +35,6 @@ hl.window_rule({ match = { class = "^(discord)$" }, workspace = "8 silent" })
 hl.window_rule({ match = { class = "^(discord)$" }, no_blur = false })
 hl.window_rule({ match = { class = "^(kitty-ws8)$" }, workspace = "8 silent" })
 hl.window_rule({ match = { class = "^(spotify)$" }, workspace = "8 silent" })
+
+-- Headless monitor anchor: isolate virtual display from active user workspaces
+hl.workspace_rule({ workspace = "99", monitor = "HEADLESS-1", default = true })
