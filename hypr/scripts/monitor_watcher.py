@@ -67,20 +67,6 @@ def is_dpms_off():
         pass
     return False
 
-def ensure_headless():
-    """Ensures persistent headless output anchor exists in Hyprland to prevent 0-output crash."""
-    try:
-        res = subprocess.run(["hyprctl", "monitors", "all", "-j"], capture_output=True, text=True, timeout=1)
-        if res.returncode == 0:
-            import json
-            for m in json.loads(res.stdout):
-                if m.get("name") == "HEADLESS-1":
-                    return
-        subprocess.run(["hyprctl", "output", "create", "headless", "HEADLESS-1"],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2)
-    except Exception:
-        pass
-
 def restore_laptop_display():
     """Switches to Laptop Only mode (eDP-1 @ 2880x1800@90, scale 1.5)."""
     global last_action_time
@@ -102,13 +88,6 @@ hl.monitor({
     output = "HDMI-A-1",
     disabled = true,
 })
-
-hl.monitor({
-    output = "HEADLESS-1",
-    mode = "1920x1080@60",
-    position = "0x0",
-    scale = 1,
-})
 """
     try:
         with open(MONITORS_LUA, "w") as f:
@@ -119,7 +98,6 @@ hl.monitor({
 
     time.sleep(0.5)
     ensure_quickshell()
-    ensure_headless()
 
     subprocess.Popen([
         "notify-send", "-t", "2500", "-a", "Display", "Display Output",
@@ -150,13 +128,6 @@ hl.monitor({
     position = "1920x0",
     scale = 1.5,
 })
-
-hl.monitor({
-    output = "HEADLESS-1",
-    mode = "1920x1080@60",
-    position = "0x0",
-    scale = 1,
-})
 """
     try:
         with open(MONITORS_LUA, "w") as f:
@@ -179,13 +150,6 @@ hl.monitor({
     output = "eDP-1",
     disabled = true,
 })
-
-hl.monitor({
-    output = "HEADLESS-1",
-    mode = "1920x1080@60",
-    position = "0x0",
-    scale = 1,
-})
 """
     try:
         with open(MONITORS_LUA, "w") as f:
@@ -196,7 +160,6 @@ hl.monitor({
 
     time.sleep(0.5)
     ensure_quickshell()
-    ensure_headless()
 
     subprocess.Popen([
         "notify-send", "-t", "2500", "-a", "Display", "Display Output",
@@ -266,7 +229,6 @@ def main():
         sys.exit(0)
 
     log("Starting Hyprland Kernel Uevent Monitor Watcher...")
-    ensure_headless()
 
     # Start ACPI platform profile watcher in background thread
     profile_thread = threading.Thread(target=watch_platform_profile, daemon=True)

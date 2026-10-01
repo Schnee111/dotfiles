@@ -39,10 +39,4 @@ if not is_external_connected() and not is_dpms_sleeping() then
         output = "HDMI-A-1",
         disabled = true,
     })
-    hl.monitor({
-        output = "HEADLESS-1",
-        mode = "1920x1080@60",
-        position = "0x0",
-        scale = 1,
-    })
 end
