@@ -67,6 +67,14 @@ def is_dpms_off():
         pass
     return False
 
+def is_session_locked():
+    """Checks if Hyprland session is currently locked."""
+    try:
+        res = subprocess.run(["hyprctl", "locked"], capture_output=True, text=True, timeout=1)
+        return res.stdout.strip().lower() == "true"
+    except Exception:
+        return False
+
 def restore_laptop_display():
     """Switches to Laptop Only mode (eDP-1 @ 2880x1800@90, scale 1.5)."""
     global last_action_time
@@ -271,8 +279,8 @@ def main():
                         current = has_connected_external()
 
                     # Guard against DPMS sleep falsely looking like a physical disconnect:
-                    if not current and is_dpms_off():
-                        log("DRM disconnect signal received while DPMS is OFF (monitor sleeping). Skipping switch.")
+                    if not current and (is_dpms_off() or is_session_locked()):
+                        log("DRM disconnect signal received while DPMS is OFF or session is LOCKED. Skipping switch.")
                         continue
 
                     if current != last_drm_connected:
@@ -290,7 +298,7 @@ def main():
                 time.sleep(1.2)
                 current = has_connected_external()
 
-            if not current and is_dpms_off():
+            if not current and (is_dpms_off() or is_session_locked()):
                 continue
 
             if current != last_drm_connected:
