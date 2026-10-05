@@ -16,3 +16,10 @@ user_pref("browser.tabs.groups.hoverPreview.enabled", true);
 user_pref("browser.tabs.groups.smart.enabled", true);
 user_pref("sidebar.revamp", true);
 user_pref("sidebar.verticalTabs", true);
+
+/* Memory & Performance Tuning */
+user_pref("browser.sessionhistory.max_total_viewers", 2);  /* Limit back/forward cached pages in RAM (default -1 hoards up to 8 per tab) */
+user_pref("browser.cache.memory.capacity", 262144);        /* Cap memory cache to 256MB */
+user_pref("browser.tabs.unloadOnLowMemory", true);         /* Auto-discard background tabs when system memory is constrained */
+user_pref("image.mem.discardable", true);                  /* Discard decoded images of inactive tabs */
+user_pref("browser.sessionstore.interval", 60000);         /* Session write interval: 60s instead of 15s */
