@@ -14,7 +14,7 @@ if [[ -f "$FLAG" ]]; then
         python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "0.7"
     fi
     hyprctl reload
-    notify-send -a "Window Opacity" -i "$ICON_GLASS" "Window Opacity" "Mode: Frosted Glass (80% / 70%)" -t 1500
+    notify-send -a "Window Opacity" -n "blur_on" "Window Opacity" "Mode: Frosted Glass (80% / 70%)" -t 1500
 else
     touch "$FLAG"
     if [[ -f "$CONFIGURATOR" && -f "$MAIN_LUA" ]]; then
@@ -22,5 +22,5 @@ else
         python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "1.0"
     fi
     hyprctl reload
-    notify-send -a "Window Opacity" -i "$ICON_SOLID" "Window Opacity" "Mode: Solid / Focus (100%)" -t 1500
+    notify-send -a "Window Opacity" -n "contrast" "Window Opacity" "Mode: Solid / Focus (100%)" -t 1500
 fi
