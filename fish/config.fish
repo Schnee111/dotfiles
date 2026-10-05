@@ -36,3 +36,6 @@ end
 
 # Added by Antigravity CLI installer
 set -gx PATH "/home/schnee/.local/bin" $PATH
+if test -f "$HOME/.cargo/env.fish"
+    source "$HOME/.cargo/env.fish"
+end
