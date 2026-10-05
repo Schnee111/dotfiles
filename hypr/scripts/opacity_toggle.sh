@@ -14,7 +14,7 @@ if [[ -f "$FLAG" ]]; then
         python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "0.7"
     fi
     hyprctl reload
-    pw-play /usr/share/sounds/gnome/default/alerts/string.ogg 2>/dev/null &
+    pw-play "$HOME/.local/share/sounds/macos/Bottle.aiff" 2>/dev/null &
     notify-send -a "Window Opacity" -n "blur_on" "Window Opacity" "Mode: Frosted Glass (80% / 70%)" -t 1500
 else
     touch "$FLAG"
@@ -23,6 +23,6 @@ else
         python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "1.0"
     fi
     hyprctl reload
-    pw-play /usr/share/sounds/gnome/default/alerts/string.ogg 2>/dev/null &
+    pw-play "$HOME/.local/share/sounds/macos/Bottle.aiff" 2>/dev/null &
     notify-send -a "Window Opacity" -n "contrast" "Window Opacity" "Mode: Solid / Focus (100%)" -t 1500
 fi

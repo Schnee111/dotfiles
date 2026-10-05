@@ -19,21 +19,21 @@ case "$CURRENT_PROFILE" in
         MSG_TITLE="Power Mode: Balanced"
         MSG_DESC="Standard dynamic fan & performance scaling."
         ICON="power"
-        SOUND="/usr/share/sounds/gnome/default/alerts/click.ogg"
+        SOUND="$HOME/.local/share/sounds/macos/Pop.aiff"
         ;;
     "balanced")
         NEW_PROFILE="performance"
         MSG_TITLE="Power Mode: Performance"
         MSG_DESC="Turbo cooling & maximum performance active."
         ICON="power"
-        SOUND="/usr/share/sounds/gnome/default/alerts/swing.ogg"
+        SOUND="$HOME/.local/share/sounds/macos/Hero.aiff"
         ;;
     "performance"|*)
         NEW_PROFILE="quiet"
         MSG_TITLE="Power Mode: Quiet"
         MSG_DESC="Whisper silent fans & power saving active."
         ICON="power"
-        SOUND="/usr/share/sounds/gnome/default/alerts/hum.ogg"
+        SOUND="$HOME/.local/share/sounds/macos/Blow.aiff"
         ;;
 esac
 
