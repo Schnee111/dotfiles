@@ -18,11 +18,13 @@ if [[ "$CURRENT_VAL" -le 80 ]]; then
     MSG_TITLE="Battery Limit: 100%"
     MSG_DESC="Full capacity charging active. Ideal for travel."
     ICON="power"
+    SOUND="/usr/share/sounds/ocean/stereo/completion-success.oga"
 else
     NEW_VAL=80
     MSG_TITLE="Battery Limit: 80%"
     MSG_DESC="Battery health protection active. Ideal for AC plug."
     ICON="power"
+    SOUND="/usr/share/sounds/ocean/stereo/power-plug.oga"
 fi
 
 apply_limit() {
@@ -37,6 +39,7 @@ apply_limit() {
 }
 
 if apply_limit "$NEW_VAL"; then
+    pw-play "$SOUND" 2>/dev/null &
     notify-send -a "Battery Care" -i "$ICON" "$MSG_TITLE" "$MSG_DESC" -t 2500
 else
     notify-send -a "Battery Care" -n "error" "Battery Limit Failed" "Permission denied. Run ~/Projects/dotfiles/setup_power_permissions.sh" -t 3500

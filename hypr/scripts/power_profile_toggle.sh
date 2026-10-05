@@ -19,18 +19,21 @@ case "$CURRENT_PROFILE" in
         MSG_TITLE="Power Mode: Balanced"
         MSG_DESC="Standard dynamic fan & performance scaling."
         ICON="power"
+        SOUND="/usr/share/sounds/gnome/default/alerts/click.ogg"
         ;;
     "balanced")
         NEW_PROFILE="performance"
         MSG_TITLE="Power Mode: Performance"
         MSG_DESC="Turbo cooling & maximum performance active."
         ICON="power"
+        SOUND="/usr/share/sounds/gnome/default/alerts/swing.ogg"
         ;;
     "performance"|*)
         NEW_PROFILE="quiet"
         MSG_TITLE="Power Mode: Quiet"
         MSG_DESC="Whisper silent fans & power saving active."
         ICON="power"
+        SOUND="/usr/share/sounds/gnome/default/alerts/hum.ogg"
         ;;
 esac
 
@@ -46,8 +49,9 @@ apply_profile() {
 }
 
 if apply_profile "$NEW_PROFILE"; then
-    # If watcher is not running, send notification directly
+    # If watcher is not running, play sound and send notification directly
     if ! pgrep -f "monitor_watcher.py" >/dev/null 2>&1; then
+        pw-play "$SOUND" 2>/dev/null &
         notify-send -a "Power Profile" -n "speed" "$MSG_TITLE" "$MSG_DESC" -t 2500
     fi
 else

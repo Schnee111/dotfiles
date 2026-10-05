@@ -85,6 +85,7 @@ hl.monitor({
 })
 EOF
         hyprctl reload >/dev/null 2>&1
+        pw-play /usr/share/sounds/ocean/stereo/device-added.oga 2>/dev/null &
         notify-send -t 2000 -a "Display" -n "desktop_windows" "Display Output" "External Monitor Only (1080p @ 200Hz)" &
         ;;
 
@@ -124,6 +125,7 @@ hl.monitor({
 })
 EOF
         hyprctl reload >/dev/null 2>&1
+        pw-play /usr/share/sounds/ocean/stereo/device-removed.oga 2>/dev/null &
         notify-send -t 2000 -a "Display" -n "laptop_chromebook" "Display Output" "Laptop Screen Only (2.8K @ 90Hz, Scale 1.5)" &
         ;;
 
@@ -150,6 +152,7 @@ hl.monitor({
 })
 EOF
         hyprctl reload >/dev/null 2>&1
+        pw-play /usr/share/sounds/ocean/stereo/device-added.oga 2>/dev/null &
         notify-send -t 2000 -a "Display" -n "devices" "Display Output" "Extended Displays (Dual Screen)" &
         ;;
 esac

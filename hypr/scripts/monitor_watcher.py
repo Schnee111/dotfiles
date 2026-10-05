@@ -107,6 +107,7 @@ hl.monitor({
     time.sleep(0.5)
     ensure_quickshell()
 
+    subprocess.Popen(["pw-play", "/usr/share/sounds/ocean/stereo/device-removed.oga"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.Popen([
         "notify-send", "-t", "2500", "-a", "Display", "Display Output",
         "External monitor disconnected. Laptop display restored.",
@@ -169,6 +170,7 @@ hl.monitor({
     time.sleep(0.5)
     ensure_quickshell()
 
+    subprocess.Popen(["pw-play", "/usr/share/sounds/ocean/stereo/device-added.oga"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.Popen([
         "notify-send", "-t", "2500", "-a", "Display", "Display Output",
         "External monitor connected. Switched to External Only (1080p @ 200Hz).",
@@ -217,6 +219,13 @@ def watch_platform_profile():
             if new_profile != last_profile and new_profile in icons:
                 last_profile = new_profile
                 log(f"Platform profile changed: {new_profile}")
+                sounds = {
+                    "quiet": "/usr/share/sounds/gnome/default/alerts/hum.ogg",
+                    "balanced": "/usr/share/sounds/gnome/default/alerts/click.ogg",
+                    "performance": "/usr/share/sounds/gnome/default/alerts/swing.ogg",
+                }
+                if new_profile in sounds:
+                    subprocess.Popen(["pw-play", sounds[new_profile]], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 subprocess.Popen([
                     "notify-send", "-a", "Power Profile",
                     "-i", "power",
