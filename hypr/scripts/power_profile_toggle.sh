@@ -7,7 +7,7 @@ set -euo pipefail
 SYSFS_PROFILE="/sys/firmware/acpi/platform_profile"
 
 if [[ ! -f "$SYSFS_PROFILE" ]]; then
-    notify-send -a "Power Profile" -i "dialog-error" "Power Profile Error" "Platform profile is not supported on this device." -t 3000
+    notify-send -a "Power Profile" -n "error" "Power Profile Error" "Platform profile is not supported on this device." -t 3000
     exit 1
 fi
 
@@ -48,9 +48,9 @@ apply_profile() {
 if apply_profile "$NEW_PROFILE"; then
     # If watcher is not running, send notification directly
     if ! pgrep -f "monitor_watcher.py" >/dev/null 2>&1; then
-        notify-send -a "Power Profile" -i "$ICON" "$MSG_TITLE" "$MSG_DESC" -t 2500
+        notify-send -a "Power Profile" -n "speed" "$MSG_TITLE" "$MSG_DESC" -t 2500
     fi
 else
-    notify-send -a "Power Profile" -i "dialog-error" "Power Profile Failed" "Permission denied. Run ~/Projects/dotfiles/setup_power_permissions.sh" -t 3500
+    notify-send -a "Power Profile" -n "error" "Power Profile Failed" "Permission denied. Run ~/Projects/dotfiles/setup_power_permissions.sh" -t 3500
     exit 1
 fi

@@ -7,7 +7,7 @@ set -euo pipefail
 SYSFS_BAT="/sys/class/power_supply/BAT0/charge_control_end_threshold"
 
 if [[ ! -f "$SYSFS_BAT" ]]; then
-    notify-send -a "Battery Care" -i "dialog-error" "Battery Limit Error" "Hardware charge threshold is not supported on this device." -t 3000
+    notify-send -a "Battery Care" -n "error" "Battery Limit Error" "Hardware charge threshold is not supported on this device." -t 3000
     exit 1
 fi
 
@@ -37,8 +37,8 @@ apply_limit() {
 }
 
 if apply_limit "$NEW_VAL"; then
-    notify-send -a "Battery Care" -i "$ICON" "$MSG_TITLE" "$MSG_DESC" -t 2500
+    notify-send -a "Battery Care" -n "battery_charging_full" "$MSG_TITLE" "$MSG_DESC" -t 2500
 else
-    notify-send -a "Battery Care" -i "dialog-error" "Battery Limit Failed" "Permission denied. Run ~/Projects/dotfiles/setup_power_permissions.sh" -t 3500
+    notify-send -a "Battery Care" -n "error" "Battery Limit Failed" "Permission denied. Run ~/Projects/dotfiles/setup_power_permissions.sh" -t 3500
     exit 1
 fi
