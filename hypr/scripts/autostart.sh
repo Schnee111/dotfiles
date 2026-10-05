@@ -33,12 +33,12 @@ sleep 0.3
 # ------------------------------------------------------------------------------
 # Workspace 4: Google Chrome
 # ------------------------------------------------------------------------------
-flatpak run com.google.Chrome &
+google-chrome-stable &
 
 # ------------------------------------------------------------------------------
 # Workspace 6: Pinterest (left), Firefox (top-right), Ptyxis btop (bottom-right)
 # ------------------------------------------------------------------------------
-flatpak run --command=/app/bin/chrome com.google.Chrome --profile-directory=Default --app-id=fbibgohghoobeeljoejfdmdhgoadhjbc &
+google-chrome-stable --profile-directory=Default --app-id=fbibgohghoobeeljoejfdmdhgoadhjbc &
 sleep 0.6
 firefox &
 sleep 0.6
@@ -71,3 +71,6 @@ sleep 0.5
 hyprctl dispatch workspace 2
 sleep 0.2
 hyprctl dispatch focuswindow class:kitty-main
+
+# Apply adaptive smoked glass based on current wallpaper
+/home/schnee/.config/hypr/scripts/apply_adaptive_glass.sh &
