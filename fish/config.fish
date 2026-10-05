@@ -32,3 +32,7 @@ if status is-interactive
         alias ssh 'kitten ssh'
     end
 end
+
+
+# Added by Antigravity CLI installer
+set -gx PATH "/home/schnee/.local/bin" $PATH
