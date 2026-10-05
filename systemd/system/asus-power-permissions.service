@@ -1,0 +1,11 @@
+[Unit]
+Description=Ensure Permissions for ASUS Power Controls (Battery & Thermal Profiles)
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'chmod 0666 /sys/class/power_supply/BAT0/charge_control_end_threshold /sys/firmware/acpi/platform_profile /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy 2>/dev/null || true'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

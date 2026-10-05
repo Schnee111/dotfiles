@@ -1,0 +1,10 @@
+/* Allow user to toggle ASUS platform_profile via pkexec without password */
+polkit.addRule(function(action, subject) {
+    if (action.id === "org.freedesktop.policykit.exec" &&
+        action.lookup("program") === "/usr/bin/bash" &&
+        action.lookup("command_line") &&
+        action.lookup("command_line").indexOf("/sys/firmware/acpi/platform_profile") !== -1 &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});

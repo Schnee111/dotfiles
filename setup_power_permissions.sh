@@ -18,9 +18,19 @@ cp "$DOTFILES_DIR/udev/98-asus-power.rules" /etc/udev/rules.d/98-asus-power.rule
 echo "2. Installing tmpfiles config (/etc/tmpfiles.d/asus-power.conf)..."
 cp "$DOTFILES_DIR/tmpfiles/asus-power.conf" /etc/tmpfiles.d/asus-power.conf
 
-echo "3. Reloading udev rules & applying permissions..."
+echo "3. Installing systemd boot service (/etc/systemd/system/asus-power-permissions.service)..."
+cp "$DOTFILES_DIR/systemd/system/asus-power-permissions.service" /etc/systemd/system/asus-power-permissions.service
+systemctl daemon-reload
+systemctl enable --now asus-power-permissions.service >/dev/null 2>&1 || true
+
+echo "4. Installing polkit rule (/etc/polkit-1/rules.d/90-asus-power.rules)..."
+mkdir -p /etc/polkit-1/rules.d
+cp "$DOTFILES_DIR/polkit/90-asus-power.rules" /etc/polkit-1/rules.d/90-asus-power.rules
+
+echo "5. Reloading udev rules & applying permissions..."
 udevadm control --reload
 udevadm trigger --subsystem-match=power_supply || true
+udevadm trigger --subsystem-match=platform || true
 systemd-tmpfiles --create /etc/tmpfiles.d/asus-power.conf || true
 
 # Explicitly ensure permissions right now

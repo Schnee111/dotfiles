@@ -1,3 +1,6 @@
 # ASUS Battery Care: default to 80% charge limit only on device add, and keep non-root control
 SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="add", ATTR{charge_control_end_threshold}="80"
 SUBSYSTEM=="power_supply", KERNEL=="BAT0", RUN+="/bin/chmod 0666 /sys/class/power_supply/BAT0/charge_control_end_threshold"
+
+# ASUS Platform Profile & Thermal Policy non-root control
+SUBSYSTEM=="platform", KERNEL=="asus-nb-wmi", RUN+="/bin/chmod 0666 /sys/firmware/acpi/platform_profile /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"
