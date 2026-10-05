@@ -7,6 +7,7 @@ hl.bind("SUPER + F8", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/display
 hl.bind("SUPER + P", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/display_switch.sh"), {description = "Display switch menu"})
 hl.bind("SUPER + Space", hl.dsp.exec_cmd("/home/schnee/.config/rofi/launcher.sh"), {description = "App Launcher: Launchpad Grid"})
 hl.bind("SUPER + ALT + V", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/audio_output_toggle.sh"), {description = "Audio: Toggle Headset / Laptop Speaker"})
+hl.bind("SUPER + ALT + O", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/opacity_toggle.sh"), {description = "Appearance: Toggle Frosted Glass / Solid Mode"})
 
 -- Battery & Power Management
 hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/battery_limit_toggle.sh"), {description = "Battery: Toggle 80% / 100% Charge Limit"})
