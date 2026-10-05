@@ -1,0 +1,392 @@
+/* ==========================================================================
+   Chrome-Style Pastel Tab Groups & Frosted Glass Theme for Firefox (Hyprland / Linux)
+   ========================================================================== */
+
+:root {
+  /* Translucent Frosted Glass Palette */
+  --gnome-toolbar-background: rgba(18, 20, 24, 0.20) !important;
+  --gnome-headerbar-background: rgba(18, 20, 24, 0.20) !important;
+  --gnome-tabstoolbar-background: rgba(12, 14, 18, 0.12) !important;
+  --gnome-sidebar-background: rgba(18, 20, 25, 0.35) !important;
+  --gnome-inactive-toolbar-background: rgba(14, 16, 20, 0.15) !important;
+  --gnome-toolbar-border-color: rgba(255, 255, 255, 0.05) !important;
+  --gnome-inactive-toolbar-border-color: rgba(255, 255, 255, 0.02) !important;
+  --gnome-content-page-background: transparent !important;
+
+  /* Dimensions */
+  --toolbarbutton-border-radius: 8px !important;
+  --urlbar-icon-border-radius: 6px !important;
+
+}
+
+/* 1. Main Navigation Header Strip */
+#navigator-toolbox {
+  background-color: rgba(16, 18, 22, 0.25) !important;
+  backdrop-filter: blur(28px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+#nav-bar {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 4px 8px !important;
+}
+
+#TabsToolbar {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+#PersonalToolbar {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* 2. Chrome / Safari Centered Capsule URL Bar */
+#urlbar-container {
+  max-width: 720px !important;
+  margin: 0 auto !important;
+}
+
+#urlbar-background {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.2s ease !important;
+}
+
+#urlbar:not([focused="true"]):hover #urlbar-background {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+#urlbar[focused="true"] #urlbar-background {
+  background-color: rgba(24, 26, 32, 0.90) !important;
+  border-color: rgba(70, 130, 245, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.20), 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+#urlbar-input {
+  text-align: center !important;
+  font-size: 13.5px !important;
+}
+
+#urlbar[focused="true"] #urlbar-input {
+  text-align: left !important;
+}
+
+/* 3. Traffic Lights (Window Controls) */
+.titlebutton-close:hover,
+.titlebutton-minimize:hover,
+.titlebutton-maximize:hover,
+.titlebutton-restore:hover {
+  transform: scale(1.08) !important;
+}
+
+/* ==========================================================================
+   4. CHROME-IDENTICAL VERTICAL TAB GROUPS & SIDEBAR (PIXEL PER PIXEL)
+   ========================================================================== */
+
+/* Remove ALL harsh white outlines & borders across sidebar */
+#sidebar-main,
+#sidebar-box,
+#sidebar,
+.sidebar-panel,
+#tabbrowser-tabs,
+.tabbrowser-tab,
+.tab-background,
+tab-group,
+.tab-group-label-container,
+.tab-group-label-hover-highlight,
+.tab-group-label,
+.workspace-button,
+.container-button,
+.button-background {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Sidebar Container (Frosted Glass) */
+#sidebar-main,
+#sidebar-box,
+#sidebar,
+.sidebar-panel[lwt-sidebar] {
+  background-color: rgba(20, 22, 27, 0.70) !important;
+  backdrop-filter: blur(28px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+#sidebar-header {
+  display: none !important;
+}
+
+.sidebar-splitter {
+  background: transparent !important;
+  border: none !important;
+  width: 2px !important;
+}
+
+/* ==========================================================================
+   5. CHROME-STYLE VERTICAL TAB GROUPS
+   --------------------------------------------------------------------------
+   Works WITH Firefox's native layout instead of against it:
+   - <tab-group> stays `display: contents` (Firefox relies on this for tab
+     sizing, drag & drop and the expand-on-hover animation). The old
+     `tab-group::before` line escaped to the whole tab list because of this,
+     which caused the long stray lines in the expanded sidebar.
+   - The group line is Firefox's own `.tab-group-line` (one segment per tab),
+     restyled — so it follows tabs while dragging/collapsing.
+   - No hard-coded widths on tabs, so the sidebar can animate smoothly.
+   ========================================================================== */
+
+:root {
+  /* Chrome dark-mode tab group palette */
+  --cg-grey:   #dadce0;
+  --cg-blue:   #8ab4f8;
+  --cg-red:    #f28b82;
+  --cg-yellow: #fdd663;
+  --cg-green:  #81c995;
+  --cg-pink:   #ff8bcb;
+  --cg-purple: #c58af9;
+  --cg-cyan:   #78d9ec;
+  --cg-orange: #fcad70;
+  --cg-text:   #202124;
+
+  /* Motion */
+  --cg-ease: cubic-bezier(0.2, 0, 0, 1);   /* Material "emphasized" */
+  --cg-dur: 220ms;
+  --cg-dur-fast: 140ms;
+
+  /* Chevron (points up = group open; rotated 180° when collapsed) */
+  --cg-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 10.25 8 5.75l4.5 4.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Feed the palette into Firefox's tab group colour engine (all variants, so
+   the native "inverted"/"pale" collapsed styles also use the same colour). */
+:root, #tabbrowser-tabs {
+  --tab-group-gray: var(--cg-grey) !important;
+  --tab-group-blue: var(--cg-blue) !important;
+  --tab-group-red: var(--cg-red) !important;
+  --tab-group-yellow: var(--cg-yellow) !important;
+  --tab-group-green: var(--cg-green) !important;
+  --tab-group-pink: var(--cg-pink) !important;
+  --tab-group-purple: var(--cg-purple) !important;
+  --tab-group-cyan: var(--cg-cyan) !important;
+  --tab-group-orange: var(--cg-orange) !important;
+
+  --tab-group-gray-pale: var(--cg-grey) !important;
+  --tab-group-blue-pale: var(--cg-blue) !important;
+  --tab-group-red-pale: var(--cg-red) !important;
+  --tab-group-yellow-pale: var(--cg-yellow) !important;
+  --tab-group-green-pale: var(--cg-green) !important;
+  --tab-group-pink-pale: var(--cg-pink) !important;
+  --tab-group-purple-pale: var(--cg-purple) !important;
+  --tab-group-cyan-pale: var(--cg-cyan) !important;
+  --tab-group-orange-pale: var(--cg-orange) !important;
+
+  --tab-group-gray-invert: var(--cg-grey) !important;
+  --tab-group-blue-invert: var(--cg-blue) !important;
+  --tab-group-red-invert: var(--cg-red) !important;
+  --tab-group-yellow-invert: var(--cg-yellow) !important;
+  --tab-group-green-invert: var(--cg-green) !important;
+  --tab-group-pink-invert: var(--cg-pink) !important;
+  --tab-group-purple-invert: var(--cg-purple) !important;
+  --tab-group-cyan-invert: var(--cg-cyan) !important;
+  --tab-group-orange-invert: var(--cg-orange) !important;
+
+  --tab-group-label-text-dark: var(--cg-text) !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] {
+  --tab-group-line-thickness: 3px;
+  --cg-pill-height: 22px;    /* label height, icon-only sidebar */
+  --cg-header-height: 28px;  /* label height, expanded sidebar  */
+  --cg-radius: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Group header (label)
+   -------------------------------------------------------------------------- */
+
+/* Kill the native grey hover plate/ring behind the label. */
+#tabbrowser-tabs[orient="vertical"] .tab-group-label-hover-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] tab-group > .tab-group-label-container .tab-group-label {
+  position: relative !important;
+  box-sizing: border-box !important;
+  background-color: var(--tab-group-color) !important;
+  color: var(--cg-text) !important;
+  outline: none !important;
+  border-radius: var(--cg-radius) !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition:
+    color var(--cg-dur-fast) ease,
+    background-color var(--cg-dur) var(--cg-ease),
+    filter var(--cg-dur-fast) ease,
+    scale var(--cg-dur-fast) var(--cg-ease),
+    box-shadow var(--tab-group-label-animation-duration) ease !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] tab-group > .tab-group-label-container .tab-group-label:hover {
+  filter: brightness(1.07) saturate(1.05);
+}
+
+#tabbrowser-tabs[orient="vertical"] tab-group > .tab-group-label-container .tab-group-label:active {
+  scale: 0.96;
+}
+
+/* Keep keyboard focus visible. */
+#tabbrowser-tabs[tablist-has-focus] .tab-group-label.tablist-keyboard-focus {
+  outline: var(--focus-outline) !important;
+  outline-offset: var(--focus-outline-offset) !important;
+}
+
+/* Drop target feedback when dragging a tab onto a group. */
+#tabbrowser-tabs[orient="vertical"] .tab-group-label[dragover-groupTarget] {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tab-group-color) 40%, transparent) !important;
+}
+
+/* Chevron */
+#tabbrowser-tabs[orient="vertical"] .tab-group-label::after {
+  content: "" !important;
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 8px;
+  width: 14px;
+  height: 14px;
+  margin-block: auto;
+  background-color: var(--cg-text);
+  mask: var(--cg-chevron) center / 14px 14px no-repeat;
+  font-size-adjust: none;
+  rotate: 0deg;
+  transition: rotate var(--cg-dur) var(--cg-ease);
+}
+
+#tabbrowser-tabs[orient="vertical"] tab-group[collapsed] .tab-group-label::after {
+  rotate: 180deg;
+}
+
+/* ---- Icon-only sidebar: small centred pill with only the chevron ---- */
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) {
+  /* label width == tab background width => pill lines up with favicons */
+  --tab-group-label-size: var(--tab-collapsed-background-width);
+}
+
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) tab-group > .tab-group-label-container .tab-group-label {
+  height: var(--cg-pill-height) !important;
+  min-height: var(--cg-pill-height) !important;
+  line-height: var(--cg-pill-height) !important;
+  padding: 0 !important;
+  color: transparent !important;
+}
+
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) .tab-group-label::first-letter {
+  color: transparent !important;
+}
+
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) .tab-group-label::after {
+  inset-inline: 0;
+  margin-inline: auto;
+}
+
+/* ---- Expanded sidebar: full-width header, name left, chevron right ---- */
+#tabbrowser-tabs[orient="vertical"][expanded] tab-group > .tab-group-label-container {
+  margin-inline-start: 0 !important;
+}
+
+#tabbrowser-tabs[orient="vertical"][expanded] .tab-group-label-hover-highlight {
+  margin-inline-start: var(--tab-inner-inline-margin) !important;
+  margin-inline-end: 14px !important; /* Extra padding so overlay scrollbars don't clip the rounded corners */
+}
+
+#tabbrowser-tabs[orient="vertical"][expanded] tab-group > .tab-group-label-container .tab-group-label {
+  align-self: stretch !important;
+  max-width: none !important;
+  height: var(--cg-header-height) !important;
+  line-height: var(--cg-header-height) !important;
+  padding-inline: 10px 30px !important;
+  text-align: start !important;
+  font-size: 12px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Group line — native .tab-group-line, thicker & rounded like Chrome
+   -------------------------------------------------------------------------- */
+#tabbrowser-tabs[orient="vertical"] .tab-group-line {
+  transition: background-color var(--cg-dur) var(--cg-ease);
+}
+
+#tabbrowser-tabs[orient="vertical"] tab-group > .tab-group-label-container::after {
+  border-radius: var(--tab-group-line-thickness) var(--tab-group-line-thickness) 0 0 !important;
+  /* start the line under the pill instead of at its top edge */
+  inset-block-start: calc(var(--cg-pill-height) / 2) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Tabs
+   -------------------------------------------------------------------------- */
+#tabbrowser-tabs[orient="vertical"] .tab-background {
+  border-radius: var(--cg-radius) !important;
+  transition: background-color var(--cg-dur-fast) ease, box-shadow var(--cg-dur-fast) ease !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tabbrowser-tab:not([selected]):hover .tab-background {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+#tabbrowser-tabs[orient="vertical"] .tabbrowser-tab[selected] .tab-background {
+  background-color: rgba(255, 255, 255, 0.13) !important;
+}
+
+/* Smooth reveal when a group is expanded (tabs go display:none -> shown).
+   Uses `translate`, not `transform`, so it never fights Firefox's drag
+   animations. Also gives newly opened tabs a soft fade-in. */
+@media (prefers-reduced-motion: no-preference) {
+  #tabbrowser-tabs[orient="vertical"] tab-group:not([collapsed]) > .tabbrowser-tab {
+    transition:
+      opacity var(--cg-dur) var(--cg-ease),
+      translate var(--cg-dur) var(--cg-ease);
+  }
+  #tabbrowser-tabs[orient="vertical"] tab-group:not([collapsed]) > .tabbrowser-tab:nth-of-type(2) { transition-delay: 20ms; }
+  #tabbrowser-tabs[orient="vertical"] tab-group:not([collapsed]) > .tabbrowser-tab:nth-of-type(3) { transition-delay: 40ms; }
+  #tabbrowser-tabs[orient="vertical"] tab-group:not([collapsed]) > .tabbrowser-tab:nth-of-type(4) { transition-delay: 60ms; }
+  #tabbrowser-tabs[orient="vertical"] tab-group:not([collapsed]) > .tabbrowser-tab:nth-of-type(n+5) { transition-delay: 80ms; }
+
+  @starting-style {
+    #tabbrowser-tabs[orient="vertical"] tab-group:not([collapsed]) > .tabbrowser-tab {
+      opacity: 0;
+      translate: 0 -6px;
+    }
+  }
+}
+
+/* New-tab button in the icon-only sidebar */
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) #vertical-tabs-newtab-button {
+  width: var(--tab-collapsed-background-width) !important;
+  height: 28px !important;
+  margin: 8px auto !important;
+  border-radius: var(--cg-radius) !important;
+  background-color: rgba(255, 255, 255, 0.07) !important;
+  transition: background-color var(--cg-dur-fast) ease !important;
+}
+
+#tabbrowser-tabs[orient="vertical"]:not([expanded]) #vertical-tabs-newtab-button:hover {
+  background-color: rgba(255, 255, 255, 0.13) !important;
+}
+
+/* Context Menus & Popups (Frosted Glass) */
+menupopup, panel[type="arrow"] {
+  --panel-background: rgba(24, 26, 32, 0.92) !important;
+  --panel-border-color: rgba(255, 255, 255, 0.08) !important;
+  --panel-border-radius: 12px !important;
+}
