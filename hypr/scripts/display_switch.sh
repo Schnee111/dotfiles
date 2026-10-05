@@ -46,7 +46,7 @@ case "$CHOSEN" in
         # Verify physical HDMI connection before disabling laptop screen
         HDMI_STATUS=$(ls /sys/class/drm/card*-HDMI-A-1/status 2>/dev/null | head -n1)
         if [ -z "$HDMI_STATUS" ] || [ ! -f "$HDMI_STATUS" ] || [ "$(cat "$HDMI_STATUS" 2>/dev/null)" != "connected" ]; then
-            notify-send -u critical -t 3000 -a "Display" "Display Error" "HDMI monitor not detected. Switch cancelled." -i dialog-error &
+            notify-send -u critical -t 3000 -a "Display" -n "error" "Display Error" "HDMI monitor not detected. Switch cancelled." &
             exit 1
         fi
 
@@ -85,7 +85,7 @@ hl.monitor({
 })
 EOF
         hyprctl reload >/dev/null 2>&1
-        notify-send -t 2000 -a "Display" "Display Output" "External Monitor Only (1080p @ 200Hz)" -i video-display &
+        notify-send -t 2000 -a "Display" -n "desktop_windows" "Display Output" "External Monitor Only (1080p @ 200Hz)" &
         ;;
 
     *"Laptop Screen Only"*)
@@ -124,13 +124,13 @@ hl.monitor({
 })
 EOF
         hyprctl reload >/dev/null 2>&1
-        notify-send -t 2000 -a "Display" "Display Output" "Laptop Screen Only (2.8K @ 90Hz, Scale 1.5)" -i computer &
+        notify-send -t 2000 -a "Display" -n "laptop_chromebook" "Display Output" "Laptop Screen Only (2.8K @ 90Hz, Scale 1.5)" &
         ;;
 
     *"Extend Displays"*)
         HDMI_STATUS=$(ls /sys/class/drm/card*-HDMI-A-1/status 2>/dev/null | head -n1)
         if [ -z "$HDMI_STATUS" ] || [ ! -f "$HDMI_STATUS" ] || [ "$(cat "$HDMI_STATUS" 2>/dev/null)" != "connected" ]; then
-            notify-send -u critical -t 3000 -a "Display" "Display Error" "HDMI monitor not detected. Switch cancelled." -i dialog-error &
+            notify-send -u critical -t 3000 -a "Display" -n "error" "Display Error" "HDMI monitor not detected. Switch cancelled." &
             exit 1
         fi
 
@@ -150,6 +150,6 @@ hl.monitor({
 })
 EOF
         hyprctl reload >/dev/null 2>&1
-        notify-send -t 2000 -a "Display" "Display Output" "Extended Displays (Dual Screen)" -i video-display &
+        notify-send -t 2000 -a "Display" -n "devices" "Display Output" "Extended Displays (Dual Screen)" &
         ;;
 esac
