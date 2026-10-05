@@ -23,5 +23,10 @@ hl.config({
     },
     render = {
         direct_scanout = 0,
+    },
+    decoration = {
+        blur = {
+            brightness = 0.7,
+        }
     }
 })
