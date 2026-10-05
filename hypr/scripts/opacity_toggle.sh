@@ -4,6 +4,8 @@
 FLAG="$HOME/.config/hypr/custom/.solid_mode"
 CONFIGURATOR="$HOME/.config/quickshell/end4-pC/scripts/hyprland/hyprconfigurator.py"
 MAIN_LUA="$HOME/.config/hypr/hyprland/shellOverrides/main.lua"
+ICON_GLASS="$HOME/.config/hypr/assets/glass_mode.svg"
+ICON_SOLID="$HOME/.config/hypr/assets/solid_mode.svg"
 
 if [[ -f "$FLAG" ]]; then
     rm -f "$FLAG"
@@ -12,7 +14,7 @@ if [[ -f "$FLAG" ]]; then
         python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "0.7"
     fi
     hyprctl reload
-    notify-send -a "Window Opacity" -i "blur_on" "Window Opacity" "Mode: Frosted Glass (80% / 70%)" -t 1500
+    notify-send -a "Window Opacity" -i "$ICON_GLASS" "Window Opacity" "Mode: Frosted Glass (80% / 70%)" -t 1500
 else
     touch "$FLAG"
     if [[ -f "$CONFIGURATOR" && -f "$MAIN_LUA" ]]; then
@@ -20,5 +22,5 @@ else
         python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "1.0"
     fi
     hyprctl reload
-    notify-send -a "Window Opacity" -i "contrast" "Window Opacity" "Mode: Solid / Focus (100%)" -t 1500
+    notify-send -a "Window Opacity" -i "$ICON_SOLID" "Window Opacity" "Mode: Solid / Focus (100%)" -t 1500
 fi

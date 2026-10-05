@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Solid background window panel -->
+  <rect x="6" y="8" width="36" height="32" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <!-- Top window bar line -->
+  <line x1="6" y1="17" x2="42" y2="17" stroke="#94a3b8" stroke-width="1.8"/>
+  <!-- Window dots (dark contrast) -->
+  <circle cx="12" cy="12.5" r="1.8" fill="#475569"/>
+  <circle cx="17.5" cy="12.5" r="1.8" fill="#64748b"/>
+  <circle cx="23" cy="12.5" r="1.8" fill="#94a3b8"/>
+  <!-- Inner solid focus box -->
+  <rect x="12" y="22" width="24" height="13" rx="4" fill="#334155"/>
+  <line x1="16" y1="26" x2="26" y2="26" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="16" y1="30" x2="32" y2="30" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round"/>
+</svg>
