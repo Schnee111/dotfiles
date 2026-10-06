@@ -43,6 +43,40 @@ def ensure_quickshell():
     except Exception as e:
         log(f"Error checking quickshell: {e}")
 
+def cleanup_stale_headless():
+    """Ensure temporary HEADLESS-1 anchor is safely destroyed once HDMI-A-1 is awake."""
+    try:
+        res = subprocess.run(
+            ["hyprctl", "monitors", "-j"],
+            capture_output=True, text=True, timeout=1
+        )
+        if res.returncode == 0:
+            import json
+            monitors = json.loads(res.stdout)
+            hdmi_active = any(m.get("name") == "HDMI-A-1" and m.get("dpmsStatus", False) for m in monitors)
+            has_headless = any(m.get("name") == "HEADLESS-1" for m in monitors)
+            if hdmi_active and has_headless:
+                log("Physical HDMI-A-1 is active with stale HEADLESS-1 anchor. Cleaning up...")
+                subprocess.run(["hyprctl", "output", "remove", "HEADLESS-1"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                if os.path.exists("/tmp/hypr-dpms-sleeping"):
+                    try:
+                        os.remove("/tmp/hypr-dpms-sleeping")
+                    except OSError:
+                        pass
+                # Move any stranded workspaces back to HDMI-A-1
+                ws_res = subprocess.run(["hyprctl", "workspaces", "-j"], capture_output=True, text=True, timeout=1)
+                if ws_res.returncode == 0:
+                    workspaces = json.loads(ws_res.stdout)
+                    for ws in workspaces:
+                        if ws.get("monitor") != "HDMI-A-1":
+                            ws_name = ws.get("name")
+                            subprocess.run(
+                                ["hyprctl", "dispatch", f'hl.dsp.workspace.move({{ workspace = "{ws_name}", monitor = "HDMI-A-1" }})'],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+                            )
+    except Exception as e:
+        log(f"Error in cleanup_stale_headless: {e}")
+
 last_action_time = 0.0
 
 def is_dpms_off():
@@ -292,6 +326,9 @@ def main():
                         log("DRM disconnect signal received while DPMS is OFF or session is LOCKED. Skipping switch.")
                         continue
 
+                    if current:
+                        cleanup_stale_headless()
+
                     if current != last_drm_connected:
                         log(f"Confirmed hardware cable event: {last_drm_connected} -> {current}")
                         last_drm_connected = current
@@ -309,6 +346,9 @@ def main():
 
             if not current and (is_dpms_off() or is_session_locked()):
                 continue
+
+            if current:
+                cleanup_stale_headless()
 
             if current != last_drm_connected:
                 log(f"Polling detected state change: {last_drm_connected} -> {current}")
