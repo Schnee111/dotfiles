@@ -15,7 +15,7 @@ fi
 # 1. State marker for monitor_watcher & monitors_safeguard
 touch /tmp/hypr-dpms-sleeping
 
-# 2. Guarantee at least 1 active Wayland output exists BEFORE HDMI-A-1 turns off.
+# 2. Guarantee at least 1 active Wayland output exists BEFORE physical display turns off.
 # This prevents QtWayland / Quickshell from seeing 0 outputs and aborting with qFatal.
 if ! hyprctl monitors -j | jq -e '.[] | select(.name == "HEADLESS-1")' >/dev/null 2>&1; then
     hyprctl output create headless HEADLESS-1 >/dev/null 2>&1
@@ -28,5 +28,7 @@ if ! hyprctl monitors -j | jq -e '.[] | select(.name == "HEADLESS-1")' >/dev/nul
     done
 fi
 
-# 3. Power off physical HDMI display via DPMS
-hyprctl dispatch 'hl.dsp.dpms({ action = "disable", monitor = "HDMI-A-1" })' >/dev/null 2>&1
+# 3. Power off active physical displays only, keeping HEADLESS-1 alive as anchor
+for mon in $(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.name != "HEADLESS-1") | .name'); do
+    hyprctl dispatch "hl.dsp.dpms({ action = \"disable\", monitor = \"$mon\" })" >/dev/null 2>&1
+done
