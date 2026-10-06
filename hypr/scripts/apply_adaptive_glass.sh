@@ -44,10 +44,11 @@ fi
 # Apply in real-time to Hyprland
 hyprctl eval "hl.config({ decoration = { blur = { brightness = $TARGET_BRIGHTNESS } } })" >/dev/null 2>&1
 
-# Persist to custom/general.lua
+# Persist to custom/general.lua (follow symlink: live file links into dotfiles,
+# and plain `sed -i` would replace the symlink with a regular file)
 GENERAL_LUA="$HOME/.config/hypr/custom/general.lua"
 if [[ -f "$GENERAL_LUA" ]]; then
-    sed -i -E "s/brightness = [0-9.]+([,}])/brightness = $TARGET_BRIGHTNESS\\1/g" "$GENERAL_LUA"
+    sed --follow-symlinks -i -E "s/brightness = [0-9.]+([,}])/brightness = $TARGET_BRIGHTNESS\\1/g" "$GENERAL_LUA"
 fi
 
 # ------------------------------------------------------------------------------

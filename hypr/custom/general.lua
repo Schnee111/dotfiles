@@ -27,6 +27,7 @@ hl.config({
     decoration = {
         blur = {
             brightness = 0.7,
+            size = 3,
         }
     }
 })
