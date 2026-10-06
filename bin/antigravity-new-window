@@ -1,0 +1,6 @@
+#!/bin/bash
+# Open a new Antigravity window.
+# Antigravity's CLI ignores --new-window (single-instance lock swallows the
+# arg), but in-app Ctrl+Shift+N works, so trigger exactly that via Hyprland.
+# Usage: antigravity-new-window  (bind to a key in keybinds.lua if wanted)
+hyprctl dispatch 'hl.dsp.send_shortcut({mods="CTRL SHIFT", key="N", window="class:antigravity"})'
