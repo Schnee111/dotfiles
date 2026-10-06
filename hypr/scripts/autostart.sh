@@ -2,6 +2,10 @@
 # ==============================================================================
 # Hyprland Autostart Script - Schnee Custom Session State
 # ==============================================================================
+# Workspace placement happens ONLY here at login, via
+# `hyprctl dispatch exec "[workspace N silent] <cmd>"`.
+# custom/rules.lua intentionally has NO `workspace` window rules, so apps
+# opened manually later follow the active workspace.
 
 # Redirect stdout and stderr to avoid broken pipes (EPIPE) when the launcher exits
 exec >/dev/null 2>&1
@@ -16,53 +20,53 @@ touch "$RUN_LOCK"
 # ------------------------------------------------------------------------------
 # Workspace 2: Kitty (Fastfetch top-left), Kitty (Main right), Kitty (Btop bottom-left)
 # ------------------------------------------------------------------------------
-kitty --class kitty-fastfetch -o font_size=9.0 fish -c "fastfetch; exec fish" &
+hyprctl dispatch exec "[workspace 2 silent] kitty --class kitty-fastfetch -o font_size=9.0 fish -c 'fastfetch; exec fish'"
 sleep 0.5
-kitty --class kitty-main &
+hyprctl dispatch exec "[workspace 2 silent] kitty --class kitty-main"
 sleep 0.5
 hyprctl dispatch focuswindow class:kitty-fastfetch
 sleep 0.2
-kitty --class kitty-btop -o font_size=9.0 -e btop &
+hyprctl dispatch exec "[workspace 2 silent] kitty --class kitty-btop -o font_size=9.0 -e btop"
 sleep 0.3
 
 # ------------------------------------------------------------------------------
 # Workspace 3: Hermes Desktop
 # ------------------------------------------------------------------------------
-/home/schnee/.local/bin/hermes desktop &
+hyprctl dispatch exec "[workspace 3 silent] /home/schnee/.local/bin/hermes desktop"
 
 # ------------------------------------------------------------------------------
 # Workspace 4: Google Chrome
 # ------------------------------------------------------------------------------
-google-chrome-stable &
+hyprctl dispatch exec "[workspace 4 silent] google-chrome-stable"
 
 # ------------------------------------------------------------------------------
 # Workspace 6: Pinterest (left), Firefox (top-right), Ptyxis btop (bottom-right)
 # ------------------------------------------------------------------------------
-google-chrome-stable --profile-directory=Default --app-id=fbibgohghoobeeljoejfdmdhgoadhjbc &
+hyprctl dispatch exec "[workspace 6 silent] google-chrome-stable --profile-directory=Default --app-id=fbibgohghoobeeljoejfdmdhgoadhjbc"
 sleep 0.6
-firefox &
+hyprctl dispatch exec "[workspace 6 silent] firefox"
 sleep 0.6
 hyprctl dispatch focuswindow class:org.mozilla.firefox
 sleep 0.2
-ptyxis -s -T "btop-ws6" -- btop &
+hyprctl dispatch exec "[workspace 6 silent] ptyxis -s -T 'btop-ws6' -- btop"
 
 # ------------------------------------------------------------------------------
 # Workspace 7: WhatsApp (left), Telegram (right)
 # ------------------------------------------------------------------------------
-firefox --name whatsapp-app --new-instance -P whatsapp-pwa https://web.whatsapp.com &
+hyprctl dispatch exec "[workspace 7 silent] firefox --name whatsapp-app --new-instance -P whatsapp-pwa https://web.whatsapp.com"
 sleep 0.6
-/home/schnee/.local/bin/telegram &
+hyprctl dispatch exec "[workspace 7 silent] /home/schnee/.local/bin/telegram"
 
 # ------------------------------------------------------------------------------
 # Workspace 8: Discord (left), Kitty (top-right), Spotify (bottom-right)
 # ------------------------------------------------------------------------------
-flatpak run com.discordapp.Discord &
+hyprctl dispatch exec "[workspace 8 silent] flatpak run com.discordapp.Discord"
 sleep 0.8
-kitty --class kitty-ws8 &
+hyprctl dispatch exec "[workspace 8 silent] kitty --class kitty-ws8"
 sleep 0.5
 hyprctl dispatch focuswindow class:kitty-ws8
 sleep 0.2
-flatpak run com.spotify.Client &
+hyprctl dispatch exec "[workspace 8 silent] flatpak run com.spotify.Client"
 
 # ------------------------------------------------------------------------------
 # Focus back to Workspace 2 (Main Terminal)
