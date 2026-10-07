@@ -1,10 +1,10 @@
 -- Monitor defaults
--- Laptop display (eDP-1: 14" 2.8K OLED): default scale 1.5 (150%)
+-- Laptop display (eDP-1: 14" 2.8K OLED): default scale 1.6 (160%)
 hl.monitor({
     output = "eDP-1",
     mode = "2880x1800@90",
     position = "0x0",
-    scale = 1.5,
+    scale = 1.6,
 })
 
 -- External monitor (HDMI-A-1: 1080p standard): default scale 1.0 (100%)
@@ -26,7 +26,7 @@ hl.config({
     },
     decoration = {
         blur = {
-            brightness = 0.7,
+            brightness = 1.0,
             size = 3,
         }
     }

@@ -64,7 +64,7 @@ hl.monitor({
     output = "eDP-1",
     mode = "2880x1800@90",
     position = "1920x0",
-    scale = 1.5,
+    scale = 1.6,
 })
 EOF
         hyprctl reload >/dev/null 2>&1
@@ -97,7 +97,7 @@ hl.monitor({
     output = "eDP-1",
     mode = "2880x1800@90",
     position = "0x0",
-    scale = 1.5,
+    scale = 1.6,
 })
 
 hl.monitor({
@@ -116,7 +116,7 @@ hl.monitor({
     output = "eDP-1",
     mode = "2880x1800@90",
     position = "0x0",
-    scale = 1.5,
+    scale = 1.6,
 })
 
 hl.monitor({
@@ -126,7 +126,7 @@ hl.monitor({
 EOF
         hyprctl reload >/dev/null 2>&1
         pw-play "$HOME/.local/share/sounds/macos/Swish.mp3" 2>/dev/null &
-        notify-send -t 2000 -a "Display" -n "laptop_chromebook" "Display Output" "Laptop Screen Only (2.8K @ 90Hz, Scale 1.5)" &
+        notify-send -t 2000 -a "Display" -n "laptop_chromebook" "Display Output" "Laptop Screen Only (2.8K @ 90Hz, Scale 1.6)" &
         ;;
 
     *"Extend Displays"*)
@@ -141,7 +141,7 @@ hl.monitor({
     output = "eDP-1",
     mode = "2880x1800@90",
     position = "0x0",
-    scale = 1.5,
+    scale = 1.6,
 })
 
 hl.monitor({

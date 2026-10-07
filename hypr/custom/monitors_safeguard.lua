@@ -32,7 +32,7 @@ if not is_external_connected() and not is_dpms_sleeping() then
         output = "eDP-1",
         mode = "2880x1800@90",
         position = "0x0",
-        scale = 1.5,
+        scale = 1.6,
         disabled = false,
     })
     hl.monitor({
