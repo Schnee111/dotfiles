@@ -20,3 +20,11 @@ user_pref("sidebar.verticalTabs", true);
 /* Memory & Performance Tuning */
 user_pref("browser.tabs.unloadOnLowMemory", true);         /* Auto-discard background tabs when system memory is constrained */
 user_pref("browser.sessionstore.interval", 60000);         /* Session write interval: 60s instead of 15s to reduce disk I/O */
+
+/* GPU Video Decode (Intel Iris Xe + VA-API present) */
+user_pref("media.hardware-video-decoding.force-enabled", true);
+
+/* Smooth Scroll (Chrome-like feel: longer stride + momentum) */
+user_pref("mousewheel.min_line_scroll_amount", 25);
+user_pref("apz.gtk.kinetic_scroll.enabled", true);
+user_pref("general.smoothScroll.mouseWheel.durationMaxMS", 150);
