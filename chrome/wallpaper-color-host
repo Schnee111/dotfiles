@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""Native messaging host for the Wallpaper Color Sync Chrome extension.
+
+Watches the matugen wallpaper palette; when it changes, rewrites the
+extension's manifest.json "theme" colors and asks the extension to
+chrome.runtime.reload() so Chrome repaints with the new palette.
+
+Debug/status lines are appended to ~/.cache/wallpaper-color-host.log.
+"""
+import json
+import os
+import struct
+import sys
+import threading
+import time
+
+PALETTE = os.path.expanduser(
+    "~/.local/state/quickshell/user/generated/colors.json"
+)
+EXT_DIR = os.path.expanduser(
+    "~/Projects/dotfiles/chrome/wallpaper-color-sync"
+)
+MANIFEST = os.path.join(EXT_DIR, "manifest.json")
+LOG = os.path.expanduser("~/.cache/wallpaper-color-host.log")
+WATCH_INTERVAL = 0.4  # seconds
+
+
+def log(line):
+    try:
+        with open(LOG, "a", encoding="utf-8") as fh:
+            fh.write(f"{time.strftime('%H:%M:%S')} {line}\n")
+    except Exception:
+        pass
+
+
+def send(obj):
+    data = json.dumps(obj).encode("utf-8")
+    sys.stdout.buffer.write(struct.pack("<I", len(data)))
+    sys.stdout.buffer.write(data)
+    sys.stdout.buffer.flush()
+
+
+def read_json(path):
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return None
+
+
+def theme_colors(palette):
+    """Map the matugen Material palette onto Chrome theme color keys."""
+    def pick(*keys):
+        # Chrome theme colors are [R, G, B] arrays (docs: "Colors are in RGB
+        # format" -> e.g. "frame": [71, 105, 91]).
+        for k in keys:
+            v = palette.get(k)
+            if isinstance(v, str) and len(v) == 7 and v.startswith("#"):
+                try:
+                    n = int(v[1:], 16)
+                except ValueError:
+                    continue
+                return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+        return [32, 33, 36]
+
+    return {
+        "frame": pick("surface_container", "background"),
+        "frame_inactive": pick("surface_container_low", "background"),
+        "toolbar": pick("surface_container_high", "surface_container"),
+        "toolbar_button_icon": pick("on_surface_variant", "on_surface"),
+        "tab_background_text": pick("on_surface", "on_background"),
+        "tab_text": pick("on_surface", "on_background"),
+        "ntp_background": pick("background", "surface"),
+        "ntp_text": pick("on_background", "on_surface"),
+        "ntp_link": pick("primary", "secondary"),
+        "bookmark_text": pick("on_surface_variant", "on_surface"),
+        "bookmark_text_clicked": pick("primary", "secondary"),
+        "button_background": pick("primary", "secondary"),
+    }
+
+
+def sync_manifest(palette):
+    """Rewrite the extension manifest's theme colors if they differ.
+
+    Returns True when the manifest changed (extension should reload).
+    """
+    manifest = read_json(MANIFEST)
+    if manifest is None:
+        log("cannot read manifest")
+        return False
+    colors = theme_colors(palette)
+    if manifest.get("theme", {}).get("colors") == colors:
+        return False
+    manifest.setdefault("theme", {})["colors"] = colors
+    try:
+        tmp = MANIFEST + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(manifest, fh, indent=2)
+        os.replace(tmp, MANIFEST)
+        log(f"manifest theme updated (frame={colors['frame']})")
+        return True
+    except Exception as exc:
+        log(f"manifest write failed: {exc}")
+        return False
+
+
+def listen_from_extension():
+    """Read messages the extension sends back."""
+    while True:
+        header = sys.stdin.buffer.read(4)
+        if not header or len(header) < 4:
+            log("stdin closed -> exiting")
+            os._exit(0)
+        (length,) = struct.unpack("<I", header)
+        if length > 10_000_000:
+            log(f"unexpected header {header!r} -> skipping line")
+            rest = b""
+            while b"\n" not in header + rest:
+                chunk = sys.stdin.buffer.read(1)
+                if not chunk:
+                    os._exit(0)
+                rest += chunk
+            continue
+        payload = sys.stdin.buffer.read(length)
+        try:
+            msg = json.loads(payload.decode("utf-8"))
+            log(f"from-extension: {json.dumps(msg)[:300]}")
+        except Exception:
+            log(f"from-extension: unparsed {payload[:200]!r}")
+
+
+def main():
+    threading.Thread(target=listen_from_extension, daemon=True).start()
+
+    last_signature = None
+    current = read_json(PALETTE)
+    if isinstance(current, dict) and current:
+        last_signature = json.dumps(current, sort_keys=True)
+        changed = sync_manifest(current)
+        send({"type": "palette", "colors": current})
+        if changed:
+            time.sleep(0.15)
+            send({"type": "reload", "reason": "initial-sync"})
+        log(f"pushed initial palette ({len(current)} keys)")
+
+    while True:
+        time.sleep(WATCH_INTERVAL)
+        current = read_json(PALETTE)
+        if not isinstance(current, dict) or not current:
+            continue
+        signature = json.dumps(current, sort_keys=True)
+        if signature == last_signature:
+            continue
+        last_signature = signature
+        changed = sync_manifest(current)
+        send({"type": "palette", "colors": current})
+        if changed:
+            # Let the extension receive the palette message first, then
+            # trigger the reload that applies the rewritten manifest.
+            time.sleep(0.15)
+            send({"type": "reload", "reason": "palette-change"})
+            log("sent reload request")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (BrokenPipeError, KeyboardInterrupt):
+        try:
+            sys.stdout.close()
+        except Exception:
+            pass
+        sys.exit(0)

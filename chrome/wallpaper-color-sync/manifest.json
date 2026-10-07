@@ -1,0 +1,79 @@
+{
+  "manifest_version": 3,
+  "name": "Wallpaper Color Sync",
+  "version": "1.2.0",
+  "description": "Syncs Chrome's color palette with the matugen wallpaper palette (live).",
+  "permissions": [
+    "theme",
+    "alarms",
+    "nativeMessaging",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "theme": {
+    "colors": {
+      "frame": [
+        26,
+        33,
+        33
+      ],
+      "frame_inactive": [
+        22,
+        29,
+        29
+      ],
+      "toolbar": [
+        37,
+        43,
+        43
+      ],
+      "toolbar_button_icon": [
+        190,
+        200,
+        200
+      ],
+      "tab_background_text": [
+        221,
+        228,
+        227
+      ],
+      "tab_text": [
+        221,
+        228,
+        227
+      ],
+      "ntp_background": [
+        14,
+        20,
+        21
+      ],
+      "ntp_text": [
+        221,
+        228,
+        227
+      ],
+      "ntp_link": [
+        128,
+        212,
+        215
+      ],
+      "bookmark_text": [
+        190,
+        200,
+        200
+      ],
+      "bookmark_text_clicked": [
+        128,
+        212,
+        215
+      ],
+      "button_background": [
+        128,
+        212,
+        215
+      ]
+    }
+  }
+}

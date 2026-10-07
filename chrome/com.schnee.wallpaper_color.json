@@ -1,0 +1,9 @@
+{
+  "name": "com.schnee.wallpaper_color",
+  "description": "Pushes the matugen wallpaper palette to Chrome.",
+  "path": "/home/schnee/Projects/dotfiles/chrome/wallpaper-color-host",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://bkeioabgbockncpbpmdhnlpeafdgkkon/"
+  ]
+}

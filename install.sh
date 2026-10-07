@@ -145,4 +145,10 @@ if [[ ! -d "$CONFIG_DIR/quickshell/end4-pC" ]]; then
     fi
 fi
 
+# 11. Chrome Native Messaging Hosts
+if [[ -f "$DOTFILES_DIR/chrome/com.schnee.wallpaper_color.json" ]]; then
+    mkdir -p "$CONFIG_DIR/google-chrome/NativeMessagingHosts"
+    link_file "$DOTFILES_DIR/chrome/com.schnee.wallpaper_color.json" "$CONFIG_DIR/google-chrome/NativeMessagingHosts/com.schnee.wallpaper_color.json"
+fi
+
 print_succ "Dotfiles installation complete!"
