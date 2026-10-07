@@ -10,6 +10,9 @@ Thumbs.db
 *.log
 *.tmp
 *.png.tmp.png
+__pycache__/
+*.py[cod]
+Cached Theme.pak
 
 # Sensitive & Secrets
 *.key
