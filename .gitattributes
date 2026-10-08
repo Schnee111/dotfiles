@@ -1,0 +1,3 @@
+# Exclude Firefox vendored theme assets from GitHub repository language statistics
+firefox/** linguist-vendored
+firefox/** linguist-detectable=false

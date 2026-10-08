@@ -1,8 +1,8 @@
-# ❄️ schnee's dotfiles
+# schnee's dotfiles
 
-Personal dotfiles and configurations for **Fedora Linux 44** running **Hyprland** with **Quickshell** (Material 3 / end-4 framework). Crafted for a clean, minimalist, macOS-like aesthetic with tailored productivity and gaming workflows.
+Personal dotfiles and configurations for **Fedora Linux 44** running **Hyprland** with **Quickshell** (Material 3 / end-4 framework). Crafted with a clean, minimalist frosted glassmorphism aesthetic tailored for productivity and gaming workflows.
 
-## 📸 Showcase / Gallery
+## Showcase
 
 <p align="center">
   <img src="assets/overview-reze.png" width="49%" alt="Muted Sage / Reze Theme" />
@@ -15,7 +15,7 @@ Personal dotfiles and configurations for **Fedora Linux 44** running **Hyprland*
 
 ---
 
-## 💻 Hardware & System Specs
+## Specifications
 
 | Component | Specification |
 | :--- | :--- |
@@ -23,58 +23,24 @@ Personal dotfiles and configurations for **Fedora Linux 44** running **Hyprland*
 | **Kernel** | Linux 7.2.x x86_64 |
 | **Compositor** | Hyprland (Wayland) |
 | **Shell / Widgets** | Quickshell (end4-pC / Material 3) |
-| **Launcher** | Rofi 2.0 (Custom macOS Launchpad Grid) |
+| **Launcher** | Rofi 2.0 (Custom Launchpad Grid) |
 | **Terminal** | Kitty with Fish shell & Starship prompt |
 | **Laptop Hardware** | ASUS (TigerLake Intel Iris Xe GT2) |
-| **Laptop Display** | 14-inch 2.8K 90Hz OLED (`eDP-1`, 1.5x scale / 1920x1200 logical) |
+| **Laptop Display** | 14-inch 2.8K 90Hz OLED (`eDP-1`, 1.5x scale) |
 | **External Monitor** | Xiaomi Mi Desktop Monitor 1080p @ 200Hz (`HDMI-A-1`, 1.0x scale) |
 | **Audio DAC** | Intel Tiger Lake-LP Smart Sound Technology (SOF) |
 | **Mouse** | Ajazz AJ139 V2 MC (PAW3311, WebHID driver) |
 
 ---
 
-## ✨ Features & Highlights
-
-- **Smart Display Switcher**: One-click display profiles via Rofi (`display_switch.sh`) supporting Single External (with laptop OLED turned off to preserve panel life), Laptop Only, Mirror, and Extend.
-- **macOS Launchpad Grid**: Custom fullscreen 6x4 app launcher grid in Rofi dynamically themed to Quickshell / Matugen Material You colors.
-- **Dedicated Workspaces**: Window rules mapped cleanly:
-  - Workspace 2: Terminal (Kitty)
-  - Workspace 3: Discord & Hermes Agent
-  - Workspace 4: Google Chrome
-  - Workspace 6: WhatsApp PWA
-  - Workspace 7: Firefox
-  - Workspace 8: Spotify
-- **Hardware-Calibrated Audio**: PipeWire filter-chain DSP module (`10-headphone-balance.conf`) providing precise channel rebalancing (+0.15 right balance) for ASUS SOF DAC.
-- **Streamlined Media & Screenshots**:
-  - Fullscreen screenshot on `Print` with shutter audio, clipboard copy, preview notification, and file saving to `~/Pictures/Screenshots/`.
-  - Area snippet on `SUPER + SHIFT + S` with Swappy annotation configured to save directly to `~/Pictures/Screenshots/`.
-  - Screen recording automatically routed to `~/Videos/Recordings/`.
-
----
-
-## ⌨️ Keybindings Cheat Sheet
-
-| Shortcut | Action |
-| :--- | :--- |
-| `SUPER + Space` | Open macOS-style Launchpad (Rofi grid) |
-| `SUPER + F8` / `SUPER + P` | Open Display Switcher menu (Rofi) |
-| `Print` | Fullscreen screenshot (auto-save + clipboard + sound) |
-| `SUPER + SHIFT + S` | Area screenshot & annotate (Swappy) |
-| `Alt + Tab` / `Alt + Shift + Tab` | Cycle active windows (`cycle_next` + focus) |
-| `SUPER + ALT + V` | Toggle Audio Output (Speaker / Headphones) |
-| `SUPER + N` | Open Quick Notification Sidebar |
-| `SUPER + Q` | Close active window |
-| `SUPER + Return` | Open Kitty terminal |
-
----
-
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 .
+├── .gitattributes              # GitHub Linguist overrides
 ├── .gitignore
 ├── install.sh                  # Automated installer & symlink script
-├── README.md                   # System documentation & cheat-sheet
+├── README.md                   # System documentation
 ├── hypr/
 │   ├── monitors.lua            # Dual-monitor scaling and refresh rates
 │   ├── custom/                 # Hyprland modular configuration
@@ -107,7 +73,7 @@ Personal dotfiles and configurations for **Fedora Linux 44** running **Hyprland*
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### 1. Clone the repository
 ```bash
@@ -128,8 +94,8 @@ cd ~/Projects/dotfiles
 
 ---
 
-## 🙏 Credits & Acknowledgements
+## Credits
 
-- [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland) for the incredible base framework.
+- [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland) for the base framework.
 - [Quickshell](https://outfoxxed.me/quickshell/) for the reactive desktop widget environment.
 - [Material You / Matugen](https://github.com/InioX/matugen) for automatic color palette generation.
