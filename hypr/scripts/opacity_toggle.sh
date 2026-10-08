@@ -9,20 +9,22 @@ ICON_SOLID="$HOME/.config/hypr/assets/solid_mode.svg"
 
 if [[ -f "$FLAG" ]]; then
     rm -f "$FLAG"
-    if [[ -f "$CONFIGURATOR" && -f "$MAIN_LUA" ]]; then
-        python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:active_opacity" "0.8"
-        python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "0.7"
-    fi
-    hyprctl reload
+    # Restore adaptive glass and kitty background opacity dynamically
+    "$HOME/.config/hypr/scripts/apply_adaptive_glass.sh" &
     pw-play "$HOME/.local/share/sounds/macos/Bottle.aiff" 2>/dev/null &
-    notify-send -a "Window Opacity" -n "blur_on" "Window Opacity" "Mode: Frosted Glass (80% / 70%)" -t 1500
+    notify-send -a "Window Opacity" -n "blur_on" "Window Opacity" "Mode: Frosted Glass (Adaptive)" -t 1500
 else
     touch "$FLAG"
     if [[ -f "$CONFIGURATOR" && -f "$MAIN_LUA" ]]; then
         python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:active_opacity" "1.0"
         python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "1.0"
     fi
-    hyprctl reload
+    KITTY_CONF="$HOME/.config/kitty/kitty.conf"
+    if [[ -f "$KITTY_CONF" ]]; then
+        sed --follow-symlinks -i -E "s/^background_opacity [0-9.]+/background_opacity 1.0/" "$KITTY_CONF"
+        kill -SIGUSR1 $(pgrep -x kitty) 2>/dev/null || true
+    fi
+    hyprctl reload config-only
     pw-play "$HOME/.local/share/sounds/macos/Bottle.aiff" 2>/dev/null &
     notify-send -a "Window Opacity" -n "contrast" "Window Opacity" "Mode: Solid / Focus (100%)" -t 1500
 fi

@@ -17,8 +17,9 @@ if [[ -z "$WALLPAPER" || ! -f "$WALLPAPER" ]]; then
     exit 0
 fi
 
-# Calculate perceived luminance (0 - 100) using ImageMagick on a downscaled sample for speed
-LUM=$(magick "$WALLPAPER" -resize 250x250\! -colorspace Gray -format "%[fx:mean*100]" info: 2>/dev/null)
+# Calculate perceived photometric luminance (0 - 100) using ITU-R BT.709 sRGB luma
+# Note: `-alpha off` is critical so 100% opaque alpha channels on PNGs don't skew the calculation
+LUM=$(magick "$WALLPAPER" -resize 250x250\! -alpha off -colorspace Gray -format "%[fx:mean*100]" info: 2>/dev/null)
 
 if [[ -z "$LUM" ]]; then
     exit 0
@@ -26,23 +27,32 @@ fi
 
 LUM_INT=${LUM%.*}
 
-# Determine target blur brightness based on luminance:
-# - Very bright (>= 80%): Deep smoked glass (0.55) to kill glare on near-white wallpapers
-# - Bright (65% - 79%): Smoked glass (0.70) to prevent glare and eye strain
-# - Medium (35% - 64%): Soft smoked glass (0.85)
-# - Dark (< 35%): Natural brightness (1.00) so dark wallpapers stay rich and clear
-if (( LUM_INT >= 80 )); then
-    TARGET_BRIGHTNESS="0.55"
-elif (( LUM_INT >= 65 )); then
-    TARGET_BRIGHTNESS="0.7"
-elif (( LUM_INT >= 35 )); then
-    TARGET_BRIGHTNESS="0.85"
+# Determine target blur brightness, global opacity, and terminal native background opacity based on luminance:
+# - Sangat Terang (>= 65%): Clean blur (0.95) | Global (0.90 / 0.80) | Kitty BG (0.70)
+# - Terang / Cerah (45% - 64%): Natural blur (1.00) | Global (0.88 / 0.78) | Kitty BG (0.60)
+# - Sedang (25% - 44%): Luminous glass (1.08) | Global (0.86 / 0.76) | Kitty BG (0.50)
+# - Gelap (< 25%): Crystal glow (1.15)        | Global (0.84 / 0.74) | Kitty BG (0.40)
+if (( LUM_INT >= 65 )); then
+    TARGET_BRIGHTNESS="0.95"
+    TARGET_GLOBAL_ACTIVE="0.90"
+    TARGET_GLOBAL_INACTIVE="0.80"
+    TARGET_KITTY_BG="0.70"
+elif (( LUM_INT >= 45 )); then
+    TARGET_BRIGHTNESS="1.00"
+    TARGET_GLOBAL_ACTIVE="0.88"
+    TARGET_GLOBAL_INACTIVE="0.78"
+    TARGET_KITTY_BG="0.60"
+elif (( LUM_INT >= 25 )); then
+    TARGET_BRIGHTNESS="1.08"
+    TARGET_GLOBAL_ACTIVE="0.86"
+    TARGET_GLOBAL_INACTIVE="0.76"
+    TARGET_KITTY_BG="0.50"
 else
-    TARGET_BRIGHTNESS="1.0"
+    TARGET_BRIGHTNESS="1.15"
+    TARGET_GLOBAL_ACTIVE="0.84"
+    TARGET_GLOBAL_INACTIVE="0.74"
+    TARGET_KITTY_BG="0.40"
 fi
-
-# Apply in real-time to Hyprland
-hyprctl eval "hl.config({ decoration = { blur = { brightness = $TARGET_BRIGHTNESS } } })" >/dev/null 2>&1
 
 # Persist to custom/general.lua (follow symlink: live file links into dotfiles,
 # and plain `sed -i` would replace the symlink with a regular file)
@@ -50,6 +60,26 @@ GENERAL_LUA="$HOME/.config/hypr/custom/general.lua"
 if [[ -f "$GENERAL_LUA" ]]; then
     sed --follow-symlinks -i -E "s/brightness = [0-9.]+([,}])/brightness = $TARGET_BRIGHTNESS\\1/g" "$GENERAL_LUA"
 fi
+
+FLAG="$HOME/.config/hypr/custom/.solid_mode"
+
+# Persist native background opacity to kitty.conf and hot-reload running Kitty windows
+KITTY_CONF="$HOME/.config/kitty/kitty.conf"
+if [[ -f "$KITTY_CONF" && ! -f "$FLAG" ]]; then
+    sed --follow-symlinks -i -E "s/^background_opacity [0-9.]+/background_opacity $TARGET_KITTY_BG/" "$KITTY_CONF"
+    kill -SIGUSR1 $(pgrep -x kitty) 2>/dev/null || true
+fi
+
+# Persist adaptive global opacity to shellOverrides/main.lua if not in solid mode
+CONFIGURATOR="$HOME/.config/quickshell/end4-pC/scripts/hyprland/hyprconfigurator.py"
+MAIN_LUA="$HOME/.config/hypr/hyprland/shellOverrides/main.lua"
+if [[ ! -f "$FLAG" && -f "$CONFIGURATOR" && -f "$MAIN_LUA" ]]; then
+    python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:active_opacity" "$TARGET_GLOBAL_ACTIVE" >/dev/null 2>&1
+    python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "$TARGET_GLOBAL_INACTIVE" >/dev/null 2>&1
+fi
+
+# Reload config dynamically in real-time (config-only avoids display flicker)
+hyprctl reload config-only >/dev/null 2>&1
 
 # ------------------------------------------------------------------------------
 # Nudge GTK theme listeners
