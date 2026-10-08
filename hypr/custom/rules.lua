@@ -1,7 +1,7 @@
 -- Dynamic Opacity State Check (Toggled via SUPER + ALT + O)
 local is_solid = is_file_exists(HOME .. "/.config/hypr/custom/.solid_mode")
-local term_opacity = is_solid and "1.0 override 1.0 override" or "0.85 override 0.75 override"
-local app_opacity  = is_solid and "1.0 override 1.0 override" or "0.80 override 0.70 override"
+local term_opacity = is_solid and "1.0 override 1.0 override" or "1.0 override 0.80 override"
+local app_opacity  = is_solid and "1.0 override 1.0 override" or "0.72 override 0.62 override"
 
 -- Custom rules for Rofi Launcher
 hl.layer_rule({ match = { namespace = "rofi" }, blur = true })
@@ -17,11 +17,13 @@ hl.window_rule({ match = { class = ".*" }, no_blur = is_solid })
 -- `hyprctl dispatch exec "[workspace N silent] <cmd>"`,
 -- so manually opened apps follow the active workspace.
 
--- Terminals (visual only)
+-- Terminals (visual only: active 1.0 keeps glyphs 100% solid & razor-sharp; inactive 0.80 smoothly fades out; no_dim prevents darkening)
 hl.window_rule({ match = { class = "^(kitty.*)$" }, opacity = term_opacity })
-hl.window_rule({ match = { class = "^(kitty.*)$" }, no_blur = false })
+hl.window_rule({ match = { class = "^(kitty.*)$" }, no_blur = is_solid })
+hl.window_rule({ match = { class = "^(kitty.*)$" }, no_dim = true })
 hl.window_rule({ match = { class = "^(org\\.gnome\\.Ptyxis)$" }, opacity = term_opacity })
-hl.window_rule({ match = { class = "^(org\\.gnome\\.Ptyxis)$" }, no_blur = false })
+hl.window_rule({ match = { class = "^(org\\.gnome\\.Ptyxis)$" }, no_blur = is_solid })
+hl.window_rule({ match = { class = "^(org\\.gnome\\.Ptyxis)$" }, no_dim = true })
 
 -- Google Chrome (visual only)
 hl.window_rule({ match = { class = "^(google-chrome)$" }, no_blur = false })
@@ -39,6 +41,10 @@ hl.window_rule({ match = { class = "^(whatsapp-app)$" }, no_blur = false })
 
 -- Discord (visual only)
 hl.window_rule({ match = { class = "^(discord)$" }, no_blur = false })
+
+-- Spotify (visual only, suppress initial focus grabbing on background launch)
+hl.window_rule({ match = { class = "^(spotify)$" }, no_blur = false })
+hl.window_rule({ match = { class = "^(spotify)$" }, no_initial_focus = true })
 
 -- Unload module so it re-evaluates on every hyprctl reload
 package.loaded["custom.rules"] = nil

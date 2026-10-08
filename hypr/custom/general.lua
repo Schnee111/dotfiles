@@ -16,18 +16,27 @@ hl.monitor({
 })
 
 -- Prevent DPMS wake race condition from triggering lockdead ("Oopsie daisy") emergency screen
+-- Prevent background apps (Spotify, etc.) from stealing focus or switching workspaces on activation
 hl.config({
     misc = {
         lockdead_screen_delay = 100000000,
         allow_session_lock_restore = true,
+        focus_on_activate = false,
     },
     render = {
         direct_scanout = 0,
     },
     decoration = {
+        dim_inactive = false,
         blur = {
-            brightness = 0.7,
-            size = 3,
+            brightness = 1.00,
+            size = 7,
+            passes = 3,
+            noise = 0.055,
+            contrast = 1.05,
+            vibrancy = 0.60,
+            vibrancy_darkness = 0.0,
+            xray = false,
         }
     }
 })
