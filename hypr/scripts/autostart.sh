@@ -42,9 +42,11 @@ dexec 2 "kitty --class kitty-btop -o font_size=9.0 -e btop"
 sleep 0.4
 
 # ------------------------------------------------------------------------------
-# Workspace 3: Hermes Desktop
+# Workspace 3: Hermes Desktop (Dual side-by-side windows)
 # ------------------------------------------------------------------------------
 dexec 3 "/home/schnee/.local/bin/hermes desktop"
+sleep 1.2
+hyprctl dispatch 'hl.dsp.send_shortcut({mods="CTRL SHIFT", key="N", window="class:com.nousresearch.hermes"})'
 
 # ------------------------------------------------------------------------------
 # Workspace 4: Google Chrome
