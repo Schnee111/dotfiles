@@ -83,6 +83,9 @@ fi
 # Reload config dynamically in real-time (config-only avoids display flicker)
 hyprctl reload config-only >/dev/null 2>&1
 
+# Enforce kitty font sizes across all windows
+python3 "$HOME/.config/hypr/scripts/restore_kitty_fonts.py" >/dev/null 2>&1 &
+
 # ------------------------------------------------------------------------------
 # Nudge GTK theme listeners
 # Chrome in GTK mode only re-reads theme colors when GtkSettings emits
