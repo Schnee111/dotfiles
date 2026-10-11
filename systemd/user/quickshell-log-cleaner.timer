@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Quickshell log cleaner periodically
+Documentation=https://github.com/outfoxxed/quickshell/issues/1161
+
+[Timer]
+OnBootSec=2m
+OnUnitActiveSec=15m
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target
