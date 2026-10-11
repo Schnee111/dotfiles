@@ -18,6 +18,9 @@ if [ -f "$RUN_LOCK" ]; then
 fi
 touch "$RUN_LOCK"
 
+# Run Quickshell tmpfs log cleanup on login
+/home/schnee/.config/hypr/scripts/quickshell_log_cleaner.sh &
+
 # Helpers (Lua-wrapped dispatch)
 dexec()   { hyprctl dispatch "hl.dsp.exec_cmd(\"$2\", { workspace = \"$1 silent\" })"; }  # $1=ws $2=cmd
 dfocus()  { hyprctl dispatch "hl.dsp.focus({ window = \"$1\" })"; }                         # $1=window selector
@@ -46,15 +49,9 @@ dexec 3 "/home/schnee/.local/bin/hermes desktop"
 dexec 4 "google-chrome-stable"
 
 # ------------------------------------------------------------------------------
-# Workspace 6: Pinterest (left), Firefox (top-right), Ptyxis btop (bottom-right)
+# Workspace 5: Firefox
 # ------------------------------------------------------------------------------
-dexec 6 "google-chrome-stable --profile-directory=Default --app-id=fbibgohghoobeeljoejfdmdhgoadhjbc"
-sleep 0.6
-dexec 6 "firefox"
-sleep 0.6
-dfocus "class:org.mozilla.firefox"
-sleep 0.2
-dexec 6 "ptyxis -s -T 'btop-ws6' -- btop"
+dexec 5 "firefox"
 
 # ------------------------------------------------------------------------------
 # Workspace 7: WhatsApp (left), Telegram (right)
@@ -64,15 +61,26 @@ sleep 0.6
 dexec 7 "/home/schnee/.local/bin/telegram"
 
 # ------------------------------------------------------------------------------
-# Workspace 8: Discord (left), Kitty (top-right), Spotify (bottom-right)
+# Workspace 8: Development Terminals (Hermes left, Dev top-right, Btop bottom-right)
 # ------------------------------------------------------------------------------
-dexec 8 "flatpak run com.discordapp.Discord"
-sleep 0.8
-dexec 8 "kitty --class kitty-ws8"
+dexec 8 "kitty --class kitty-main"
 sleep 0.5
-dfocus "class:kitty-ws8"
+dexec 8 "kitty"
+sleep 0.3
+dfocus "class:kitty"
 sleep 0.2
-dexec 8 "flatpak run com.spotify.Client"
+dexec 8 "kitty --class kitty-btop-ws8 -e btop"
+
+# ------------------------------------------------------------------------------
+# Workspace 9: Discord (left), Spotify (top-right), Kitty (bottom-right)
+# ------------------------------------------------------------------------------
+dexec 9 "flatpak run com.discordapp.Discord"
+sleep 0.8
+dexec 9 "flatpak run com.spotify.Client"
+sleep 0.5
+dfocus "class:spotify"
+sleep 0.2
+dexec 9 "kitty --class kitty-ws9"
 
 # ------------------------------------------------------------------------------
 # Focus back to Workspace 2 (Main Terminal)

@@ -113,7 +113,7 @@ def is_session_locked():
         return False
 
 def restore_laptop_display():
-    """Switches to Laptop Only mode (eDP-1 @ 2880x1800@90, scale 1.5)."""
+    """Switches to Laptop Only mode (eDP-1 @ 2880x1800@90, scale 1.6)."""
     global last_action_time
     if time.time() - last_action_time < 2.0:
         return
@@ -126,7 +126,7 @@ def restore_laptop_display():
     output = "eDP-1",
     mode = "2880x1800@90",
     position = "0x0",
-    scale = 1.5,
+    scale = 1.6,
 })
 
 hl.monitor({
@@ -172,7 +172,7 @@ hl.monitor({
     output = "eDP-1",
     mode = "2880x1800@90",
     position = "1920x0",
-    scale = 1.5,
+    scale = 1.6,
 })
 """
     try:
