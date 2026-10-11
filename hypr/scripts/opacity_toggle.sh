@@ -22,7 +22,9 @@ else
     KITTY_CONF="$HOME/.config/kitty/kitty.conf"
     if [[ -f "$KITTY_CONF" ]]; then
         sed --follow-symlinks -i -E "s/^background_opacity [0-9.]+/background_opacity 1.0/" "$KITTY_CONF"
-        kill -SIGUSR1 $(pgrep -x kitty) 2>/dev/null || true
+        for pid in $(pgrep -x kitty 2>/dev/null); do
+            kitten @ --to "unix:@kitty-$pid" set-background-opacity 1.0 2>/dev/null || true
+        done
     fi
     hyprctl reload config-only
     pw-play "$HOME/.local/share/sounds/macos/Bottle.aiff" 2>/dev/null &
