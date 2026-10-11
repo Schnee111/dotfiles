@@ -108,7 +108,7 @@ sleep 0.6
 dfocus "class:spotify"
 sleep 0.2
 dpre_d
-dexec 9 "kitty --class kitty-ws9"
+dexec 9 "kitty --class kitty-ws9 -o font_size=9.0 fish -c 'fastfetch; exec fish'"
 sleep 0.6
 dresize "class:discord" 1075 1019
 sleep 0.2

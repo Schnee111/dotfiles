@@ -16,7 +16,7 @@ Base Gaps: gaps_in = 6, gaps_out = 8 (Windows start at y = 53, max width = 1904,
   - Pos: [8, 486] | Size: [951, 586]
   - Font: JetBrains Mono Nerd Font @ 9.0
   - Command: `kitty --class kitty-btop -o font_size=9.0 -e btop`
-  - Btop Theme: "Default", theme_background = true, truecolor = true
+  - Btop Theme: "TTY", theme_background = true, truecolor = true
 - **kitty-main** (right, full height)
   - Pos: [965, 53] | Size: [947, 1019]
   - Font: JetBrains Mono Nerd Font @ 11.0
@@ -66,7 +66,7 @@ Base Gaps: gaps_in = 6, gaps_out = 8 (Windows start at y = 53, max width = 1904,
   - Class: `kitty` (title: `btop ~`)
   - Command: `btop`
   - Font: 11.0
-  - Btop Theme: "Default"
+  - Btop Theme: "TTY"
 
 ### Workspace 9: Social & Entertainment (Social 3-Split)
 - **Discord** (left, full height)
@@ -76,10 +76,11 @@ Base Gaps: gaps_in = 6, gaps_out = 8 (Windows start at y = 53, max width = 1904,
 - **Spotify** (top-right)
   - Pos: [1089, 53] | Size: [823, 625]
   - Class: `spotify` (Flatpak: `com.spotify.Client`)
-- **kitty-ws9** (bottom-right)
+- **kitty-ws9 (fastfetch)** (bottom-right)
   - Pos: [1089, 684] | Size: [823, 388]
   - Class: `kitty-ws9`
-  - Font: 11.0
+  - Font: 9.0
+  - Command: `kitty --class kitty-ws9 -o font_size=9.0 fish -c 'fastfetch; exec fish'`
 
 ### Special Workspace (`special:special`):
 - **Dolphin File Manager**
