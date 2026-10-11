@@ -36,17 +36,17 @@ hl.window_rule({ match = { class = "^(osu!\\.exe)$" }, opacity = "1.0 override 1
 -- Firefox / Pinterest PWA (visual only)
 hl.window_rule({ match = { class = "^(firefox.*|org\\.mozilla\\.firefox)$" }, no_blur = false })
 
--- WhatsApp PWA (dedicated workspace 7)
+-- Dedicated App Workspaces (guarantees slow-starting Flatpaks / PWAs land cleanly without race conditions)
 hl.window_rule({ match = { class = "^(whatsapp-app)$" }, workspace = "7 silent" })
 hl.window_rule({ match = { class = "^(whatsapp-app)$" }, no_blur = false })
 hl.window_rule({ match = { class = "^(org\\.telegram\\.desktop.*)$" }, workspace = "7 silent" })
 
--- Discord & Spotify (dedicated workspace 9, prevents flatpak startup race condition into WS 2/8)
-hl.window_rule({ match = { class = "^(discord)$" }, workspace = "9 silent" })
+hl.window_rule({ match = { class = "^(discord)$" }, workspace = "8 silent" })
 hl.window_rule({ match = { class = "^(discord)$" }, no_blur = false })
-hl.window_rule({ match = { class = "^(spotify)$" }, workspace = "9 silent" })
+hl.window_rule({ match = { class = "^(spotify)$" }, workspace = "8 silent" })
 hl.window_rule({ match = { class = "^(spotify)$" }, no_blur = false })
 hl.window_rule({ match = { class = "^(spotify)$" }, no_initial_focus = true })
+hl.window_rule({ match = { class = "^(kitty-ws8)$" }, workspace = "8 silent" })
 
 -- Drawing tablet (OpenTabletDriver 1:1 dynamic monitor binding)
 local is_external = false

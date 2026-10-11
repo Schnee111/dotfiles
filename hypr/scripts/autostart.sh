@@ -25,18 +25,21 @@ touch "$RUN_LOCK"
 dexec()   { hyprctl dispatch "hl.dsp.exec_cmd(\"$2\", { workspace = \"$1 silent\" })"; }  # $1=ws $2=cmd
 dfocus()  { hyprctl dispatch "hl.dsp.focus({ window = \"$1\" })"; }                         # $1=window selector
 dws()     { hyprctl dispatch "hl.dsp.focus({ workspace = $1 })"; }                         # $1=workspace id
+dpre_d()  { hyprctl dispatch 'hl.dsp.layout("preselect d")'; }
+dpre_r()  { hyprctl dispatch 'hl.dsp.layout("preselect r")'; }
 
 # ------------------------------------------------------------------------------
-# Workspace 2: Kitty (Fastfetch top-left), Kitty (Main right), Kitty (Btop bottom-left)
+# Workspace 2: Kitty (Fastfetch top-left, Main right, Btop bottom-left)
 # ------------------------------------------------------------------------------
 dexec 2 "kitty --class kitty-fastfetch -o font_size=9.0 fish -c 'fastfetch; exec fish'"
-sleep 0.5
+sleep 0.6
 dexec 2 "kitty --class kitty-main"
-sleep 0.5
+sleep 0.6
 dfocus "class:kitty-fastfetch"
 sleep 0.2
+dpre_d
 dexec 2 "kitty --class kitty-btop -o font_size=9.0 -e btop"
-sleep 0.3
+sleep 0.4
 
 # ------------------------------------------------------------------------------
 # Workspace 3: Hermes Desktop
@@ -49,38 +52,38 @@ dexec 3 "/home/schnee/.local/bin/hermes desktop"
 dexec 4 "google-chrome-stable"
 
 # ------------------------------------------------------------------------------
-# Workspace 5: Firefox
+# Workspace 6: Pinterest (left), Firefox (top-right), Ptyxis btop (bottom-right)
 # ------------------------------------------------------------------------------
-dexec 5 "firefox"
+dexec 6 "google-chrome-stable --profile-directory=Default --app-id=fbibgohghoobeeljoejfdmdhgoadhjbc"
+sleep 0.6
+dexec 6 "firefox"
+sleep 0.6
+dfocus "class:org.mozilla.firefox"
+sleep 0.2
+dpre_d
+dexec 6 "ptyxis -s -T 'btop-ws6' -- btop"
 
 # ------------------------------------------------------------------------------
 # Workspace 7: WhatsApp (left), Telegram (right)
 # ------------------------------------------------------------------------------
 dexec 7 "firefox --name whatsapp-app --new-instance -P whatsapp-pwa https://web.whatsapp.com"
-sleep 0.6
+sleep 0.8
+dfocus "class:whatsapp-app"
+sleep 0.2
+dpre_r
 dexec 7 "/home/schnee/.local/bin/telegram"
 
 # ------------------------------------------------------------------------------
-# Workspace 8: Development Terminals (Hermes left, Dev top-right, Btop bottom-right)
+# Workspace 8: Discord (left), Spotify (top-right), Kitty (bottom-right)
 # ------------------------------------------------------------------------------
-dexec 8 "kitty --class kitty-main"
-sleep 0.5
-dexec 8 "kitty"
-sleep 0.3
-dfocus "class:kitty"
-sleep 0.2
-dexec 8 "kitty --class kitty-btop-ws8 -e btop"
-
-# ------------------------------------------------------------------------------
-# Workspace 9: Discord (left), Spotify (top-right), Kitty (bottom-right)
-# ------------------------------------------------------------------------------
-dexec 9 "flatpak run com.discordapp.Discord"
+dexec 8 "flatpak run com.discordapp.Discord"
 sleep 0.8
-dexec 9 "flatpak run com.spotify.Client"
-sleep 0.5
+dexec 8 "flatpak run com.spotify.Client"
+sleep 0.6
 dfocus "class:spotify"
 sleep 0.2
-dexec 9 "kitty --class kitty-ws9"
+dpre_d
+dexec 8 "kitty --class kitty-ws8"
 
 # ------------------------------------------------------------------------------
 # Focus back to Workspace 2 (Main Terminal)
