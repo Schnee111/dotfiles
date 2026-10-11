@@ -32,7 +32,7 @@ dresize() { hyprctl dispatch "hl.dsp.window.resize({ window = \"$1\", x = $2, y 
 # ------------------------------------------------------------------------------
 # Workspace 2: Kitty (Fastfetch top-left, Main right, Btop bottom-left)
 # ------------------------------------------------------------------------------
-dexec 2 "kitty --class kitty-fastfetch -o font_size=9.0 fish -c 'fastfetch; exec fish'"
+dexec 2 "kitty --class kitty-fastfetch fish -c 'fastfetch; exec fish'"
 sleep 0.6
 dfocus "class:kitty-fastfetch"
 sleep 0.2
@@ -42,7 +42,7 @@ sleep 0.6
 dfocus "class:kitty-fastfetch"
 sleep 0.2
 dpre_d
-dexec 2 "kitty --class kitty-btop -o font_size=9.0 -e btop"
+dexec 2 "kitty --class kitty-btop -o font_size=10.0 -e btop"
 sleep 0.4
 dresize "class:kitty-fastfetch" 951 427
 
@@ -93,7 +93,7 @@ sleep 0.6
 dfocus "title:agy"
 sleep 0.2
 dpre_d
-dexec 8 "kitty fish -c 'btop; exec fish'"
+dexec 8 "kitty -o font_size=10.0 fish -c 'btop; exec fish'"
 
 # ------------------------------------------------------------------------------
 # Workspace 9: Social & Entertainment (Discord left, Spotify top-right, Kitty bottom-right)

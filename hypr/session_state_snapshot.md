@@ -10,16 +10,16 @@ Base Gaps: gaps_in = 6, gaps_out = 8 (Windows start at y = 53, max width = 1904,
 ### Workspace 2: System Monitor & Main Terminal
 - **kitty-fastfetch** (top-left)
   - Pos: [8, 53] | Size: [951, 427]
-  - Font: JetBrains Mono Nerd Font @ 9.0
-  - Command: `kitty --class kitty-fastfetch -o font_size=9.0 fish -c 'fastfetch; exec fish'`
+  - Font: JetBrains Mono Nerd Font @ 11.0 (cols: 101, lines: 19)
+  - Command: `kitty --class kitty-fastfetch fish -c 'fastfetch; exec fish'`
 - **kitty-btop** (bottom-left)
   - Pos: [8, 486] | Size: [951, 586]
-  - Font: JetBrains Mono Nerd Font @ 9.0
-  - Command: `kitty --class kitty-btop -o font_size=9.0 -e btop`
+  - Font: JetBrains Mono Nerd Font @ 10.0 (cols: 113, lines: 30)
+  - Command: `kitty --class kitty-btop -o font_size=10.0 -e btop`
   - Btop Theme: "TTY", theme_background = true, truecolor = true
 - **kitty-main** (right, full height)
   - Pos: [965, 53] | Size: [947, 1019]
-  - Font: JetBrains Mono Nerd Font @ 11.0
+  - Font: JetBrains Mono Nerd Font @ 11.0 (cols: 100, lines: 49)
   - Command: `kitty --class kitty-main`
 
 ### Workspace 3: Hermes Desktop
@@ -55,17 +55,17 @@ Base Gaps: gaps_in = 6, gaps_out = 8 (Windows start at y = 53, max width = 1904,
 - **kitty-main (hermes CLI)** (left, full height)
   - Pos: [8, 53] | Size: [949, 1019]
   - Class: `kitty-main` (title: `hermes ~`)
-  - Font: 11.0
+  - Font: 11.0 (cols: 100, lines: 49)
 - **kitty (agy CLI)** (top-right)
   - Pos: [963, 53] | Size: [949, 507]
   - Class: `kitty` (title: `agy ~`)
   - Command: `agy`
-  - Font: 11.0
+  - Font: 11.0 (cols: 100, lines: 23)
 - **kitty (btop CLI)** (bottom-right)
   - Pos: [963, 566] | Size: [949, 506]
   - Class: `kitty` (title: `btop ~`)
   - Command: `btop`
-  - Font: 11.0
+  - Font: 10.0 (cols: 113, lines: 26)
   - Btop Theme: "TTY"
 
 ### Workspace 9: Social & Entertainment (Social 3-Split)
