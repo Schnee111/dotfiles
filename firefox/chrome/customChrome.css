@@ -4,11 +4,11 @@
 
 :root {
   /* Translucent Frosted Glass Palette */
-  --gnome-toolbar-background: rgba(18, 20, 24, 0.20) !important;
-  --gnome-headerbar-background: rgba(18, 20, 24, 0.20) !important;
-  --gnome-tabstoolbar-background: rgba(12, 14, 18, 0.12) !important;
-  --gnome-sidebar-background: rgba(18, 20, 25, 0.35) !important;
-  --gnome-inactive-toolbar-background: rgba(14, 16, 20, 0.15) !important;
+  --gnome-toolbar-background: rgba(18, 20, 24, 0.15) !important;
+  --gnome-headerbar-background: rgba(18, 20, 24, 0.15) !important;
+  --gnome-tabstoolbar-background: rgba(12, 14, 18, 0.10) !important;
+  --gnome-sidebar-background: rgba(18, 20, 25, 0.20) !important;
+  --gnome-inactive-toolbar-background: rgba(14, 16, 20, 0.10) !important;
   --gnome-toolbar-border-color: rgba(255, 255, 255, 0.05) !important;
   --gnome-inactive-toolbar-border-color: rgba(255, 255, 255, 0.02) !important;
   --gnome-content-page-background: transparent !important;
@@ -21,7 +21,7 @@
 
 /* 1. Main Navigation Header Strip */
 #navigator-toolbox {
-  background-color: rgba(16, 18, 22, 0.25) !important;
+  background-color: rgba(16, 18, 22, 0.18) !important;
   backdrop-filter: blur(28px) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
@@ -114,7 +114,7 @@ tab-group,
 #sidebar-box,
 #sidebar,
 .sidebar-panel[lwt-sidebar] {
-  background-color: rgba(20, 22, 27, 0.70) !important;
+  background-color: rgba(18, 20, 25, 0.25) !important;
   backdrop-filter: blur(28px) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
   border-left: none !important;
