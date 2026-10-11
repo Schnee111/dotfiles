@@ -54,16 +54,9 @@ hyprctl dispatch 'hl.dsp.send_shortcut({mods="CTRL SHIFT", key="N", window="clas
 dexec 4 "google-chrome-stable"
 
 # ------------------------------------------------------------------------------
-# Workspace 6: Pinterest (left), Firefox (top-right), Ptyxis btop (bottom-right)
+# Workspace 5: Mozilla Firefox
 # ------------------------------------------------------------------------------
-dexec 6 "google-chrome-stable --profile-directory=Default --app-id=fbibgohghoobeeljoejfdmdhgoadhjbc"
-sleep 0.6
-dexec 6 "firefox"
-sleep 0.6
-dfocus "class:org.mozilla.firefox"
-sleep 0.2
-dpre_d
-dexec 6 "ptyxis -s -T 'btop-ws6' -- btop"
+dexec 5 "firefox"
 
 # ------------------------------------------------------------------------------
 # Workspace 7: WhatsApp (left), Telegram (right)
@@ -76,16 +69,28 @@ dpre_r
 dexec 7 "/home/schnee/.local/bin/telegram"
 
 # ------------------------------------------------------------------------------
-# Workspace 8: Discord (left), Spotify (top-right), Kitty (bottom-right)
+# Workspace 8: Development Terminals (Hermes left, Agy top-right, Btop bottom-right)
 # ------------------------------------------------------------------------------
-dexec 8 "flatpak run com.discordapp.Discord"
+dexec 8 "kitty --class kitty-main"
+sleep 0.6
+dexec 8 "kitty fish -c 'agy; exec fish'"
+sleep 0.6
+dfocus "title:agy"
+sleep 0.2
+dpre_d
+dexec 8 "kitty fish -c 'btop; exec fish'"
+
+# ------------------------------------------------------------------------------
+# Workspace 9: Social & Entertainment (Discord left, Spotify top-right, Kitty bottom-right)
+# ------------------------------------------------------------------------------
+dexec 9 "flatpak run com.discordapp.Discord"
 sleep 0.8
-dexec 8 "flatpak run com.spotify.Client"
+dexec 9 "flatpak run com.spotify.Client"
 sleep 0.6
 dfocus "class:spotify"
 sleep 0.2
 dpre_d
-dexec 8 "kitty --class kitty-ws8"
+dexec 9 "kitty --class kitty-ws9"
 
 # ------------------------------------------------------------------------------
 # Focus back to Workspace 2 (Main Terminal)
