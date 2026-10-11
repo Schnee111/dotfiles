@@ -63,11 +63,13 @@ fi
 
 FLAG="$HOME/.config/hypr/custom/.solid_mode"
 
-# Persist native background opacity to kitty.conf and hot-reload running Kitty windows
+# Persist native background opacity to kitty.conf and dynamically adjust running Kitty windows via IPC without killing font zoom
 KITTY_CONF="$HOME/.config/kitty/kitty.conf"
 if [[ -f "$KITTY_CONF" && ! -f "$FLAG" ]]; then
     sed --follow-symlinks -i -E "s/^background_opacity [0-9.]+/background_opacity $TARGET_KITTY_BG/" "$KITTY_CONF"
-    kill -SIGUSR1 $(pgrep -x kitty) 2>/dev/null || true
+    for pid in $(pgrep -x kitty 2>/dev/null); do
+        kitten @ --to "unix:@kitty-$pid" set-background-opacity "$TARGET_KITTY_BG" 2>/dev/null || true
+    done
 fi
 
 # Persist adaptive global opacity to shellOverrides/main.lua if not in solid mode
