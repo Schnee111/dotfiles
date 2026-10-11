@@ -46,5 +46,21 @@ hl.window_rule({ match = { class = "^(discord)$" }, no_blur = false })
 hl.window_rule({ match = { class = "^(spotify)$" }, no_blur = false })
 hl.window_rule({ match = { class = "^(spotify)$" }, no_initial_focus = true })
 
+-- Drawing tablet (OpenTabletDriver 1:1 dynamic monitor binding)
+local is_external = false
+for _, card in ipairs({"card1", "card0"}) do
+    local f = io.open("/sys/class/drm/" .. card .. "-HDMI-A-1/status", "r")
+    if f then
+        local st = f:read("*l")
+        f:close()
+        if st == "connected" then is_external = true break end
+    end
+end
+
+hl.device({
+    name = "opentabletdriver-virtual-artist-tablet",
+    output = is_external and "HDMI-A-1" or "eDP-1",
+})
+
 -- Unload module so it re-evaluates on every hyprctl reload
 package.loaded["custom.rules"] = nil
