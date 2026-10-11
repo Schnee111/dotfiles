@@ -79,8 +79,8 @@ Base Gaps: gaps_in = 6, gaps_out = 8 (Windows start at y = 53, max width = 1904,
 - **kitty-ws9 (fastfetch)** (bottom-right)
   - Pos: [1089, 684] | Size: [823, 388]
   - Class: `kitty-ws9`
-  - Font: 9.0
-  - Command: `kitty --class kitty-ws9 -o font_size=9.0 fish -c 'fastfetch; exec fish'`
+  - Font: 10.0 (cols: 97, lines: 19)
+  - Command: `kitty --class kitty-ws9 -o font_size=10.0 fish -c 'fastfetch; exec fish'`
 
 ### Special Workspace (`special:special`):
 - **Dolphin File Manager**
