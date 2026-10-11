@@ -36,13 +36,15 @@ hl.window_rule({ match = { class = "^(osu!\\.exe)$" }, opacity = "1.0 override 1
 -- Firefox / Pinterest PWA (visual only)
 hl.window_rule({ match = { class = "^(firefox.*|org\\.mozilla\\.firefox)$" }, no_blur = false })
 
--- WhatsApp PWA (visual only)
+-- WhatsApp PWA (dedicated workspace 7)
+hl.window_rule({ match = { class = "^(whatsapp-app)$" }, workspace = "7 silent" })
 hl.window_rule({ match = { class = "^(whatsapp-app)$" }, no_blur = false })
+hl.window_rule({ match = { class = "^(org\\.telegram\\.desktop.*)$" }, workspace = "7 silent" })
 
--- Discord (visual only)
+-- Discord & Spotify (dedicated workspace 9, prevents flatpak startup race condition into WS 2/8)
+hl.window_rule({ match = { class = "^(discord)$" }, workspace = "9 silent" })
 hl.window_rule({ match = { class = "^(discord)$" }, no_blur = false })
-
--- Spotify (visual only, suppress initial focus grabbing on background launch)
+hl.window_rule({ match = { class = "^(spotify)$" }, workspace = "9 silent" })
 hl.window_rule({ match = { class = "^(spotify)$" }, no_blur = false })
 hl.window_rule({ match = { class = "^(spotify)$" }, no_initial_focus = true })
 
