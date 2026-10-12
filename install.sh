@@ -151,4 +151,15 @@ if [[ -f "$DOTFILES_DIR/chrome/com.schnee.wallpaper_color.json" ]]; then
     link_file "$DOTFILES_DIR/chrome/com.schnee.wallpaper_color.json" "$CONFIG_DIR/google-chrome/NativeMessagingHosts/com.schnee.wallpaper_color.json"
 fi
 
+# 12. Niri Compositor
+if [[ -f "$DOTFILES_DIR/niri/config.kdl" ]]; then
+    link_file "$DOTFILES_DIR/niri/config.kdl" "$CONFIG_DIR/niri/config.kdl"
+fi
+
+# 13. User Binaries & Switcher
+if [[ -f "$DOTFILES_DIR/bin/rice-switch" ]]; then
+    chmod +x "$DOTFILES_DIR/bin/rice-switch" 2>/dev/null || true
+    link_file "$DOTFILES_DIR/bin/rice-switch" "$HOME/.local/bin/rice-switch"
+fi
+
 print_succ "Dotfiles installation complete!"
