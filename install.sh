@@ -115,9 +115,12 @@ install_common() {
     # Audio DSP PipeWire
     link_file "$DOTFILES_DIR/common/pipewire/10-headphone-balance.conf" "$CONFIG_DIR/pipewire/pipewire.conf.d/10-headphone-balance.conf"
 
-    # macOS UI Feedback Sounds (toggle scripts use pw-play on these)
+    # macOS UI Feedback Sounds (toggle scripts use play_sound.sh on these)
     if [[ -d "$DOTFILES_DIR/common/sounds/macos" ]]; then
         link_file "$DOTFILES_DIR/common/sounds/macos" "$HOME/.local/share/sounds/macos"
+    fi
+    if [[ -f "$DOTFILES_DIR/common/sounds/play_sound.sh" ]]; then
+        link_file "$DOTFILES_DIR/common/sounds/play_sound.sh" "$HOME/.local/bin/play_sound.sh"
     fi
 
     # Swappy Screenshot
