@@ -31,3 +31,6 @@ hl.bind("SUPER + code:49", hl.dsp.focus({ workspace = "previous" }))
 hl.bind("SUPER + ALT + Tab", hl.dsp.focus({ workspace = "previous" }), { description = "Workspace: Toggle previous workspace" })
 hl.bind("ALT + SUPER + Tab", hl.dsp.focus({ workspace = "previous" }))
 
+-- Desktop Profile Switcher
+hl.bind("SUPER + SHIFT + D", hl.dsp.exec_cmd("~/.local/bin/rice-switch"), { description = "Rice: Switch desktop profile" })
+
