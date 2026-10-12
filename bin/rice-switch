@@ -14,14 +14,22 @@ die() {
 }
 
 current_desktop() {
-    if [ "${XDG_CURRENT_DESKTOP:-}" = "Hyprland" ]; then
+    if pgrep -x Hyprland >/dev/null 2>&1; then
         echo "end4"
-    elif [ "${XDG_CURRENT_DESKTOP:-}" = "niri" ]; then
+    elif pgrep -x niri >/dev/null 2>&1; then
         echo "iris"
     elif [ -f "$CURRENT_RICE_FILE" ]; then
         cat "$CURRENT_RICE_FILE"
     else
         echo "unknown"
+    fi
+}
+
+exit_compositor() {
+    if pgrep -x Hyprland >/dev/null 2>&1; then
+        hyprctl dispatch 'hl.dsp.exit()' 2>/dev/null || pkill -x Hyprland || loginctl terminate-session "${XDG_SESSION_ID:-}"
+    elif pgrep -x niri >/dev/null 2>&1; then
+        niri msg action quit --skip-confirmation 2>/dev/null || pkill -x niri || loginctl terminate-session "${XDG_SESSION_ID:-}"
     fi
 }
 
@@ -63,13 +71,10 @@ switch_to() {
         end4)
             notify-send "Desktop Switcher" "Switching to Hyprland (end4-pC)... Logging out" 2>/dev/null || true
             busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "hyprland" 2>/dev/null || true
+            busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSessionType s "wayland" 2>/dev/null || true
             echo "end4" > "$CURRENT_RICE_FILE"
             sleep 1
-            if [ "${XDG_CURRENT_DESKTOP:-}" = "niri" ]; then
-                niri msg action quit --skip-confirmation
-            elif [ "${XDG_CURRENT_DESKTOP:-}" = "Hyprland" ]; then
-                hyprctl dispatch exit
-            fi
+            exit_compositor
             ;;
 
         iris)
@@ -78,18 +83,16 @@ switch_to() {
             fi
             notify-send "Desktop Switcher" "Switching to Niri (iNiR iRiS)... Logging out" 2>/dev/null || true
             busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "niri" 2>/dev/null || true
+            busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSessionType s "wayland" 2>/dev/null || true
             echo "iris" > "$CURRENT_RICE_FILE"
             sleep 1
-            if [ "${XDG_CURRENT_DESKTOP:-}" = "Hyprland" ]; then
-                hyprctl dispatch exit
-            elif [ "${XDG_CURRENT_DESKTOP:-}" = "niri" ]; then
-                niri msg action quit --skip-confirmation
-            fi
+            exit_compositor
             ;;
 
         status)
-            echo "Current desktop session: ${XDG_CURRENT_DESKTOP:-unknown}"
+            echo "Active compositor process: $(pgrep -x Hyprland >/dev/null && echo Hyprland || (pgrep -x niri >/dev/null && echo niri || echo none))"
             echo "Active rice profile: $(current_desktop)"
+            echo "Configured GDM session: $(busctl get-property org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User Session 2>/dev/null || echo unknown)"
             ;;
 
         *)
