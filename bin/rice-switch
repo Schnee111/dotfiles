@@ -5,7 +5,7 @@
 # ==============================================================================
 set -euo pipefail
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DOTFILES_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 CURRENT_RICE_FILE="$HOME/.config/.current_rice"
 
 notify() {
@@ -102,9 +102,29 @@ switch_to() {
     current="$(current_rice)"
 
     if [ "$target" = "status" ]; then
-        echo "Active compositor process: $(pgrep -x Hyprland >/dev/null && echo Hyprland || (pgrep -x niri >/dev/null && echo niri || echo none))"
+        echo "Active compositor process: $(pgrep -x Hyprland >/dev/null && echo Hyprland || (pgrep -x niri >/dev/null && echo niri || (pgrep -x umbriel >/dev/null && echo umbriel || echo none)))"
         echo "Active rice profile: $(current_rice)"
         echo "Configured GDM session: $(busctl get-property org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User Session 2>/dev/null || echo unknown)"
+        return 0
+    fi
+
+    if [ "$target" = "list" ]; then
+        echo "Available rices in $DOTFILES_DIR/rices/:"
+        for d in "$DOTFILES_DIR"/rices/*/; do
+            if [[ -d "$d" ]]; then
+                local rname="$(basename "$d")"
+                local dname="$rname"
+                local conf_file="$d/rice.conf"
+                if [[ -f "$conf_file" ]]; then
+                    dname="$(bash -c "source '$conf_file' 2>/dev/null && echo \"\${DISPLAY_NAME:-\$rname}\"")"
+                fi
+                if [[ "$rname" == "$current" ]]; then
+                    echo "  * $dname   [ACTIVE]"
+                else
+                    echo "    $dname"
+                fi
+            fi
+        done
         return 0
     fi
 
