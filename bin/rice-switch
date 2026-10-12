@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Desktop Rice & Compositor Switcher
+# Seamlessly switch between Hyprland (end4-pC) and Niri (iNiR iRiS)
+# ==============================================================================
+set -euo pipefail
+
+CURRENT_RICE_FILE="$HOME/.config/.current_rice"
+
+die() {
+    notify-send "Desktop Switcher" "$*" 2>/dev/null || true
+    echo "rice-switch: $*" >&2
+    exit 1
+}
+
+current_desktop() {
+    if [ "${XDG_CURRENT_DESKTOP:-}" = "Hyprland" ]; then
+        echo "end4"
+    elif [ "${XDG_CURRENT_DESKTOP:-}" = "niri" ]; then
+        echo "iris"
+    elif [ -f "$CURRENT_RICE_FILE" ]; then
+        cat "$CURRENT_RICE_FILE"
+    else
+        echo "unknown"
+    fi
+}
+
+gui_menu() {
+    command -v fuzzel >/dev/null 2>&1 || die "Fuzzel is not installed"
+    local current
+    current="$(current_desktop)"
+
+    local opt_end4="◈  end4 (Hyprland · end4-pC)"
+    local opt_iris="✦  iris (Niri · iNiR iRiS)"
+
+    if [ "$current" = "end4" ]; then
+        opt_end4="✓  $opt_end4   [ACTIVE]"
+    elif [ "$current" = "iris" ]; then
+        opt_iris="✓  $opt_iris   [ACTIVE]"
+    fi
+
+    local choice
+    choice=$(printf "%s\n%s\n" "$opt_end4" "$opt_iris" | fuzzel --dmenu --prompt "Switch Rice ❯ " --lines 2) || exit 0
+
+    case "$choice" in
+        *end4*) echo "end4" ;;
+        *iris*) echo "iris" ;;
+        *) exit 0 ;;
+    esac
+}
+
+switch_to() {
+    local target="$1"
+    local current
+    current="$(current_desktop)"
+
+    if [ "$target" = "$current" ]; then
+        notify-send "Desktop Switcher" "Profile '$target' is already active." 2>/dev/null || true
+        exit 0
+    fi
+
+    case "$target" in
+        end4)
+            notify-send "Desktop Switcher" "Switching to Hyprland (end4-pC)... Logging out" 2>/dev/null || true
+            busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "hyprland" 2>/dev/null || true
+            echo "end4" > "$CURRENT_RICE_FILE"
+            sleep 1
+            if [ "${XDG_CURRENT_DESKTOP:-}" = "niri" ]; then
+                niri msg action quit --skip-confirmation
+            elif [ "${XDG_CURRENT_DESKTOP:-}" = "Hyprland" ]; then
+                hyprctl dispatch exit
+            fi
+            ;;
+
+        iris)
+            if ! command -v niri >/dev/null 2>&1; then
+                die "Niri is not installed yet. Run: sudo dnf install -y niri"
+            fi
+            notify-send "Desktop Switcher" "Switching to Niri (iNiR iRiS)... Logging out" 2>/dev/null || true
+            busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "niri" 2>/dev/null || true
+            echo "iris" > "$CURRENT_RICE_FILE"
+            sleep 1
+            if [ "${XDG_CURRENT_DESKTOP:-}" = "Hyprland" ]; then
+                hyprctl dispatch exit
+            elif [ "${XDG_CURRENT_DESKTOP:-}" = "niri" ]; then
+                niri msg action quit --skip-confirmation
+            fi
+            ;;
+
+        status)
+            echo "Current desktop session: ${XDG_CURRENT_DESKTOP:-unknown}"
+            echo "Active rice profile: $(current_desktop)"
+            ;;
+
+        *)
+            echo "Usage: rice-switch [end4 | iris | status]" >&2
+            exit 1
+            ;;
+    esac
+}
+
+ACTION="${1:-}"
+if [ -z "$ACTION" ]; then
+    ACTION="$(gui_menu)"
+fi
+
+switch_to "$ACTION"
