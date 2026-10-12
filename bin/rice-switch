@@ -41,7 +41,6 @@ exit_compositor() {
 }
 
 gui_menu() {
-    command -v fuzzel >/dev/null 2>&1 || die "Fuzzel is not installed"
     local current
     current="$(current_rice)"
 
@@ -77,8 +76,14 @@ gui_menu() {
         menu_input+="$opt"$'\n'
     done
 
-    local choice
-    choice=$(printf "%s" "$menu_input" | fuzzel --dmenu --prompt "Switch Rice ❯ " --lines "${#options[@]}") || exit 0
+    local choice=""
+    if command -v rofi >/dev/null 2>&1 && [[ -f "$HOME/.config/rofi/display.rasi" ]]; then
+        choice=$(printf "%s" "$menu_input" | rofi -dmenu -i -p "󰍹 Switch Rice" -theme "$HOME/.config/rofi/display.rasi") || exit 0
+    elif command -v fuzzel >/dev/null 2>&1; then
+        choice=$(printf "%s" "$menu_input" | fuzzel --dmenu --prompt "Switch Rice ❯ " --lines "${#options[@]}") || exit 0
+    else
+        die "Neither rofi nor fuzzel is installed"
+    fi
 
     # Match choice back to rice name
     for i in "${!options[@]}"; do

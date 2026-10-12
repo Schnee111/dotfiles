@@ -32,5 +32,5 @@ hl.bind("SUPER + ALT + Tab", hl.dsp.focus({ workspace = "previous" }), { descrip
 hl.bind("ALT + SUPER + Tab", hl.dsp.focus({ workspace = "previous" }))
 
 -- Desktop Profile Switcher
-hl.bind("SUPER + SHIFT + D", hl.dsp.exec_cmd("~/.local/bin/rice-switch"), { description = "Rice: Switch desktop profile" })
+hl.bind("SUPER + SHIFT + D", hl.dsp.exec_cmd("/home/schnee/.local/bin/rice-switch"), { description = "Rice: Switch desktop profile" })
 
