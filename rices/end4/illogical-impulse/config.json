@@ -506,7 +506,8 @@
                 "naturalScroll": true,
                 "scrollFactor": 0.3
             }
-        }
+        },
+        "sessionAutostart": false
     },
     "interactions": {
         "deadPixelWorkaround": {
