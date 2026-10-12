@@ -186,6 +186,21 @@ install_rice() {
             link_file "$rice_dir/hypr/hypridle.conf" "$CONFIG_DIR/hypr/hypridle.conf"
             link_file "$rice_dir/hypr/hyprlock.conf" "$CONFIG_DIR/hypr/hyprlock.conf"
 
+            # Drop caelestia-only leftovers from a previous rice so a stale
+            # entry-point can never shadow this rice's modules.
+            for stale in "$CONFIG_DIR/hypr/scheme/default.lua" \
+                         "$CONFIG_DIR/hypr/utils/functions.lua" \
+                         "$CONFIG_DIR/hypr/utils/json.lua" \
+                         "$CONFIG_DIR/hypr/variables.lua"; do
+                if [[ -L "$stale" || -e "$stale" ]]; then
+                    if [[ $DRY_RUN -eq 1 ]]; then
+                        print_msg "[Dry-Run] Would remove stale: $stale"
+                    else
+                        rm -f "$stale"
+                    fi
+                fi
+            done
+
             # Hyprland Lua entry-point
             if [[ -f "$rice_dir/hypr/hyprland.lua" ]]; then
                 link_file "$rice_dir/hypr/hyprland.lua" "$CONFIG_DIR/hypr/hyprland.lua"
@@ -204,6 +219,20 @@ install_rice() {
                     for sf in "$d"*; do
                         [[ -f "$sf" ]] && link_file "$sf" "$CONFIG_DIR/hypr/hyprland/$subname/$(basename "$sf")"
                     done
+                fi
+            done
+
+            # Drop stale hyprland/*.lua modules left by another rice
+            # (e.g. caelestia's animations/decoration/gestures/group/input/misc)
+            for sf in "$CONFIG_DIR/hypr/hyprland/"*.lua; do
+                [[ -L "$sf" || -e "$sf" ]] || continue
+                if [[ ! -e "$rice_dir/hypr/hyprland/$(basename "$sf")" ]]; then
+                    if [[ $DRY_RUN -eq 1 ]]; then
+                        print_msg "[Dry-Run] Would remove stale: $sf"
+                    else
+                        rm -f "$sf"
+                        print_warn "Removed stale: $sf"
+                    fi
                 fi
             done
 
@@ -262,6 +291,17 @@ install_rice() {
 
         caelestia)
             # Caelestia Hyprland config
+            # Entry-point requires ~/.config/caelestia/hypr-vars.lua on first
+            # run (package.path points there); pre-create so --verify-config
+            # does not fail on a fresh switch.
+            mkdir -p "$CONFIG_DIR/caelestia"
+            if [[ ! -f "$CONFIG_DIR/caelestia/hypr-vars.lua" ]]; then
+                if [[ $DRY_RUN -eq 1 ]]; then
+                    print_msg "[Dry-Run] Would create stub: $CONFIG_DIR/caelestia/hypr-vars.lua"
+                else
+                    echo 'return {}' > "$CONFIG_DIR/caelestia/hypr-vars.lua"
+                fi
+            fi
             if [[ -d "$rice_dir/hypr" ]]; then
                 for f in "$rice_dir/hypr/"*.lua; do
                     [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/$(basename "$f")"
