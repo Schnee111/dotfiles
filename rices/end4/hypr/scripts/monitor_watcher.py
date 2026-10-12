@@ -282,6 +282,20 @@ def main():
         log("Another instance of monitor_watcher is already running. Exiting.")
         sys.exit(0)
 
+    # end4-only guard: a stale copy of this script must never fight another
+    # rice's shell (caelestia / niri / umbriel). Exit quietly unless the
+    # active rice profile is end4.
+    try:
+        with open(os.path.join(HOME, ".config/.current_rice")) as f:
+            if f.read().strip() != "end4":
+                log("Active rice is not end4; monitor_watcher exiting.")
+                sys.exit(0)
+    except SystemExit:
+        raise
+    except Exception as e:
+        log(f"Could not read current rice profile, exiting: {e}")
+        sys.exit(0)
+
     log("Starting Hyprland Kernel Uevent Monitor Watcher...")
 
     # Start ACPI platform profile watcher in background thread

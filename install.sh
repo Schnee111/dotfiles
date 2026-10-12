@@ -302,6 +302,36 @@ install_rice() {
                     echo 'return {}' > "$CONFIG_DIR/caelestia/hypr-vars.lua"
                 fi
             fi
+            # Drop end4-only leftovers (mirror of the end4 branch cleanup):
+            # shared entry files end4 owns, plus end4-specific modules and
+            # scripts the caelestia entry-point never requires.
+            for stale in "$CONFIG_DIR/hypr/monitors.lua" \
+                         "$CONFIG_DIR/hypr/hypridle.conf" \
+                         "$CONFIG_DIR/hypr/hyprlock.conf" \
+                         "$CONFIG_DIR/hypr/hyprland/colors.lua" \
+                         "$CONFIG_DIR/hypr/hyprland/variables.lua"; do
+                if [[ -L "$stale" || -e "$stale" ]]; then
+                    if [[ $DRY_RUN -eq 1 ]]; then
+                        print_msg "[Dry-Run] Would remove stale: $stale"
+                    else
+                        rm -f "$stale"
+                    fi
+                fi
+            done
+            for stale_dir in "$CONFIG_DIR/hypr/custom" \
+                             "$CONFIG_DIR/hypr/scripts" \
+                             "$CONFIG_DIR/hypr/hyprland/lib" \
+                             "$CONFIG_DIR/hypr/hyprland/services" \
+                             "$CONFIG_DIR/hypr/hyprland/scripts" \
+                             "$CONFIG_DIR/hypr/hyprland/shellOverrides"; do
+                if [[ -e "$stale_dir" ]]; then
+                    if [[ $DRY_RUN -eq 1 ]]; then
+                        print_msg "[Dry-Run] Would remove stale dir: $stale_dir"
+                    else
+                        rm -rf "$stale_dir"
+                    fi
+                fi
+            done
             if [[ -d "$rice_dir/hypr" ]]; then
                 for f in "$rice_dir/hypr/"*.lua; do
                     [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/$(basename "$f")"
@@ -315,6 +345,26 @@ install_rice() {
                         done
                     fi
                 done
+            fi
+            # Drop stale hyprland/*.lua modules left by another rice
+            for sf in "$CONFIG_DIR/hypr/hyprland/"*.lua; do
+                [[ -L "$sf" || -e "$sf" ]] || continue
+                if [[ ! -e "$rice_dir/hypr/hyprland/$(basename "$sf")" ]]; then
+                    if [[ $DRY_RUN -eq 1 ]]; then
+                        print_msg "[Dry-Run] Would remove stale: $sf"
+                    else
+                        rm -f "$sf"
+                        print_warn "Removed stale: $sf"
+                    fi
+                fi
+            done
+            # Caelestia manages monitors inline in hyprland.lua and runs no
+            # monitor watcher: stop the end4 watcher so it cannot rewrite
+            # monitors.lua or respawn qs -c end4-pC mid-session.
+            if [[ $DRY_RUN -eq 1 ]]; then
+                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service"
+            else
+                systemctl --user stop hyprland-monitor-watcher.service 2>/dev/null || true
             fi
             ;;
 
