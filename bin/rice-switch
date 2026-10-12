@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Desktop Rice & Compositor Switcher
-# Seamlessly switch between Hyprland (end4-pC) and Niri (iNiR iRiS)
+# Seamlessly switch between desktop rices & compositors
 # ==============================================================================
 set -euo pipefail
 
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CURRENT_RICE_FILE="$HOME/.config/.current_rice"
 
 notify() {
@@ -17,13 +18,13 @@ die() {
     exit 1
 }
 
-current_desktop() {
-    if pgrep -x Hyprland >/dev/null 2>&1; then
+current_rice() {
+    if [ -f "$CURRENT_RICE_FILE" ]; then
+        cat "$CURRENT_RICE_FILE" | tr -d '[:space:]'
+    elif pgrep -x Hyprland >/dev/null 2>&1; then
         echo "end4"
     elif pgrep -x niri >/dev/null 2>&1; then
         echo "iris"
-    elif [ -f "$CURRENT_RICE_FILE" ]; then
-        cat "$CURRENT_RICE_FILE"
     else
         echo "unknown"
     fi
@@ -40,70 +41,105 @@ exit_compositor() {
 gui_menu() {
     command -v fuzzel >/dev/null 2>&1 || die "Fuzzel is not installed"
     local current
-    current="$(current_desktop)"
+    current="$(current_rice)"
 
-    local opt_end4="◈  end4 (Hyprland · end4-pC)"
-    local opt_iris="✦  iris (Niri · iNiR iRiS)"
+    local options=()
+    local rice_names=()
 
-    if [ "$current" = "end4" ]; then
-        opt_end4="✓  $opt_end4   [ACTIVE]"
-    elif [ "$current" = "iris" ]; then
-        opt_iris="✓  $opt_iris   [ACTIVE]"
+    for d in "$DOTFILES_DIR"/rices/*/; do
+        if [[ -d "$d" ]]; then
+            local rname="$(basename "$d")"
+            local dname="$rname"
+            local conf_file="$d/rice.conf"
+
+            if [[ -f "$conf_file" ]]; then
+                # Source metadata in subshell
+                dname="$(bash -c "source '$conf_file' 2>/dev/null && echo \"\${DISPLAY_NAME:-\$rname}\"")"
+            fi
+
+            if [[ "$rname" == "$current" ]]; then
+                dname="✓  $dname   [ACTIVE]"
+            fi
+
+            options+=("$dname")
+            rice_names+=("$rname")
+        fi
+    done
+
+    if [[ ${#options[@]} -eq 0 ]]; then
+        die "No rices found in $DOTFILES_DIR/rices/"
     fi
 
-    local choice
-    choice=$(printf "%s\n%s\n" "$opt_end4" "$opt_iris" | fuzzel --dmenu --prompt "Switch Rice ❯ " --lines 2) || exit 0
+    local menu_input=""
+    for opt in "${options[@]}"; do
+        menu_input+="$opt"$'\n'
+    done
 
-    case "$choice" in
-        *end4*) echo "end4" ;;
-        *iris*) echo "iris" ;;
-        *) exit 0 ;;
-    esac
+    local choice
+    choice=$(printf "%s" "$menu_input" | fuzzel --dmenu --prompt "Switch Rice ❯ " --lines "${#options[@]}") || exit 0
+
+    # Match choice back to rice name
+    for i in "${!options[@]}"; do
+        if [[ "${options[$i]}" == "$choice" ]]; then
+            echo "${rice_names[$i]}"
+            return 0
+        fi
+    done
+
+    exit 0
 }
 
 switch_to() {
     local target="$1"
     local current
-    current="$(current_desktop)"
+    current="$(current_rice)"
+
+    if [ "$target" = "status" ]; then
+        echo "Active compositor process: $(pgrep -x Hyprland >/dev/null && echo Hyprland || (pgrep -x niri >/dev/null && echo niri || echo none))"
+        echo "Active rice profile: $(current_rice)"
+        echo "Configured GDM session: $(busctl get-property org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User Session 2>/dev/null || echo unknown)"
+        return 0
+    fi
+
+    local target_dir="$DOTFILES_DIR/rices/$target"
+    if [[ ! -d "$target_dir" ]]; then
+        die "Rice '$target' not found in $DOTFILES_DIR/rices/"
+    fi
 
     if [ "$target" = "$current" ]; then
         notify "Profile '$target' is already active."
         exit 0
     fi
 
-    case "$target" in
-        end4)
-            notify "Switching to Hyprland (end4-pC)... Logging out"
-            busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "hyprland" 2>/dev/null || true
-            busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSessionType s "wayland" 2>/dev/null || true
-            echo "end4" > "$CURRENT_RICE_FILE"
-            sleep 0.5
-            exit_compositor
-            ;;
+    # Read target compositor & session
+    local compositor="hyprland"
+    local session="hyprland"
+    local conf_file="$target_dir/rice.conf"
+    if [[ -f "$conf_file" ]]; then
+        compositor="$(bash -c "source '$conf_file' 2>/dev/null && echo \"\${COMPOSITOR:-hyprland}\"")"
+        session="$(bash -c "source '$conf_file' 2>/dev/null && echo \"\${SESSION:-\$compositor}\"")"
+    elif [[ -d "$target_dir/niri" ]]; then
+        compositor="niri"
+        session="niri"
+    fi
 
-        iris)
-            if ! command -v niri >/dev/null 2>&1; then
-                die "Niri is not installed yet. Run: sudo dnf install -y niri"
-            fi
-            notify "Switching to Niri (iNiR iRiS)... Logging out"
-            busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "niri" 2>/dev/null || true
-            busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSessionType s "wayland" 2>/dev/null || true
-            echo "iris" > "$CURRENT_RICE_FILE"
-            sleep 0.5
-            exit_compositor
-            ;;
+    # Check if target compositor is installed
+    if ! command -v "$compositor" >/dev/null 2>&1; then
+        die "Compositor '$compositor' is not installed."
+    fi
 
-        status)
-            echo "Active compositor process: $(pgrep -x Hyprland >/dev/null && echo Hyprland || (pgrep -x niri >/dev/null && echo niri || echo none))"
-            echo "Active rice profile: $(current_desktop)"
-            echo "Configured GDM session: $(busctl get-property org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User Session 2>/dev/null || echo unknown)"
-            ;;
+    notify "Switching to '$target' ($compositor)... Logging out"
 
-        *)
-            echo "Usage: rice-switch [end4 | iris | status]" >&2
-            exit 1
-            ;;
-    esac
+    # Link new rice configs
+    "$DOTFILES_DIR/install.sh" --rice "$target"
+
+    # Configure GDM session
+    busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "$session" 2>/dev/null || true
+    busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSessionType s "wayland" 2>/dev/null || true
+
+    echo "$target" > "$CURRENT_RICE_FILE"
+    sleep 0.5
+    exit_compositor
 }
 
 ACTION="${1:-}"
