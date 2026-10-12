@@ -7,8 +7,12 @@ set -euo pipefail
 
 CURRENT_RICE_FILE="$HOME/.config/.current_rice"
 
+notify() {
+    timeout 0.5 notify-send "Desktop Switcher" "$*" 2>/dev/null &
+}
+
 die() {
-    notify-send "Desktop Switcher" "$*" 2>/dev/null || true
+    notify "$*"
     echo "rice-switch: $*" >&2
     exit 1
 }
@@ -63,17 +67,17 @@ switch_to() {
     current="$(current_desktop)"
 
     if [ "$target" = "$current" ]; then
-        notify-send "Desktop Switcher" "Profile '$target' is already active." 2>/dev/null || true
+        notify "Profile '$target' is already active."
         exit 0
     fi
 
     case "$target" in
         end4)
-            notify-send "Desktop Switcher" "Switching to Hyprland (end4-pC)... Logging out" 2>/dev/null || true
+            notify "Switching to Hyprland (end4-pC)... Logging out"
             busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "hyprland" 2>/dev/null || true
             busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSessionType s "wayland" 2>/dev/null || true
             echo "end4" > "$CURRENT_RICE_FILE"
-            sleep 1
+            sleep 0.5
             exit_compositor
             ;;
 
@@ -81,11 +85,11 @@ switch_to() {
             if ! command -v niri >/dev/null 2>&1; then
                 die "Niri is not installed yet. Run: sudo dnf install -y niri"
             fi
-            notify-send "Desktop Switcher" "Switching to Niri (iNiR iRiS)... Logging out" 2>/dev/null || true
+            notify "Switching to Niri (iNiR iRiS)... Logging out"
             busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "niri" 2>/dev/null || true
             busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSessionType s "wayland" 2>/dev/null || true
             echo "iris" > "$CURRENT_RICE_FILE"
-            sleep 1
+            sleep 0.5
             exit_compositor
             ;;
 
