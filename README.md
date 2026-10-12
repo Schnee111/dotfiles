@@ -37,39 +37,55 @@ Personal dotfiles and configurations for **Fedora Linux 44** running **Hyprland*
 
 ```text
 .
-├── .gitattributes              # GitHub Linguist overrides
-├── .gitignore
-├── install.sh                  # Automated installer & symlink script
-├── README.md                   # System documentation
-├── hypr/
-│   ├── monitors.lua            # Dual-monitor scaling and refresh rates
-│   ├── custom/                 # Hyprland modular configuration
-│   │   ├── env.lua             # Custom environment variables
-│   │   ├── execs.lua           # Autostart applications
-│   │   ├── general.lua         # Layout, gaps, and borders
-│   │   ├── keybinds.lua        # Keybind overrides
-│   │   ├── rules.lua           # Window and workspace rules
-│   │   └── variables.lua       # Custom variables
-│   └── scripts/
-│       ├── audio_output_toggle.sh    # Toggle SOF audio outputs
-│       ├── display_switch.sh         # Rofi display profile switcher
-│       └── screenshot_fullscreen.sh  # Complete screenshot pipeline
-├── rofi/
-│   ├── launcher.sh             # Launchpad launcher with theme sync
-│   ├── launchpad.rasi          # Fullscreen grid layout
-│   ├── display.rasi            # Display switcher menu layout
-│   └── colors.rasi             # Material You dynamic colors
-├── kitty/
-│   └── kitty.conf              # Font, padding, and fish shell
-├── fish/
-│   └── config.fish             # Aliases, transients, and prompt
-├── starship/
-│   └── starship.toml           # Minimalist starship prompt
-├── pipewire/
-│   └── 10-headphone-balance.conf # Channel balance DSP filter
-└── swappy/
-    └── config                  # Screenshot save path configuration
+├── install.sh                  # Automated installer & multi-rice linker
+├── bin/
+│   └── rice-switch             # Dynamic Fuzzel-based rice switcher
+├── common/                     # Core configs shared across all rices
+│   ├── kitty/                  # Terminal emulator config
+│   ├── fish/                   # Fish shell config & aliases
+│   ├── starship/               # Starship minimalist prompt
+│   ├── rofi/                   # Launchpad & display switcher
+│   ├── pipewire/               # Headphone DSP balance (+0.15 right channel)
+│   ├── fastfetch/              # Custom ASCII logos & specs
+│   ├── chrome/                 # Wallpaper color sync host
+│   ├── firefox/                # WhiteSur frosted glass theme
+│   ├── swappy/                 # Screenshot annotation config
+│   ├── fontconfig/             # CJK & Nerd Font priorities
+│   └── systemd/                # Background watcher services & timers
+└── rices/                      # Isolated desktop rice environments
+    ├── end4/                   # Rice 1: Hyprland + Quickshell (Material 3)
+    │   ├── rice.conf           # Profile metadata
+    │   ├── hypr/               # Hyprland custom configs, rules & scripts
+    │   └── illogical-impulse/  # Quickshell bar, dock & widget state
+    └── iris/                   # Rice 2: Niri + iNiR
+        ├── rice.conf           # Profile metadata
+        ├── niri/               # Niri config (config.kdl)
+        └── inir/               # iNiR Quickshell state
 ```
+
+---
+
+## Multi-Rice Architecture
+
+### Switching Rices
+Bisa via terminal atau shortcut:
+```bash
+rice-switch          # Membuka GUI menu switcher (Fuzzel)
+rice-switch end4     # Beralih ke Hyprland Material 3
+rice-switch iris     # Beralih ke Niri iNiR
+rice-switch status   # Cek rice & compositor aktif
+```
+
+### Menambahkan Rice Baru
+1. Buat folder baru di bawah `rices/<nama-rice>/`.
+2. Tambahkan `rice.conf` (metadata opsional):
+   ```bash
+   NAME="nama-rice"
+   DISPLAY_NAME="🎨  Nama Rice (Hyprland / Waybar)"
+   COMPOSITOR="hyprland"
+   ```
+3. Letakkan konfigurasi WM/Shell di dalamnya (misal `hypr/`, `waybar/`, `dunst/`).
+4. Jalankan `rice-switch` — profil baru akan otomatis terdeteksi di menu!
 
 ---
 
