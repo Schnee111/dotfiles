@@ -37,6 +37,8 @@ exit_compositor() {
         niri msg action quit --skip-confirmation 2>/dev/null || pkill -x niri || loginctl terminate-session "${XDG_SESSION_ID:-}"
     elif pgrep -x umbriel >/dev/null 2>&1; then
         umbriel msg session-quit 2>/dev/null || pkill -x umbriel || loginctl terminate-session "${XDG_SESSION_ID:-}"
+    else
+        loginctl terminate-session "${XDG_SESSION_ID:-}" 2>/dev/null || gnome-session-quit --logout --no-prompt 2>/dev/null || true
     fi
 }
 
@@ -153,6 +155,11 @@ switch_to() {
     # Check if target compositor is installed
     if ! command -v "$compositor" >/dev/null 2>&1; then
         die "Compositor '$compositor' is not installed."
+    fi
+
+    # Check if session desktop file exists for GDM / display manager
+    if [[ ! -f "/usr/share/wayland-sessions/${session}.desktop" && ! -f "/usr/local/share/wayland-sessions/${session}.desktop" ]]; then
+        die "Wayland session '${session}.desktop' not found in /usr/share/wayland-sessions/."
     fi
 
     notify "Switching to '$target' ($compositor)... Logging out"

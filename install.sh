@@ -186,9 +186,26 @@ install_rice() {
             link_file "$rice_dir/hypr/hypridle.conf" "$CONFIG_DIR/hypr/hypridle.conf"
             link_file "$rice_dir/hypr/hyprlock.conf" "$CONFIG_DIR/hypr/hyprlock.conf"
 
-            if [[ -f "$rice_dir/hypr/hyprland/keybinds.lua" ]]; then
-                link_file "$rice_dir/hypr/hyprland/keybinds.lua" "$CONFIG_DIR/hypr/hyprland/keybinds.lua"
+            # Hyprland Lua entry-point
+            if [[ -f "$rice_dir/hypr/hyprland.lua" ]]; then
+                link_file "$rice_dir/hypr/hyprland.lua" "$CONFIG_DIR/hypr/hyprland.lua"
             fi
+
+            # Hyprland modules (keybinds + upstream defaults tracked per-rice)
+            for f in "$rice_dir/hypr/hyprland/"*.lua; do
+                [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/hyprland/$(basename "$f")"
+            done
+
+            # Hyprland module subdirs (lib, services, scripts)
+            for d in "$rice_dir/hypr/hyprland/"*/; do
+                if [[ -d "$d" ]]; then
+                    local subname="$(basename "$d")"
+                    mkdir -p "$CONFIG_DIR/hypr/hyprland/$subname"
+                    for sf in "$d"*; do
+                        [[ -f "$sf" ]] && link_file "$sf" "$CONFIG_DIR/hypr/hyprland/$subname/$(basename "$sf")"
+                    done
+                fi
+            done
 
             for f in "$rice_dir/hypr/custom/"*.lua; do
                 [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/custom/$(basename "$f")"
