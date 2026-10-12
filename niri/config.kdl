@@ -14,14 +14,14 @@ hotkey-overlay {
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 output "eDP-1" {
-    mode "2880x1800@90"
-    scale 1.5
-    transform "normal"
-    position x=0 y=0
+    off
 }
 
 output "HDMI-A-1" {
-    off
+    mode "1920x1080@200"
+    scale 1.0
+    transform "normal"
+    position x=0 y=0
 }
 
 // ============================================================================
