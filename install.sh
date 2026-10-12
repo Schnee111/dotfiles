@@ -224,6 +224,35 @@ install_rice() {
             fi
             ;;
 
+        noctalia)
+            # Umbriel compositor config
+            if [[ -f "$rice_dir/umbriel/config.toml" ]]; then
+                link_file "$rice_dir/umbriel/config.toml" "$CONFIG_DIR/umbriel/config.toml"
+            fi
+            # Noctalia desktop shell config
+            if [[ -f "$rice_dir/noctalia/config.toml" ]]; then
+                link_file "$rice_dir/noctalia/config.toml" "$CONFIG_DIR/noctalia/config.toml"
+            fi
+            ;;
+
+        caelestia)
+            # Caelestia Hyprland config
+            if [[ -d "$rice_dir/hypr" ]]; then
+                for f in "$rice_dir/hypr/"*.lua; do
+                    [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/$(basename "$f")"
+                done
+                for d in "$rice_dir/hypr"/*/; do
+                    if [[ -d "$d" ]]; then
+                        local subname="$(basename "$d")"
+                        mkdir -p "$CONFIG_DIR/hypr/$subname"
+                        for sf in "$d"*; do
+                            [[ -f "$sf" ]] && link_file "$sf" "$CONFIG_DIR/hypr/$subname/$(basename "$sf")"
+                        done
+                    fi
+                done
+            fi
+            ;;
+
         *)
             # Generic rice layout convention
             print_msg "Linking generic rice files for $rice..."

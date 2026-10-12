@@ -34,7 +34,7 @@
   },
   {
     "workspace": 3,
-    "name": "Hermes Desktop Left",
+    "name": "Hermes Desktop",
     "cmd": "/home/schnee/.local/bin/hermes desktop",
     "match": "com.nousresearch.hermes",
     "split": "root",
@@ -153,5 +153,82 @@
     "width": 0,
     "height": 0,
     "timeout": 10
+  },
+  {
+    "workspace": 1,
+    "name": "New App",
+    "cmd": "",
+    "match": "",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 15
+  },
+  {
+    "workspace": 1,
+    "name": "New App",
+    "cmd": "",
+    "match": "",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 15
+  },
+  {
+    "workspace": 1,
+    "name": "New App",
+    "cmd": "",
+    "match": "",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 15
+  },
+  {
+    "workspace": 1,
+    "name": "New App",
+    "cmd": "",
+    "match": "",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 15
+  },
+  {
+    "workspace": 1,
+    "name": "New App",
+    "cmd": "",
+    "match": "",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 15
+  },
+  {
+    "workspace": 1,
+    "name": "New App",
+    "cmd": "",
+    "match": "",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 15
+  },
+  {
+    "workspace": 1,
+    "name": "New App",
+    "cmd": "",
+    "match": "",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 15
   }
 ]

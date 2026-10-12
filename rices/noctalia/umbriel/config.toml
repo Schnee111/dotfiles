@@ -1,0 +1,101 @@
+# ==============================================================================
+# Umbriel Configuration (Rice: Noctalia)
+# Hardware: ASUS TigerLake + Xiaomi Mi 1080p @ 200Hz (HDMI-A-1)
+# ==============================================================================
+
+[general]
+autostart = [
+    "noctalia",
+    "pipewire",
+    "wireplumber"
+]
+xwayland = true
+xwayland_native_resolution = true
+
+# ==============================================================================
+# Outputs
+# ==============================================================================
+
+[output."HDMI-A-1"]
+enabled = true
+mode = "1920x1080@200"
+position = [0, 0]
+scale = 1.0
+direct_scanout = true
+focus_at_startup = true
+
+[output."eDP-1"]
+enabled = false
+
+# ==============================================================================
+# Appearance & Effects
+# ==============================================================================
+
+[appearance.blur]
+radius = 7
+
+# ==============================================================================
+# Input
+# ==============================================================================
+
+[input.keyboard]
+numlock_toggle = true
+
+# ==============================================================================
+# Keybinds
+# ==============================================================================
+
+[keybinds]
+# Applications and session
+"Mod+Return" = { action = "spawn:kitty", repeat = false }
+"Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
+"Mod" = "spawn:noctalia msg panel-toggle launcher"
+"Mod+Q" = { action = "window-close", repeat = false }
+"Mod+Escape" = "session-quit"
+"Mod+Shift+D" = "spawn:rice-switch"
+
+# Navigation
+"Mod+Left" = "window-focus-left"
+"Mod+Down" = "window-focus-down"
+"Mod+Up" = "window-focus-up"
+"Mod+Right" = "window-focus-right"
+"Mod+H" = "window-focus-left"
+"Mod+J" = "window-focus-down"
+"Mod+K" = "window-focus-up"
+"Mod+L" = "window-focus-right"
+"Mod+Shift+Left" = "column-move-left"
+"Mod+Shift+Down" = "window-move-down"
+"Mod+Shift+Up" = "window-move-up"
+"Mod+Shift+Right" = "column-move-right"
+
+# Window state & layout
+"Mod+T" = { action = "window-toggle-floating", repeat = false }
+"Mod+F" = { action = "window-toggle-fullscreen", repeat = false }
+"Mod+Ctrl+F" = { action = "window-toggle-maximize", repeat = false }
+"Mod+O" = { action = "overview-toggle", repeat = false }
+
+# Workspaces 1..9
+"Mod+1" = "workspace-switch:1"
+"Mod+2" = "workspace-switch:2"
+"Mod+3" = "workspace-switch:3"
+"Mod+4" = "workspace-switch:4"
+"Mod+5" = "workspace-switch:5"
+"Mod+6" = "workspace-switch:6"
+"Mod+7" = "workspace-switch:7"
+"Mod+8" = "workspace-switch:8"
+"Mod+9" = "workspace-switch:9"
+"Mod+Shift+1" = "window-move-to-workspace:1"
+"Mod+Shift+2" = "window-move-to-workspace:2"
+"Mod+Shift+3" = "window-move-to-workspace:3"
+"Mod+Shift+4" = "window-move-to-workspace:4"
+"Mod+Shift+5" = "window-move-to-workspace:5"
+"Mod+Shift+6" = "window-move-to-workspace:6"
+"Mod+Shift+7" = "window-move-to-workspace:7"
+"Mod+Shift+8" = "window-move-to-workspace:8"
+"Mod+Shift+9" = "window-move-to-workspace:9"
+
+[layout]
+extent_presets = [0.333, 0.5, 0.667]
+
+[layout.scrolling]
+default_extent_fraction = 0.5

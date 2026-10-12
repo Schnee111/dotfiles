@@ -35,6 +35,8 @@ exit_compositor() {
         hyprctl dispatch 'hl.dsp.exit()' 2>/dev/null || pkill -x Hyprland || loginctl terminate-session "${XDG_SESSION_ID:-}"
     elif pgrep -x niri >/dev/null 2>&1; then
         niri msg action quit --skip-confirmation 2>/dev/null || pkill -x niri || loginctl terminate-session "${XDG_SESSION_ID:-}"
+    elif pgrep -x umbriel >/dev/null 2>&1; then
+        umbriel msg session-quit 2>/dev/null || pkill -x umbriel || loginctl terminate-session "${XDG_SESSION_ID:-}"
     fi
 }
 
