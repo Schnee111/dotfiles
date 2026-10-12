@@ -24,3 +24,10 @@ hl.bind("ALT + SHIFT + Tab", function()
     hl.dispatch(hl.dsp.window.cycle_next(true))
     hl.dispatch(hl.dsp.window.bring_to_top())
 end, { description = "Window: Cycle prev" })
+
+-- Fast Workspace Switcher (Previous Workspace Toggle)
+hl.bind("SUPER + grave", hl.dsp.focus({ workspace = "previous" }), { description = "Workspace: Toggle previous workspace" })
+hl.bind("SUPER + code:49", hl.dsp.focus({ workspace = "previous" }))
+hl.bind("SUPER + ALT + Tab", hl.dsp.focus({ workspace = "previous" }), { description = "Workspace: Toggle previous workspace" })
+hl.bind("ALT + SUPER + Tab", hl.dsp.focus({ workspace = "previous" }))
+
