@@ -61,6 +61,7 @@ layout {
         proportion 0.33333
         proportion 0.5
         proportion 0.66667
+        proportion 1.0
     }
     
     default-column-width { 
@@ -120,6 +121,12 @@ overview {
 // ============================================================================
 // WINDOW RULES
 // ============================================================================
+
+window-rule {
+    match app-id="xwaylandvideobridge"
+    open-floating true
+    opacity 0.0
+}
 
 window-rule {
     geometry-corner-radius 16
@@ -268,6 +275,9 @@ binds {
     // Window management
     Mod+Q repeat=false allow-inhibiting=false { spawn "bash" "-c" "$HOME/.config/quickshell/inir/scripts/close-window.sh"; }
     Mod+D { maximize-column; }
+    Mod+R { switch-preset-column-width; }
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
     Mod+F { fullscreen-window; }
     Mod+A { toggle-window-floating; }
 
