@@ -102,8 +102,8 @@ local function default_config()
         music = {
             spotify = {
                 enable  = true,
-                match   = { { class = "Spotify" }, { initial_title = "Spotify" }, { initial_title = "Spotify Free" } },
-                command = { "spicetify", "watch", "-s" },
+                match   = { { class = "spotify" }, { class = "Spotify" }, { initial_title = "Spotify" }, { initial_title = "Spotify Free" }, { title = "Spotify" } },
+                command = { "sh", "-c", "pgrep -x spotify >/dev/null || pgrep -f com.spotify.Client >/dev/null || flatpak run com.spotify.Client" },
                 move    = true,
             },
             feishin = { enable = true, match = { { class = "feishin" } }, move = true },
