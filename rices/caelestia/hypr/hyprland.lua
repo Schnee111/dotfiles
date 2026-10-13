@@ -74,7 +74,7 @@ if is_external_connected() then
     })
     hl.monitor({
         output   = "eDP-1",
-        mode     = "disable",
+        disabled = true,
     })
 else
     hl.monitor({
@@ -85,7 +85,7 @@ else
     })
     hl.monitor({
         output   = "HDMI-A-1",
-        mode     = "disable",
+        disabled = true,
     })
 end
 
