@@ -32,11 +32,11 @@ current_rice() {
 
 exit_compositor() {
     if pgrep -x Hyprland >/dev/null 2>&1; then
-        hyprctl dispatch 'hl.dsp.exit()' 2>/dev/null || pkill -x Hyprland || loginctl terminate-session "${XDG_SESSION_ID:-}"
+        hyprctl dispatch exit 2>/dev/null || pkill -x Hyprland || loginctl terminate-session "${XDG_SESSION_ID:-}"
     elif pgrep -x niri >/dev/null 2>&1; then
         niri msg action quit --skip-confirmation 2>/dev/null || pkill -x niri || loginctl terminate-session "${XDG_SESSION_ID:-}"
     elif pgrep -x umbriel >/dev/null 2>&1; then
-        umbriel msg session-quit 2>/dev/null || pkill -x umbriel || loginctl terminate-session "${XDG_SESSION_ID:-}"
+        umbriel msg "session-quit:skip-confirmation" 2>/dev/null || pkill -x umbriel || loginctl terminate-session "${XDG_SESSION_ID:-}"
     else
         loginctl terminate-session "${XDG_SESSION_ID:-}" 2>/dev/null || gnome-session-quit --logout --no-prompt 2>/dev/null || true
     fi

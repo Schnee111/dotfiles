@@ -1,4 +1,5 @@
 local vars = require("variables")
+local home = os.getenv("HOME") or "/home/schnee"
 
 -- Themes
 hl.env("QT_QPA_PLATFORMTHEME", "qtengine")
@@ -21,3 +22,7 @@ hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 
 -- Others
 hl.env("_JAVA_AWT_WM_NONREPARENTING", "1")
+
+-- Locally built Caelestia QML plugins + audio libs (cava/fftw in ~/.local)
+hl.env("QML2_IMPORT_PATH", home .. "/.local/lib64/qt6/qml")
+hl.env("LD_LIBRARY_PATH", home .. "/.local/lib:" .. home .. "/.local/lib64")
