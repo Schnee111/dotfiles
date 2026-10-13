@@ -1,0 +1,157 @@
+[
+  {
+    "workspace": 2,
+    "name": "Kitty Fastfetch",
+    "cmd": "kitty --class kitty-fastfetch fish -c 'fastfetch; exec fish'",
+    "match": "kitty-fastfetch",
+    "split": "root",
+    "target": "",
+    "width": 951,
+    "height": 427,
+    "timeout": 10
+  },
+  {
+    "workspace": 2,
+    "name": "Kitty Main",
+    "cmd": "kitty --class kitty-main",
+    "match": "kitty-main",
+    "split": "right",
+    "target": "kitty-fastfetch",
+    "width": 0,
+    "height": 0,
+    "timeout": 10
+  },
+  {
+    "workspace": 2,
+    "name": "Kitty Btop",
+    "cmd": "kitty --class kitty-btop -o font_size=9.0 -e btop",
+    "match": "kitty-btop",
+    "split": "down",
+    "target": "kitty-fastfetch",
+    "width": 0,
+    "height": 0,
+    "timeout": 10
+  },
+  {
+    "workspace": 3,
+    "name": "Hermes Desktop",
+    "cmd": "/home/schnee/.local/bin/hermes desktop",
+    "match": "com.nousresearch.hermes",
+    "split": "root",
+    "target": "",
+    "width": 1100,
+    "height": 1019,
+    "timeout": 15,
+    "shortcut": "CTRL SHIFT+N"
+  },
+  {
+    "workspace": 4,
+    "name": "Google Chrome",
+    "cmd": "google-chrome-stable",
+    "match": "google-chrome",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 10
+  },
+  {
+    "workspace": 5,
+    "name": "Mozilla Firefox",
+    "cmd": "firefox",
+    "match": "firefox",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 10
+  },
+  {
+    "workspace": 7,
+    "name": "WhatsApp PWA",
+    "cmd": "firefox --name whatsapp-app --new-instance -P whatsapp-pwa https://web.whatsapp.com",
+    "match": "whatsapp-app",
+    "split": "root",
+    "target": "",
+    "width": 1258,
+    "height": 1019,
+    "timeout": 25
+  },
+  {
+    "workspace": 7,
+    "name": "Telegram Desktop",
+    "cmd": "/home/schnee/.local/bin/telegram",
+    "match": "telegram",
+    "split": "right",
+    "target": "whatsapp-app",
+    "width": 0,
+    "height": 0,
+    "timeout": 15
+  },
+  {
+    "workspace": 8,
+    "name": "Dev Kitty Main",
+    "cmd": "kitty --class kitty-main",
+    "match": "kitty-main",
+    "split": "root",
+    "target": "",
+    "width": 0,
+    "height": 0,
+    "timeout": 10
+  },
+  {
+    "workspace": 8,
+    "name": "Agy CLI",
+    "cmd": "kitty fish -c 'agy; exec fish'",
+    "match": "agy",
+    "split": "right",
+    "target": "kitty-main",
+    "width": 0,
+    "height": 0,
+    "timeout": 10
+  },
+  {
+    "workspace": 8,
+    "name": "Dev Btop",
+    "cmd": "kitty -o font_size=10.0 fish -c 'btop; exec fish'",
+    "match": "btop",
+    "split": "down",
+    "target": "agy",
+    "width": 0,
+    "height": 0,
+    "timeout": 10
+  },
+  {
+    "workspace": 9,
+    "name": "Discord",
+    "cmd": "flatpak run com.discordapp.Discord",
+    "match": "discord",
+    "split": "root",
+    "target": "",
+    "width": 1075,
+    "height": 1019,
+    "timeout": 30
+  },
+  {
+    "workspace": 9,
+    "name": "Spotify",
+    "cmd": "flatpak run com.spotify.Client",
+    "match": "spotify",
+    "split": "right",
+    "target": "discord",
+    "width": 823,
+    "height": 625,
+    "timeout": 25
+  },
+  {
+    "workspace": 9,
+    "name": "WS9 Fastfetch",
+    "cmd": "kitty --class kitty-ws9 -o font_size=10.0 fish -c 'fastfetch; exec fish'",
+    "match": "kitty-ws9",
+    "split": "down",
+    "target": "spotify",
+    "width": 0,
+    "height": 0,
+    "timeout": 10
+  }
+]
