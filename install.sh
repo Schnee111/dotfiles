@@ -469,6 +469,12 @@ install_rice() {
                         ln -sf "$CONFIG_DIR/pleamar/shells/vitreus/bin/$hb" "$HOME/.local/bin/$hb"
                     fi
                 done
+                # Vitreus palettes (rewritten from wallpaper by the shell; create stock copies on first install)
+                for pal in palette wm-palette; do
+                    if [[ ! -f "$CONFIG_DIR/pleamar/shells/vitreus/$pal.plm" && -f "$CONFIG_DIR/pleamar/shells/vitreus/$pal.default.plm" ]]; then
+                        cp "$CONFIG_DIR/pleamar/shells/vitreus/$pal.default.plm" "$CONFIG_DIR/pleamar/shells/vitreus/$pal.plm"
+                    fi
+                done
                 # Shell binds loader for our entry-point
                 if [[ -f "$CONFIG_DIR/pleamar/shells/vitreus/hypr_vitreus.lua" ]]; then
                     link_file "$CONFIG_DIR/pleamar/shells/vitreus/hypr_vitreus.lua" "$CONFIG_DIR/hypr/hypr_vitreus.lua"
