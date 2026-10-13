@@ -4,6 +4,6 @@ Documentation=https://github.com/outfoxxed/quickshell/issues/1161
 
 [Service]
 Type=oneshot
-ExecStart=/home/schnee/.config/hypr/scripts/quickshell_log_cleaner.sh
+ExecStart=/home/schnee/.local/bin/quickshell_log_cleaner.sh
 IOSchedulingClass=idle
 CPUSchedulingPolicy=idle

@@ -10,6 +10,3 @@ Restart=always
 RestartSec=1
 StandardOutput=journal
 StandardError=journal
-
-[Install]
-WantedBy=hyprland-session.target
