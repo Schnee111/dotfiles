@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+#
+# vitreus-brightness-mirror — mirror the laptop backlight level to an external
+# monitor over DDC/CI while the vitreus rice is active with eDP disabled.
+#
+# Why: the Vitreus shell's brightness slider writes sys.call("brightness.level"),
+# which only drives the laptop backlight (intel_backlight sysfs). With the
+# laptop panel off and HDMI/DP as the sole monitor that changes nothing
+# visible. This daemon polls the backlight level and mirrors changes to the
+# external monitor via ddcutil (VCP 10), throttled for slider drags.
+#
+# No feedback loop: the brightness keys go through vitreus-brightness directly
+# and never touch sysfs in DDC mode, so the slider is the only sysfs writer
+# while this daemon is active. Exits quietly on any other rice.
+
+set -euo pipefail
+
+POLL_INTERVAL=0.3
+MIN_SEND_GAP_MS=150
+EPSILON=0.005
+RICE_FILE="$HOME/.config/.current_rice"
+
+rice_ok() {
+    [[ "${VITREUS_BRIGHTNESS_FORCE:-0}" == "1" ]] && return 0
+    local cur
+    cur=$(<"$RICE_FILE" 2>/dev/null) || return 1
+    # Strip whitespace (file holds a bare name plus trailing newline).
+    [[ "${cur//[[:space:]]/}" == "vitreus" ]]
+}
+
+# Print the I2C bus number of the first connected external monitor, if any.
+find_ddc_bus() {
+    local st link
+    for st in /sys/class/drm/card*-HDMI-A-*/status /sys/class/drm/card*-DP-*/status; do
+        [[ -r "$st" ]] || continue
+        [[ "$(cat "$st" 2>/dev/null)" == "connected" ]] || continue
+        link=$(readlink "${st%/status}/ddc" 2>/dev/null || true)
+        if [[ "$link" =~ i2c-([0-9]+) ]]; then
+            printf '%s' "${BASH_REMATCH[1]}"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Is the laptop panel currently an active Hyprland monitor?
+edp_active() {
+    hyprctl monitors 2>/dev/null | grep -q '^Monitor eDP-1'
+}
+
+# Backlight level as a 0..1 fraction, or nothing on failure.
+backlight_frac() {
+    brightnessctl -m 2>/dev/null | awk -F, '{ printf "%.4f", $3/$5 }'
+}
+
+ms_now() {
+    date +%s%3N
+}
+
+BUS=""
+MAX=""
+BUS_FOR_MAX=""
+last_seen=""
+last_sent=""
+pending=""
+last_send_ms=0
+synced_at_start=false
+
+while true; do
+    # Leave quietly on other rices.
+    if ! rice_ok; then
+        exit 0
+    fi
+
+    if BUS=$(find_ddc_bus 2>/dev/null) && ! edp_active && command -v ddcutil >/dev/null 2>&1; then
+        if [[ "$MAX" == "" || "$BUS_FOR_MAX" != "$BUS" ]]; then
+            MAX=$(ddcutil -b "$BUS" getvcp 10 --brief 2>/dev/null | awk '{ print $5 }')
+            if [[ "$MAX" =~ ^[0-9]+$ && "$MAX" -gt 0 ]]; then
+                BUS_FOR_MAX="$BUS"
+            else
+                MAX=""
+            fi
+        fi
+        if [[ -n "$MAX" ]]; then
+            # One-shot: pull the (stale) laptop backlight to the monitor's real
+            # level, so the shell's slider and the OSD agree with hardware.
+            if [[ "$synced_at_start" != true ]]; then
+                synced_at_start=true
+                read -r dcur _rest <<<"$(ddcutil -b "$BUS" getvcp 10 --brief 2>/dev/null | awk '{ print $4 }')"
+                if [[ "$dcur" =~ ^[0-9]+$ ]]; then
+                    pct=$(awk -v v="$dcur" -v m="$MAX" \
+                        'BEGIN { p = int(v * 100 / m + 0.5); if (p < 1) p = 1; if (p > 100) p = 100; print p }')
+                    brightnessctl --class backlight set "${pct}%" --quiet >/dev/null 2>&1 || true
+                    # Baseline: hardware and backlight agree now, so only real
+                    # slider moves after this point count as changes.
+                    last_sent=$(awk -v v="$dcur" -v m="$MAX" 'BEGIN { printf "%.4f", v / m }')
+                    last_seen="$last_sent"
+                fi
+            fi
+            cur=$(backlight_frac || true)
+            if [[ "$cur" =~ ^[0-9.]+$ ]]; then
+                if [[ "$cur" != "$last_seen" ]]; then
+                    last_seen="$cur"
+                    pending="$cur"
+                fi
+                if [[ -n "$pending" ]]; then
+                    moved=$(awk -v a="$pending" -v b="${last_sent:-$pending}" -v e="$EPSILON" \
+                        'BEGIN { d = (a > b) ? a - b : b - a; print (d > e) ? 1 : 0 }')
+                    now_ms=$(ms_now)
+                    if [[ "$moved" == "1" ]] && ((now_ms - last_send_ms >= MIN_SEND_GAP_MS)); then
+                        raw=$(awk -v v="$pending" -v m="$MAX" \
+                            'BEGIN { r = int(v * m + 0.5); if (r < 1) r = 1; if (r > m) r = m; print r }')
+                        if ddcutil -b "$BUS" setvcp 10 "$raw" --noverify >/dev/null 2>&1; then
+                            last_sent="$pending"
+                            last_send_ms="$now_ms"
+                            pending=""
+                        else
+                            MAX="" # re-read max next round; monitor may have slept
+                        fi
+                    fi
+                fi
+            fi
+        fi
+    else
+        last_seen=""
+        pending=""
+    fi
+
+    sleep "$POLL_INTERVAL"
+done

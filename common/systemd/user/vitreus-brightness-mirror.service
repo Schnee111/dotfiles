@@ -1,0 +1,12 @@
+[Unit]
+Description=Vitreus brightness slider to DDC mirror (external monitor)
+PartOf=hyprland-session.target
+After=hyprland-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/vitreus-brightness-mirror
+Restart=on-failure
+RestartSec=2
+StandardOutput=journal
+StandardError=journal
