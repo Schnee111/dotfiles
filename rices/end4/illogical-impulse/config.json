@@ -460,7 +460,7 @@
         "autostartApps": {
             "apps": [
             ],
-            "enable": false
+            "enable": true
         },
         "decoration": {
             "activeOpacity": 0.86,
@@ -507,7 +507,7 @@
                 "scrollFactor": 0.3
             }
         },
-        "sessionAutostart": false
+        "sessionAutostart": true
     },
     "interactions": {
         "deadPixelWorkaround": {
