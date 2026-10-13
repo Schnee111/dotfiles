@@ -68,7 +68,10 @@ case "$1" in
         ;;
 esac
 
-ln -sf "$LOGOS_DIR/$TARGET" "$LOGOS_DIR/current"
-ln -sf "$LOGOS_DIR/$TARGET" "$HOME/.config/fastfetch/logos/current"
+ln -sf "$TARGET" "$LOGOS_DIR/current"
+ln -sf "$TARGET" "$HOME/.config/fastfetch/logos/current"
+if [[ -d "$HOME/Projects/dotfiles/common/fastfetch/logos" ]]; then
+    ln -sf "$TARGET" "$HOME/Projects/dotfiles/common/fastfetch/logos/current"
+fi
 echo "Switched fastfetch logo to: $TARGET"
 fastfetch

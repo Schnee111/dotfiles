@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Minimal `caelestia` CLI shim for the Caelestia rice.
+# The real caelestia-cli is a Python wrapper around `qs -c caelestia`;
+# the only command the rice keybinds need is `caelestia shell -d`
+# (daemonized shell start) plus kill/restart helpers.
+set -euo pipefail
+
+usage() {
+    echo "usage: caelestia shell [-d] [qs-args...] | caelestia {kill|restart|version}" >&2
+    exit 1
+}
+
+cmd="${1:-}"
+shift || true
+
+case "$cmd" in
+    shell)
+        daemon=0
+        rest=()
+        for a in "$@"; do
+            case "$a" in
+                -d|--daemon) daemon=1 ;;
+                *) rest+=("$a") ;;
+            esac
+        done
+        if [[ $daemon -eq 1 ]]; then
+            # Detached like qs --daemonize so the shell survives the spawner
+            setsid nohup qs -c caelestia "${rest[@]}" >/dev/null 2>&1 &
+        else
+            exec qs -c caelestia "${rest[@]}"
+        fi
+        ;;
+    kill)
+        qs -c caelestia kill "$@" 2>/dev/null || pkill -f "qs.*caelestia" || true
+        ;;
+    restart)
+        qs -c caelestia kill 2>/dev/null || pkill -f "qs.*caelestia" || true
+        sleep 0.3
+        setsid nohup qs -c caelestia >/dev/null 2>&1 &
+        ;;
+    --version|version)
+        echo "caelestia-shim 0.1.0 (qs -c caelestia wrapper)"
+        ;;
+    *) usage ;;
+esac

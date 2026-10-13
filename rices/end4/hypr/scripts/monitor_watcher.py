@@ -144,7 +144,7 @@ hl.monitor({
     time.sleep(0.5)
     ensure_quickshell()
 
-    subprocess.Popen(["pw-play", os.path.expanduser("~/.local/share/sounds/macos/Swish.mp3")], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.Popen(["play_sound.sh", "Swish.mp3"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.Popen([
         "notify-send", "-t", "2500", "-a", "Display", "Display Output",
         "External monitor disconnected. Laptop display restored.",
@@ -207,7 +207,7 @@ hl.monitor({
     time.sleep(0.5)
     ensure_quickshell()
 
-    subprocess.Popen(["pw-play", os.path.expanduser("~/.local/share/sounds/macos/Chord.mp3")], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.Popen(["play_sound.sh", "Chord.mp3"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     subprocess.Popen([
         "notify-send", "-t", "2500", "-a", "Display", "Display Output",
         "External monitor connected. Switched to External Only (1080p @ 200Hz).",
@@ -257,12 +257,12 @@ def watch_platform_profile():
                 last_profile = new_profile
                 log(f"Platform profile changed: {new_profile}")
                 sounds = {
-                    "quiet": os.path.expanduser("~/.local/share/sounds/macos/Blow.aiff"),
-                    "balanced": os.path.expanduser("~/.local/share/sounds/macos/Pop.aiff"),
-                    "performance": os.path.expanduser("~/.local/share/sounds/macos/Hero.aiff"),
+                    "quiet": "Blow.aiff",
+                    "balanced": "Pop.aiff",
+                    "performance": "Hero.aiff",
                 }
                 if new_profile in sounds:
-                    subprocess.Popen(["pw-play", sounds[new_profile]], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    subprocess.Popen(["play_sound.sh", sounds[new_profile]], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 subprocess.Popen([
                     "notify-send", "-a", "Power Profile",
                     "-i", "power",
@@ -280,6 +280,20 @@ def main():
         fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except IOError:
         log("Another instance of monitor_watcher is already running. Exiting.")
+        sys.exit(0)
+
+    # end4-only guard: a stale copy of this script must never fight another
+    # rice's shell (caelestia / niri / umbriel). Exit quietly unless the
+    # active rice profile is end4.
+    try:
+        with open(os.path.join(HOME, ".config/.current_rice")) as f:
+            if f.read().strip() != "end4":
+                log("Active rice is not end4; monitor_watcher exiting.")
+                sys.exit(0)
+    except SystemExit:
+        raise
+    except Exception as e:
+        log(f"Could not read current rice profile, exiting: {e}")
         sys.exit(0)
 
     log("Starting Hyprland Kernel Uevent Monitor Watcher...")

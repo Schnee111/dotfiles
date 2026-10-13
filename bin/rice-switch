@@ -32,11 +32,13 @@ current_rice() {
 
 exit_compositor() {
     if pgrep -x Hyprland >/dev/null 2>&1; then
-        hyprctl dispatch 'hl.dsp.exit()' 2>/dev/null || pkill -x Hyprland || loginctl terminate-session "${XDG_SESSION_ID:-}"
+        hyprctl dispatch exit 2>/dev/null || pkill -x Hyprland || loginctl terminate-session "${XDG_SESSION_ID:-}"
     elif pgrep -x niri >/dev/null 2>&1; then
         niri msg action quit --skip-confirmation 2>/dev/null || pkill -x niri || loginctl terminate-session "${XDG_SESSION_ID:-}"
     elif pgrep -x umbriel >/dev/null 2>&1; then
-        umbriel msg session-quit 2>/dev/null || pkill -x umbriel || loginctl terminate-session "${XDG_SESSION_ID:-}"
+        umbriel msg "session-quit:skip-confirmation" 2>/dev/null || pkill -x umbriel || loginctl terminate-session "${XDG_SESSION_ID:-}"
+    else
+        loginctl terminate-session "${XDG_SESSION_ID:-}" 2>/dev/null || gnome-session-quit --logout --no-prompt 2>/dev/null || true
     fi
 }
 
@@ -155,10 +157,36 @@ switch_to() {
         die "Compositor '$compositor' is not installed."
     fi
 
+    # Check if session desktop file exists for GDM / display manager
+    if [[ ! -f "/usr/share/wayland-sessions/${session}.desktop" && ! -f "/usr/local/share/wayland-sessions/${session}.desktop" ]]; then
+        die "Wayland session '${session}.desktop' not found in /usr/share/wayland-sessions/."
+    fi
+
     notify "Switching to '$target' ($compositor)... Logging out"
 
     # Link new rice configs
-    "$DOTFILES_DIR/install.sh" --rice "$target"
+    "$DOTFILES_DIR/install.sh" --rice "$target" || die "install.sh failed for '$target'. Configs unchanged, staying on '$current'."
+
+    # Validate the target compositor config before committing the switch.
+    # On failure the switch aborts here: GDM session and .current_rice are
+    # left untouched, so the user stays on the working rice.
+    case "$compositor" in
+        hyprland)
+            if ! timeout 60 hyprland --verify-config >/dev/null 2>&1; then
+                die "hyprland --verify-config failed after linking '$target'. Staying on '$current'."
+            fi
+            ;;
+        niri)
+            if ! timeout 60 niri validate >/dev/null 2>&1; then
+                die "niri validate failed after linking '$target'. Staying on '$current'."
+            fi
+            ;;
+        umbriel)
+            if ! timeout 60 umbriel config validate -c "$HOME/.config/umbriel/config.toml" >/dev/null 2>&1; then
+                die "umbriel config validate failed after linking '$target'. Staying on '$current'."
+            fi
+            ;;
+    esac
 
     # Configure GDM session
     busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "$session" 2>/dev/null || true

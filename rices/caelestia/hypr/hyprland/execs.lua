@@ -25,8 +25,8 @@ hl.on("hyprland.start", function()
     -- Forward bluetooth media commands to MPRIS
     hl.exec_cmd("mpris-proxy")
 
-    -- Start shell (Quickshell Caelestia)
-    hl.exec_cmd("qs -c caelestia")
+    -- Start shell (Quickshell Caelestia, daemonized so it outlives the spawner)
+    hl.exec_cmd("caelestia shell -d")
 end)
 
 -- Resizer listeners

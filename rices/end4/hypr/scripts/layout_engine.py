@@ -79,51 +79,60 @@ def run_layout(config_path: Path = CONFIG_FILE):
     if cleaner.exists():
         subprocess.Popen([str(cleaner)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+    # Group entries by workspace so trees are built before resizing
+    ws_dict = {}
     for entry in entries:
         ws = entry.get("workspace", 1)
-        cmd = entry.get("cmd", "").strip()
-        match_pattern = entry.get("match", "").strip()
-        split = entry.get("split", "root")
-        target = entry.get("target", "").strip()
-        width = entry.get("width", 0)
-        height = entry.get("height", 0)
-        timeout = entry.get("timeout", 15)
-        shortcut = entry.get("shortcut", "")
+        ws_dict.setdefault(ws, []).append(entry)
 
-        if not cmd:
-            continue
+    for ws, group in ws_dict.items():
+        for entry in group:
+            cmd = entry.get("cmd", "").strip()
+            match_pattern = entry.get("match", "").strip()
+            split = entry.get("split", "root")
+            target = entry.get("target", "").strip()
+            timeout = entry.get("timeout", 15)
+            shortcut = entry.get("shortcut", "")
 
-        # Set directional preselection if attached to parent window
-        if split in ("right", "down") and target:
-            dispatch(f'hl.dsp.focus({{ window = "class:{target}" }})')
-            time.sleep(0.15)
-            if split == "right":
+            if not cmd:
+                continue
+
+            # Set directional preselection if attached to parent window
+            if split in ("right", "down") and target:
+                dispatch(f'hl.dsp.focus({{ window = "class:{target}" }})')
+                time.sleep(0.2)
+                if split == "right":
+                    dispatch('hl.dsp.layout("preselect r")')
+                else:
+                    dispatch('hl.dsp.layout("preselect d")')
+                time.sleep(0.1)
+
+            # Spawn application into workspace
+            dispatch(f'hl.dsp.exec_cmd("{cmd}", {{ workspace = "{ws} silent" }})')
+
+            # Active polling for window mapping
+            if match_pattern:
+                wait_for_window(match_pattern, timeout=timeout)
+                time.sleep(0.2)
+
+            # Handle secondary clone / shortcut (e.g. Hermes Ctrl+Shift+N)
+            if shortcut and match_pattern:
+                dispatch(f'hl.dsp.focus({{ window = "class:{match_pattern}" }})')
+                time.sleep(0.3)
                 dispatch('hl.dsp.layout("preselect r")')
-            else:
-                dispatch('hl.dsp.layout("preselect d")')
-            time.sleep(0.1)
+                dispatch(f'hl.dsp.send_shortcut({{mods="CTRL SHIFT", key="N", window="class:{match_pattern}"}})')
+                wait_for_window_count(match_pattern, 2, timeout=timeout)
+                time.sleep(0.3)
 
-        # Spawn application into workspace
-        dispatch(f'hl.dsp.exec_cmd("{cmd}", {{ workspace = "{ws} silent" }})')
-
-        # Active polling for window mapping
-        if match_pattern:
-            wait_for_window(match_pattern, timeout=timeout)
-            time.sleep(0.2)
-
-        # Handle secondary clone / shortcut (e.g. Hermes Ctrl+Shift+N)
-        if shortcut and match_pattern:
-            dispatch(f'hl.dsp.focus({{ window = "class:{match_pattern}" }})')
-            time.sleep(0.3)
-            dispatch('hl.dsp.layout("preselect r")')
-            dispatch(f'hl.dsp.send_shortcut({{mods="CTRL SHIFT", key="N", window="class:{match_pattern}"}})')
-            wait_for_window_count(match_pattern, 2, timeout=timeout)
-            time.sleep(0.3)
-
-        # Pixel-exact window resize
-        if width > 0 and height > 0 and match_pattern:
-            dispatch(f'hl.dsp.window.resize({{ window = "class:{match_pattern}", x = {width}, y = {height}, relative = false }})')
-            time.sleep(0.15)
+        # AFTER all windows in this workspace are spawned, apply pixel-exact resizing
+        time.sleep(0.3)
+        for entry in group:
+            match_pattern = entry.get("match", "").strip()
+            width = entry.get("width", 0)
+            height = entry.get("height", 0)
+            if width > 0 and height > 0 and match_pattern:
+                dispatch(f'hl.dsp.window.resize({{ window = "class:{match_pattern}", x = {width}, y = {height}, relative = false }})')
+                time.sleep(0.2)
 
     # Focus back to workspace 2 main window
     time.sleep(0.5)

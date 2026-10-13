@@ -6,10 +6,10 @@ return {
     ------------------
 
     -- Apps
-    terminal                   = "foot",
+    terminal                   = "kitty",
     browser                    = "firefox",
-    editor                     = "codium",
-    fileExplorer               = "thunar",
+    editor                     = "code",
+    fileExplorer               = "nautilus",
     audioSettings              = "pwvucontrol",
 
     -- Touchpad
@@ -145,7 +145,7 @@ return {
 
     -- Clipboard and emoji picker
     kbClipboard                = "SUPER + V",
-    kbClipboardDel             = "SUPER + ALT + V",
+    kbClipboardDel             = "SUPER + SHIFT + ALT + V",
     kbClipboardPasteLatest     = "CTRL + SHIFT + ALT + V",
     kbEmoji                    = "SUPER + Period",
 }

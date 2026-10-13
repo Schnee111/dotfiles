@@ -14,7 +14,9 @@ hotkey-overlay {
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 output "eDP-1" {
-    off
+    mode "2880x1800@90"
+    scale 1.6
+    position x=1920 y=0
 }
 
 output "HDMI-A-1" {
@@ -220,6 +222,7 @@ environment {
 spawn-at-startup "bash" "-c" "systemctl --user import-environment XDG_MENU_PREFIX && kbuildsycoca6"
 
 spawn-at-startup "bash" "-c" "wl-paste --watch cliphist store &"
+spawn-at-startup "bash" "-c" "if grep -q '^connected$' /sys/class/drm/card*-HDMI-A-1/status 2>/dev/null; then sleep 0.5 && niri msg output eDP-1 off; fi"
 spawn-at-startup "quickshell" "-c" "inir"
 
 // ============================================================================
@@ -232,6 +235,13 @@ binds {
     Mod+Shift+E { quit; }
     Mod+Shift+D { spawn "~/.local/bin/rice-switch"; }
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+
+    // Hardware Toggles
+    Mod+Alt+V { spawn "audio_output_toggle.sh"; }
+    Mod+Alt+B { spawn "battery_limit_toggle.sh"; }
+    Mod+Alt+P { spawn "power_profile_toggle.sh"; }
+    XF86Launch1 { spawn "power_profile_toggle.sh"; }
+    XF86Launch4 { spawn "power_profile_toggle.sh"; }
     
     // ii Window Switcher (Alt+Tab)
     Alt+Tab { spawn "qs" "-c" "inir" "ipc" "call" "altSwitcher" "next"; }
@@ -346,8 +356,6 @@ binds {
     
     // Music control (keyboard alternatives for keyboards without media keys)
     Ctrl+Mod+Space { spawn "qs" "-c" "inir" "ipc" "call" "mpris" "playPause"; }
-    Mod+Alt+N { spawn "qs" "-c" "inir" "ipc" "call" "mpris" "next"; }
-    Mod+Alt+P { spawn "qs" "-c" "inir" "ipc" "call" "mpris" "previous"; }
     Mod+Shift+M { spawn "qs" "-c" "inir" "ipc" "call" "audio" "mute"; }
     Mod+Shift+P { spawn "qs" "-c" "inir" "ipc" "call" "mpris" "playPause"; }
     Mod+Shift+N { spawn "qs" "-c" "inir" "ipc" "call" "mpris" "next"; }
