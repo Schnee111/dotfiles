@@ -25,14 +25,31 @@ direct_scanout = true
 focus_at_startup = true
 
 [output."eDP-1"]
-enabled = false
+enabled = true
+mode = "2880x1800@90"
+scale = 1.6
 
 # ==============================================================================
 # Appearance & Effects
 # ==============================================================================
 
 [appearance.blur]
+enabled = true
 radius = 7
+passes = 3
+contrast = 0.9
+brightness = 0.9
+saturation = 1.1
+optimized = true
+
+[[window_rule]]
+match = { app_id = "kitty" }
+blur = true
+
+[colors.border]
+focused = "#292933"
+unfocused = "#292933"
+
 
 # ==============================================================================
 # Input
@@ -50,9 +67,27 @@ numlock_toggle = true
 "Mod+Return" = { action = "spawn:kitty", repeat = false }
 "Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
 "Mod" = "spawn:noctalia msg panel-toggle launcher"
+"Mod+N" = "spawn:noctalia msg panel-toggle control-center"
 "Mod+Q" = { action = "window-close", repeat = false }
 "Mod+Escape" = "session-quit"
 "Mod+Shift+D" = "spawn:rice-switch"
+"Mod+P" = "output-toggle:eDP-1"
+"Mod+Shift+P" = "output-toggle:HDMI-A-1"
+
+# Hardware keys (Volume, Mic, Brightness)
+"XF86AudioRaiseVolume" = "spawn:noctalia msg volume-up"
+"XF86AudioLowerVolume" = "spawn:noctalia msg volume-down"
+"XF86AudioMute" = "spawn:noctalia msg volume-mute"
+"XF86AudioMicMute" = "spawn:noctalia msg mic-mute"
+"XF86MonBrightnessUp" = "spawn:noctalia msg brightness-up"
+"XF86MonBrightnessDown" = "spawn:noctalia msg brightness-down"
+
+# Hardware toggles (Audio output, Battery limit, Power profile)
+"Mod+Alt+V" = "spawn:audio_output_toggle.sh"
+"Mod+Alt+B" = "spawn:battery_limit_toggle.sh"
+"Mod+Alt+P" = "spawn:power_profile_toggle.sh"
+"XF86Launch1" = "spawn:power_profile_toggle.sh"
+"XF86Launch4" = "spawn:power_profile_toggle.sh"
 
 # Navigation
 "Mod+Left" = "window-focus-left"
@@ -93,6 +128,8 @@ numlock_toggle = true
 "Mod+Shift+7" = "window-move-to-workspace:7"
 "Mod+Shift+8" = "window-move-to-workspace:8"
 "Mod+Shift+9" = "window-move-to-workspace:9"
+
+"Mod+Shift+S" = "spawn:noctalia msg screenshot-region"
 
 [layout]
 extent_presets = [0.333, 0.5, 0.667]
