@@ -163,6 +163,11 @@ install_common() {
         for f in "$DOTFILES_DIR/common/systemd/user/"*.service "$DOTFILES_DIR/common/systemd/user/"*.timer; do
             [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/systemd/user/$(basename "$f")"
         done
+        if [[ $DRY_RUN -eq 1 ]]; then
+            print_msg "[Dry-Run] Would reload user systemd daemon"
+        else
+            systemctl --user daemon-reload 2>/dev/null || true
+        fi
     fi
 
     # User Binaries
@@ -379,10 +384,11 @@ install_rice() {
             # Caelestia manages monitors inline in hyprland.lua and runs no
             # monitor watcher: stop the end4 watcher so it cannot rewrite
             # monitors.lua or respawn qs -c end4-pC mid-session.
+            # Also stop the vitreus brightness mirror, which is vitreus-only.
             if [[ $DRY_RUN -eq 1 ]]; then
-                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service"
+                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service"
             else
-                systemctl --user stop hyprland-monitor-watcher.service 2>/dev/null || true
+                systemctl --user stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service 2>/dev/null || true
             fi
             ;;
 
@@ -464,9 +470,9 @@ install_rice() {
             # monitor watcher: stop the end4 watcher so it cannot rewrite
             # monitors.lua or respawn qs -c end4-pC mid-session.
             if [[ $DRY_RUN -eq 1 ]]; then
-                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service"
+                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service"
             else
-                systemctl --user stop hyprland-monitor-watcher.service 2>/dev/null || true
+                systemctl --user stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service 2>/dev/null || true
             fi
             # Clone/update Vitreus shell into ~/.config/pleamar/shells/vitreus
             # (upstream repo; rice dir only carries our hypr side + rice.conf)
@@ -578,9 +584,9 @@ install_rice() {
 
             # Minflair manages monitors inline with physical DRM checks: stop monitor watcher
             if [[ $DRY_RUN -eq 1 ]]; then
-                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service"
+                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service"
             else
-                systemctl --user stop hyprland-monitor-watcher.service 2>/dev/null || true
+                systemctl --user stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service 2>/dev/null || true
             fi
 
             # Link quickshell minflair profile
@@ -680,9 +686,9 @@ install_rice() {
 
             # Stop end4 monitor watcher so it doesn't conflict
             if [[ $DRY_RUN -eq 1 ]]; then
-                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service"
+                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service"
             else
-                systemctl --user stop hyprland-monitor-watcher.service 2>/dev/null || true
+                systemctl --user stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service 2>/dev/null || true
             fi
 
             # Ensure quickshell ii fork is linked from rice-sources
@@ -779,9 +785,9 @@ install_rice() {
 
             # Stop end4 monitor watcher so it doesn't conflict
             if [[ $DRY_RUN -eq 1 ]]; then
-                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service"
+                print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service"
             else
-                systemctl --user stop hyprland-monitor-watcher.service 2>/dev/null || true
+                systemctl --user stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service 2>/dev/null || true
             fi
 
             # Ensure quickshell prism profile is linked from rice-sources
