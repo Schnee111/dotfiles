@@ -5,10 +5,9 @@
 
 [general]
 autostart = [
-    "noctalia",
-    "pipewire",
-    "wireplumber"
+    "noctalia"
 ]
+mod_key = "Super"
 xwayland = true
 xwayland_native_resolution = true
 
