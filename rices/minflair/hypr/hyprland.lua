@@ -1,0 +1,7 @@
+require("hyprland.animations")
+require("hyprland.autostart")
+require("hyprland.envs")
+require("hyprland.keybinds")
+require("hyprland.monitors")
+require("hyprland.userprefs")
+require("hyprland.windowrules")
