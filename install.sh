@@ -256,7 +256,7 @@ install_rice() {
                 fi
             done
 
-            for f in "$rice_dir/hypr/custom/"*.lua; do
+            for f in "$rice_dir/hypr/custom/"*.lua "$rice_dir/hypr/custom/"*.json; do
                 [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/custom/$(basename "$f")"
             done
 
