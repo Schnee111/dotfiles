@@ -16,12 +16,15 @@ hl.monitor({
 })
 
 -- Prevent DPMS wake race condition from triggering lockdead ("Oopsie daisy") emergency screen
--- Prevent background apps (Spotify, etc.) from stealing focus or switching workspaces on activation
+-- focus_on_activate = true lets apps that legitimately request focus via the
+-- xdg-activation protocol (e.g. a browser opening a link from another window)
+-- actually get focused. Background/focus-stealing apps are suppressed per-window
+-- in custom/rules.lua with `suppress_event = "activatefocus"`.
 hl.config({
     misc = {
         lockdead_screen_delay = 100000000,
         allow_session_lock_restore = true,
-        focus_on_activate = false,
+        focus_on_activate = true,
     },
     render = {
         direct_scanout = 0,
