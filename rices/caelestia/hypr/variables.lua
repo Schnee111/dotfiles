@@ -97,7 +97,7 @@ return {
     kbCenterWindow             = "CTRL + SUPER + Backslash",
     kbNormalizeWindow          = "CTRL + SUPER + ALT + Backslash",
     kbWindowPip                = "SUPER + ALT + Backslash",
-    kbPinWindow                = "SUPER + P",
+    kbPinWindow                = "SUPER + SHIFT + P",
     kbWindowFullscreen         = "SUPER + F",
     kbWindowBorderedFullscreen = "SUPER + ALT + F",
     kbToggleWindowFloating     = "SUPER + ALT + Space",
@@ -116,6 +116,7 @@ return {
     kbEditor                   = "SUPER + C",
     kbFileExplorer             = "SUPER + E",
     kbAudioSettings            = "CTRL + ALT + V",
+    kbDisplaySwitch            = { "SUPER + P", "XF86Display" },
 
     -- Utilities
     kbScreenshot               = "Print",

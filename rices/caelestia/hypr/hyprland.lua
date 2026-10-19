@@ -65,28 +65,75 @@ local function is_external_connected()
     return false
 end
 
-if is_external_connected() then
+-- Persisted display choice written by hypr/scripts/display_switch.sh
+-- (SUPER + P / XF86Display): "external", "laptop" or "extend".
+-- When the file is absent the smart physical-DRM default below is used.
+local function persisted_display_mode()
+    local f = io.open(home .. "/.config/caelestia/display-mode", "r")
+    if not f then
+        return nil
+    end
+
+    local mode = f:read("*l")
+    f:close()
+
+    if type(mode) == "string" then
+        return mode:gsub("%s+", ""):lower()
+    end
+
+    return nil
+end
+
+local function enable_external(position)
     hl.monitor({
         output   = "HDMI-A-1",
         mode     = "1920x1080@200",
-        position = "0x0",
+        position = position or "0x0",
         scale    = 1,
     })
-    hl.monitor({
-        output   = "eDP-1",
-        disabled = true,
-    })
-else
+end
+
+local function enable_laptop(position)
     hl.monitor({
         output   = "eDP-1",
         mode     = "2880x1800@90",
-        position = "0x0",
+        position = position or "0x0",
         scale    = 1.6,
     })
+end
+
+local function disable_monitor(output)
     hl.monitor({
-        output   = "HDMI-A-1",
+        output   = output,
         disabled = true,
     })
+end
+
+local external = is_external_connected()
+local mode = persisted_display_mode()
+
+-- "external" and "extend" need the HDMI panel. If it is gone (unplugged,
+-- undocked) fall back to the physical-DRM default so the laptop panel is
+-- never left disabled with no active display at all.
+if not external and (mode == "external" or mode == "extend") then
+    mode = nil
+end
+
+if mode == "external" then
+    enable_external()
+    disable_monitor("eDP-1")
+elseif mode == "laptop" then
+    enable_laptop()
+    disable_monitor("HDMI-A-1")
+elseif mode == "extend" then
+    enable_laptop()
+    enable_external("auto-right")
+elseif external then
+    enable_external()
+    disable_monitor("eDP-1")
+else
+    enable_laptop()
+    disable_monitor("HDMI-A-1")
 end
 
 -- Configs
