@@ -69,7 +69,11 @@ end
 -- (SUPER + P / XF86Display): "external", "laptop" or "extend".
 -- When the file is absent the smart physical-DRM default below is used.
 local function persisted_display_mode()
-    local f = io.open(home .. "/.config/caelestia/display-mode", "r")
+    -- `home` comes from the top of this file; the fallback keeps the helper
+    -- self-contained if it is ever called from another scope (no behaviour
+    -- change — `home` is always set here).
+    local base = home or os.getenv("HOME")
+    local f = io.open(base .. "/.config/caelestia/display-mode", "r")
     if not f then
         return nil
     end

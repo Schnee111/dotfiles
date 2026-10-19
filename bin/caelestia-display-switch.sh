@@ -17,9 +17,12 @@
 
 MODE_FILE="$HOME/.config/caelestia/display-mode"
 
+# `$USER` is normally exported by the session; fall back for safety
+RUN_USER="${USER:-$(id -un)}"
+
 # Toggle: If this user's rofi is already running, kill it and exit immediately
-if pgrep -u "$USER" -x rofi >/dev/null 2>&1; then
-    pkill -u "$USER" -x rofi 2>/dev/null
+if pgrep -u "$RUN_USER" -x rofi >/dev/null 2>&1; then
+    pkill -u "$RUN_USER" -x rofi 2>/dev/null
     exit 0
 fi
 
@@ -39,7 +42,9 @@ try:
     selected = c.get("primary_container", "#3b4a41") + "dd"
     selected_fg = c.get("on_primary_container", "#ffffff") + "ff"
     border = c.get("primary", "#ffffff") + "88"
-    with open(os.path.expanduser("~/.config/rofi/colors.rasi"), "w") as f:
+    rofi_dir = os.path.expanduser("~/.config/rofi")
+    os.makedirs(rofi_dir, exist_ok=True)
+    with open(os.path.join(rofi_dir, "colors.rasi"), "w") as f:
         f.write("/* Auto-generated from Quickshell Material You palette */\n* {\n")
         f.write(f"    bg: {bg};\n    bg-alt: {bg_alt};\n    fg: {fg};\n    fg-muted: {fg_muted};\n")
         f.write(f"    selected: {selected};\n    selected-fg: {selected_fg};\n    border-col: {border};\n}}\n")
@@ -61,10 +66,16 @@ set_mode() {
     hyprctl reload >/dev/null 2>&1
 }
 
+# Mode currently persisted ("" when unset -> the entry-point's DRM default)
+current_mode() {
+    [ -f "$MODE_FILE" ] && tr -d '[:space:]' < "$MODE_FILE"
+    return 0
+}
+
 hdmi_connected() {
-    local status_file
-    status_file=$(ls /sys/class/drm/card*-HDMI-A-1/status 2>/dev/null | head -n1)
-    [ -n "$status_file" ] && [ -f "$status_file" ] && [ "$(cat "$status_file" 2>/dev/null)" = "connected" ]
+    # Any HDMI-A-1 connector on any DRM card counts: on hybrid-GPU laptops the
+    # external port can be wired to card1 while card0 reports disconnected.
+    grep -qx 'connected' /sys/class/drm/card*-HDMI-A-1/status 2>/dev/null
 }
 
 case "$CHOSEN" in
@@ -72,6 +83,11 @@ case "$CHOSEN" in
         if ! hdmi_connected; then
             notify-send -u critical -t 3000 -a "Display" -i "error" "Display Error" "HDMI monitor not detected. Switch cancelled." &
             exit 1
+        fi
+
+        if [ "$(current_mode)" = "external" ]; then
+            notify-send -t 2000 -a "Display" -i "desktop_windows" "Display Output" "Already on External Monitor Only" &
+            exit 0
         fi
 
         # Step 1: bring the HDMI panel up next to the laptop panel
@@ -85,6 +101,11 @@ case "$CHOSEN" in
         ;;
 
     *"Laptop Screen Only"*)
+        if [ "$(current_mode)" = "laptop" ]; then
+            notify-send -t 2000 -a "Display" -i "laptop_chromebook" "Display Output" "Already on Laptop Screen Only" &
+            exit 0
+        fi
+
         # Step 1: make sure the laptop panel is active next to the HDMI one
         set_mode extend
         sleep 0.5
@@ -99,6 +120,11 @@ case "$CHOSEN" in
         if ! hdmi_connected; then
             notify-send -u critical -t 3000 -a "Display" -i "error" "Display Error" "HDMI monitor not detected. Switch cancelled." &
             exit 1
+        fi
+
+        if [ "$(current_mode)" = "extend" ]; then
+            notify-send -t 2000 -a "Display" -i "devices" "Display Output" "Already on Extended Displays" &
+            exit 0
         fi
 
         set_mode extend
