@@ -230,3 +230,6 @@ create_bind("SUPER + ALT + V", hl.dsp.exec_cmd("audio_output_toggle.sh"))
 create_bind("SUPER + ALT + B", hl.dsp.exec_cmd("battery_limit_toggle.sh"))
 create_bind("SUPER + ALT + P", hl.dsp.exec_cmd("power_profile_toggle.sh"))
 create_bind({ "XF86Launch1", "XF86Launch4" }, hl.dsp.exec_cmd("power_profile_toggle.sh"))
+
+-- Display output switcher (External Only / Laptop Only / Extend)
+create_bind(vars.kbDisplaySwitch, hl.dsp.exec_cmd("caelestia-display-switch.sh"))
