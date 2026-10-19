@@ -232,4 +232,4 @@ create_bind("SUPER + ALT + P", hl.dsp.exec_cmd("power_profile_toggle.sh"))
 create_bind({ "XF86Launch1", "XF86Launch4" }, hl.dsp.exec_cmd("power_profile_toggle.sh"))
 
 -- Display output switcher (External Only / Laptop Only / Extend)
-create_bind(vars.kbDisplaySwitch, hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/display_switch.sh"))
+create_bind(vars.kbDisplaySwitch, hl.dsp.exec_cmd("caelestia-display-switch.sh"))

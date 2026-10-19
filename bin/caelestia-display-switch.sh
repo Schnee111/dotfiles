@@ -3,6 +3,9 @@
 # Display Output Switcher (Caelestia / Hyprland)
 # Bound to:  SUPER + P  and the XF86Display key
 #
+# Installed to ~/.local/bin by the dotfiles installer, so keybinds can call it
+# by name (caelestia-display-switch.sh) like the sibling toggle scripts.
+#
 # Presents a rofi menu to move between External Only / Laptop Only / Extend.
 # The choice is persisted to ~/.config/caelestia/display-mode, which the
 # caelestia hyprland.lua entry-point reads on every reload / login (falling
@@ -14,9 +17,9 @@
 
 MODE_FILE="$HOME/.config/caelestia/display-mode"
 
-# Toggle: If rofi is already running, kill it and exit immediately
-if pidof rofi >/dev/null 2>&1; then
-    killall rofi 2>/dev/null
+# Toggle: If this user's rofi is already running, kill it and exit immediately
+if pgrep -u "$USER" -x rofi >/dev/null 2>&1; then
+    pkill -u "$USER" -x rofi 2>/dev/null
     exit 0
 fi
 
@@ -47,7 +50,7 @@ fi
 
 OPTIONS="󰍹  External Monitor Only\n󰌢  Laptop Screen Only\n󰍺  Extend Displays"
 
-CHOSEN=$(printf "%b" "$OPTIONS" | rofi -dmenu -i -p "󰍹 " -theme "$HOME/.config/rofi/display.rasi")
+CHOSEN=$(printf "%b" "$OPTIONS" | rofi -dmenu -i -no-custom -p "󰍹 " -theme "$HOME/.config/rofi/display.rasi")
 
 # If user cancels (Escape or click outside), exit immediately
 [ -z "$CHOSEN" ] && exit 0
@@ -67,7 +70,7 @@ hdmi_connected() {
 case "$CHOSEN" in
     *"External Monitor Only"*)
         if ! hdmi_connected; then
-            notify-send -u critical -t 3000 -a "Display" -n "error" "Display Error" "HDMI monitor not detected. Switch cancelled." &
+            notify-send -u critical -t 3000 -a "Display" -i "error" "Display Error" "HDMI monitor not detected. Switch cancelled." &
             exit 1
         fi
 
@@ -78,7 +81,7 @@ case "$CHOSEN" in
         # Step 2: disable the laptop panel; Hyprland moves its workspaces over
         set_mode external
         play_sound.sh Chord.mp3
-        notify-send -t 2000 -a "Display" -n "desktop_windows" "Display Output" "External Monitor Only (1080p @ 200Hz)" &
+        notify-send -t 2000 -a "Display" -i "desktop_windows" "Display Output" "External Monitor Only (1080p @ 200Hz)" &
         ;;
 
     *"Laptop Screen Only"*)
@@ -89,17 +92,17 @@ case "$CHOSEN" in
         # Step 2: disable the HDMI panel
         set_mode laptop
         play_sound.sh Swish.mp3
-        notify-send -t 2000 -a "Display" -n "laptop_chromebook" "Display Output" "Laptop Screen Only (2.8K @ 90Hz, Scale 1.6)" &
+        notify-send -t 2000 -a "Display" -i "laptop_chromebook" "Display Output" "Laptop Screen Only (2.8K @ 90Hz, Scale 1.6)" &
         ;;
 
     *"Extend Displays"*)
         if ! hdmi_connected; then
-            notify-send -u critical -t 3000 -a "Display" -n "error" "Display Error" "HDMI monitor not detected. Switch cancelled." &
+            notify-send -u critical -t 3000 -a "Display" -i "error" "Display Error" "HDMI monitor not detected. Switch cancelled." &
             exit 1
         fi
 
         set_mode extend
         play_sound.sh Chord.mp3
-        notify-send -t 2000 -a "Display" -n "devices" "Display Output" "Extended Displays (Dual Screen)" &
+        notify-send -t 2000 -a "Display" -i "devices" "Display Output" "Extended Displays (Dual Screen)" &
         ;;
 esac
