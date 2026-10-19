@@ -55,7 +55,11 @@ fi
 
 OPTIONS="󰍹  External Monitor Only\n󰌢  Laptop Screen Only\n󰍺  Extend Displays"
 
-CHOSEN=$(printf "%b" "$OPTIONS" | rofi -dmenu -i -no-custom -p "󰍹 " -theme "$HOME/.config/rofi/display.rasi")
+# Only use the custom theme when it is actually installed
+ROFI_THEME_ARGS=()
+[ -f "$HOME/.config/rofi/display.rasi" ] && ROFI_THEME_ARGS=(-theme "$HOME/.config/rofi/display.rasi")
+
+CHOSEN=$(printf "%b" "$OPTIONS" | rofi -dmenu -i -no-custom -p "󰍹 " ${ROFI_THEME_ARGS[@]+"${ROFI_THEME_ARGS[@]}"})
 
 # If user cancels (Escape or click outside), exit immediately
 [ -z "$CHOSEN" ] && exit 0
@@ -66,10 +70,25 @@ set_mode() {
     hyprctl reload >/dev/null 2>&1
 }
 
-# Mode currently persisted ("" when unset -> the entry-point's DRM default)
-current_mode() {
-    [ -f "$MODE_FILE" ] && tr -d '[:space:]' < "$MODE_FILE"
-    return 0
+# Effective mode derived from Hyprland's live monitor state — NOT from the
+# persisted file. They can disagree: when the HDMI panel is unplugged the
+# entry-point silently falls back to the laptop panel while MODE_FILE still
+# says "external", so trusting the file would report a stale "already on"
+# and refuse to re-enable the external monitor after re-docking.
+# Prints "external", "laptop", "extend", or nothing when neither is on.
+effective_mode() {
+    local state
+    state=$(hyprctl monitors all -j 2>/dev/null | jq -r '
+        def on: (if (.disabled or .width == 0) then "off" else "on" end);
+        [ (.[] | select(.name == "eDP-1")  | on) ] as $edp
+        | [ (.[] | select(.name == "HDMI-A-1") | on) ] as $hdmi
+        | ($edp[0] // "off") + ($hdmi[0] // "off")' 2>/dev/null)
+
+    case "$state" in
+        onon)  echo extend ;;
+        offon) echo external ;;
+        onoff) echo laptop ;;
+    esac
 }
 
 hdmi_connected() {
@@ -85,7 +104,7 @@ case "$CHOSEN" in
             exit 1
         fi
 
-        if [ "$(current_mode)" = "external" ]; then
+        if [ "$(effective_mode)" = "external" ]; then
             notify-send -t 2000 -a "Display" -i "desktop_windows" "Display Output" "Already on External Monitor Only" &
             exit 0
         fi
@@ -101,7 +120,7 @@ case "$CHOSEN" in
         ;;
 
     *"Laptop Screen Only"*)
-        if [ "$(current_mode)" = "laptop" ]; then
+        if [ "$(effective_mode)" = "laptop" ]; then
             notify-send -t 2000 -a "Display" -i "laptop_chromebook" "Display Output" "Already on Laptop Screen Only" &
             exit 0
         fi
@@ -122,7 +141,7 @@ case "$CHOSEN" in
             exit 1
         fi
 
-        if [ "$(current_mode)" = "extend" ]; then
+        if [ "$(effective_mode)" = "extend" ]; then
             notify-send -t 2000 -a "Display" -i "devices" "Display Output" "Already on Extended Displays" &
             exit 0
         fi
