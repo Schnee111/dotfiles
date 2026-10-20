@@ -117,6 +117,11 @@ prune_foreign_links() {
     shift
     local root link target
     local -A seen=()
+    # Canonicalise the repo root once: on immutable distros ($HOME under
+    # /var/home, symlinked project roots) the literal "$DOTFILES_DIR" string
+    # never matches a resolved target.
+    local rices_root
+    rices_root="$(readlink -f "$DOTFILES_DIR" 2>/dev/null || printf '%s' "$DOTFILES_DIR")/rices"
     for root in "$@"; do
         [[ -d "$root" ]] || continue
         while IFS= read -r -d '' link; do
@@ -126,13 +131,14 @@ prune_foreign_links() {
             seen[$link]=1
             # Resolve relative targets too: a repo link such as
             # ../../../Projects/dotfiles/rices/<other>/... never matches the
-            # absolute prefix below. Fall back to the raw target for dangling
-            # links, so they still show up instead of being silently ignored.
-            target="$(readlink -f "$link" 2>/dev/null || true)"
+            # absolute prefix below. -m canonicalises even when the target is
+            # missing (dangling link), unlike -f.
+            target="$(readlink -m "$link" 2>/dev/null || true)"
+            [[ -n "$target" ]] || target="$(readlink -f "$link" 2>/dev/null || true)"
             [[ -n "$target" ]] || target="$(readlink "$link" 2>/dev/null || true)"
-            [[ "$target" == "$DOTFILES_DIR/rices/"* ]] || continue
+            [[ "$target" == "$rices_root/"* ]] || continue
             case "$target" in
-                "$DOTFILES_DIR/rices/$rice/"*) continue ;;
+                "$rices_root/$rice/"*) continue ;;
             esac
             if [[ $DRY_RUN -eq 1 ]]; then
                 print_msg "[Dry-Run] Would remove foreign link: $link -> $target"
@@ -238,12 +244,14 @@ install_rice() {
     # replaces the installer symlink with a regular file. The live file then
     # holds the newest state while the tracked rice copy goes stale, so a
     # switch would relink the old copy and silently drop UI changes. Fold the
-    # live state back into the *outgoing* rice before linking the new one.
+    # live state back into the *outgoing* rice before linking the new one --
+    # including a same-rice re-run, where link_file would otherwise replace the
+    # live file with the older tracked copy.
     local prev_rice="" live_config="$CONFIG_DIR/illogical-impulse/config.json"
     if [[ -f "$CURRENT_RICE_FILE" ]]; then
         prev_rice="$(tr -d '[:space:]' < "$CURRENT_RICE_FILE")"
     fi
-    if [[ -n "$prev_rice" && "$prev_rice" != "$rice" && -f "$live_config" && ! -L "$live_config" ]]; then
+    if [[ -n "$prev_rice" && -f "$live_config" && ! -L "$live_config" ]]; then
         local prev_dir="$DOTFILES_DIR/rices/$prev_rice/illogical-impulse"
         # Only fold into a rice that already tracks this state; otherwise a
         # rice using a different shell (vitreus, caelestia, iris, noctalia, ...)
@@ -345,6 +353,7 @@ install_rice() {
                 "$CONFIG_DIR/hypr" \
                 "$CONFIG_DIR/hypr/custom" \
                 "$CONFIG_DIR/hypr/scripts" \
+                "$CONFIG_DIR/hypr/hyprland" \
                 "$CONFIG_DIR/hypr/hyprland/shellOverrides" \
                 "$CONFIG_DIR"/hypr/hyprland/*/
 
@@ -766,6 +775,7 @@ install_rice() {
                 "$CONFIG_DIR/hypr" \
                 "$CONFIG_DIR/hypr/custom" \
                 "$CONFIG_DIR/hypr/scripts" \
+                "$CONFIG_DIR/hypr/hyprland" \
                 "$CONFIG_DIR/hypr/hyprland/shellOverrides" \
                 "$CONFIG_DIR"/hypr/hyprland/*/
 
@@ -881,6 +891,7 @@ install_rice() {
                 "$CONFIG_DIR/hypr" \
                 "$CONFIG_DIR/hypr/custom" \
                 "$CONFIG_DIR/hypr/scripts" \
+                "$CONFIG_DIR/hypr/hyprland" \
                 "$CONFIG_DIR/hypr/hyprland/shellOverrides" \
                 "$CONFIG_DIR"/hypr/hyprland/*/
 
