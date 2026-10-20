@@ -586,7 +586,7 @@
             "type": "random"
         },
         "videoPause": "covered",
-        "wallpaperPath": "/home/schnee/Pictures/Wallpapers/tayama.jpeg",
+        "wallpaperPath": "/home/schnee/Pictures/Wallpapers/eclipse-wheat-girl.jpeg",
         "wallpapersByMonitor": [
         ],
         "widgets": {
@@ -831,6 +831,12 @@
             },
             "design": "individual",
             "designUndo": [
+                {
+                    "key": "iris.widgets.design",
+                    "output": "",
+                    "value": "iris",
+                    "widget": ""
+                }
             ],
             "dynamicOpacity": 0,
             "editGrid": {
@@ -1178,13 +1184,13 @@
                         },
                         "mediaControls": {
                             "placementStrategy": "free",
-                            "x": 1516,
-                            "y": 840
+                            "x": 1521,
+                            "y": 884
                         },
                         "systemMonitor": {
                             "placementStrategy": "free",
-                            "x": 44,
-                            "y": 840
+                            "x": 41,
+                            "y": 886
                         },
                         "weather": {
                             "placementStrategy": "free",
@@ -1193,6 +1199,39 @@
                         }
                     },
                     "width": 1920
+                },
+                {
+                    "height": 1125,
+                    "layoutVersion": 1,
+                    "output": "eDP-1",
+                    "widgets": {
+                        "clock": {
+                            "placementStrategy": "free",
+                            "x": 90,
+                            "y": 54
+                        },
+                        "japaneseTypography": {
+                            "placementStrategy": "free",
+                            "x": 1417,
+                            "y": 86
+                        },
+                        "mediaControls": {
+                            "placementStrategy": "free",
+                            "x": 1394,
+                            "y": 925
+                        },
+                        "systemMonitor": {
+                            "placementStrategy": "free",
+                            "x": 55,
+                            "y": 922
+                        },
+                        "weather": {
+                            "placementStrategy": "free",
+                            "x": 280,
+                            "y": 58
+                        }
+                    },
+                    "width": 1800
                 }
             ],
             "powerSaving": {
@@ -2215,7 +2254,7 @@
                 "edgeLight": 34,
                 "edgeLine": 10,
                 "edgeWidth": 1.5,
-                "mode": "off",
+                "mode": "wallpaper",
                 "tint": 58
             },
             "highlight": "orange",
@@ -2331,7 +2370,7 @@
                 "fill": 100,
                 "glow": 0,
                 "highlightHue": 32,
-                "lightReach": 100,
+                "lightReach": 110,
                 "lines": 100,
                 "linkShapes": false,
                 "melt": 0,
@@ -2901,14 +2940,14 @@
             "music": "frame",
             "musicAppearance": "etched",
             "musicColour": "pearl",
-            "musicEdges": "horizontal",
+            "musicEdges": "sides",
             "musicLight": 35,
             "musicLightWidth": 5,
             "musicSensitivity": 140,
             "musicSpeed": 100,
-            "musicStrength": 160,
+            "musicStrength": 150,
             "radius": 22,
-            "thickness": 10
+            "thickness": 12
         },
         "tray": {
             "columns": 4,
