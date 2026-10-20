@@ -268,10 +268,12 @@ generate_kitty_conf() {
 
     if [[ $DRY_RUN -eq 1 ]]; then
         print_msg "[Dry-Run] Would generate kitty wrapper: $live"
-        if [[ -n "$theme_src" ]]; then
+        if [[ -n "$theme_src" && -f "$theme_src" ]]; then
             print_msg "[Dry-Run] Would point rice-theme.conf -> $theme_src"
+        elif [[ -n "$theme_src" ]]; then
+            print_msg "[Dry-Run] Would point rice-theme.conf -> $theme_src (not generated yet; include stays dangling until the rice's generator writes it)"
         else
-            print_msg "[Dry-Run] Would create empty rice-theme.conf (rice ships no terminal theme)"
+            print_msg "[Dry-Run] Would write an empty rice-theme.conf (no theme source)"
         fi
         return 0
     fi
@@ -283,10 +285,18 @@ generate_kitty_conf() {
         echo "include $DOTFILES_DIR/common/kitty/kitty.conf"
     } >"$live.tmp" && mv -f "$live.tmp" "$live"
 
-    if [[ -n "$theme_src" && -f "$theme_src" ]]; then
+    if [[ -n "$theme_src" ]]; then
+        # Link even when the generator has not written the theme yet: a dangling
+        # include is harmless (kitty logs "Could not find included config file"
+        # and ignores it), and the very same symlink starts working the moment
+        # the rice's generator produces the file. Testing -f here would leave a
+        # detached empty regular file that never picks the theme up.
         ln -sfn "$theme_src" "$theme_link.tmp" && mv -T -f "$theme_link.tmp" "$theme_link"
     else
-        : >"$theme_link"
+        # Never redirect into $theme_link: it can be a symlink to a tracked file,
+        # and `> $link` would open that target with O_TRUNC and wipe it (this
+        # reset common/kitty/default-theme.conf to zero bytes).
+        : >"$theme_link.tmp" && mv -T -f "$theme_link.tmp" "$theme_link"
     fi
 
     print_succ "Generated kitty wrapper (theme: ${theme_src:-none})"
