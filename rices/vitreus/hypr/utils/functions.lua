@@ -207,7 +207,7 @@ end
 local function load_toggle_config()
     local config = default_config()
 
-    local user_file = io.open(config_dir .. "/caelestia/cli.json", "r") -- CLI config
+    local user_file = io.open(config_dir .. "/vitreus/cli.json", "r") -- vitreus CLI config
     if not user_file then
         return config
     end
@@ -221,9 +221,11 @@ local function load_toggle_config()
     else
         -- Invalid cli.json: notify and fall back to defaults.
         -- conf_or_error holds the parse error (string) or a non-table value on success.
+        -- notify-send, not `caelestia shell toaster`: this rice has no caelestia CLI,
+        -- and the shim's only supported verb is `shell [-d]`.
         local reason = recognized and "Expected a JSON object" or tostring(conf_or_error):gsub("^.-:%d+: ", "")
-        hl.exec_cmd("caelestia shell toaster error " ..
-            shell_join({ "Failed to parse CLI config", reason }) .. " error")
+        hl.exec_cmd("notify-send -u normal -a vitreus " ..
+            shell_join({ "Failed to parse CLI config", reason }))
     end
 
     return config

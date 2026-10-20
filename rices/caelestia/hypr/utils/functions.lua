@@ -219,9 +219,11 @@ local function load_toggle_config()
     else
         -- Invalid cli.json: notify and fall back to defaults.
         -- conf_or_error holds the parse error (string) or a non-table value on success.
+        -- notify-send, not `caelestia shell toaster`: bin/caelestia only implements
+        -- `shell [-d] | kill | restart | version`, so the toast never appeared.
         local reason = recognized and "Expected a JSON object" or tostring(conf_or_error):gsub("^.-:%d+: ", "")
-        hl.exec_cmd("caelestia shell toaster error " ..
-            shell_join({ "Failed to parse CLI config", reason }) .. " error")
+        hl.exec_cmd("notify-send -u normal -a caelestia " ..
+            shell_join({ "Failed to parse CLI config", reason }))
     end
 
     return config
