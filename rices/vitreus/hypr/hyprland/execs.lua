@@ -1,4 +1,5 @@
 local vars = require("variables")
+local home = os.getenv("HOME")
 
 hl.on("hyprland.start", function()
     -- Keyring and auth
@@ -30,6 +31,9 @@ hl.on("hyprland.start", function()
     -- Brightness slider to DDC mirror: Vitreus writes the laptop backlight,
     -- this forwards it to the external monitor while eDP is off
     hl.exec_cmd("systemctl --user start vitreus-brightness-mirror.service")
+
+    -- Re-apply the saved display layout when the HDMI panel is plugged or unplugged
+    hl.exec_cmd("pgrep -f '[v]itreus-display-switch.sh --watch' > /dev/null || " .. home .. "/.local/bin/vitreus-display-switch.sh --watch")
 
     -- Start Vitreus shell under its keeper (restarts on crash, gives up after 5 quick deaths)
     -- NOTE: absolute paths, Hyprland exec PATH has no ~/.local/bin

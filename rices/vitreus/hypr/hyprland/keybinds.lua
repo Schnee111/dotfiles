@@ -208,7 +208,9 @@ create_bind(
 )
 hl.bind("SUPER + SHIFT + D", hl.dsp.exec_cmd("rice-switch"))
 
--- Hardware Toggles (Audio output, Battery Limit, Power Profile)
+-- Hardware Toggles (Display output, Audio output, Battery Limit, Power Profile)
+-- SUPER + P / XF86Display: external only / laptop only / extend
+create_bind({ "SUPER + P", "XF86Display" }, hl.dsp.exec_cmd("vitreus-display-switch.sh"))
 create_bind("SUPER + ALT + V", hl.dsp.exec_cmd("audio_output_toggle.sh"))
 create_bind("SUPER + ALT + B", hl.dsp.exec_cmd("battery_limit_toggle.sh"))
 create_bind("SUPER + ALT + P", hl.dsp.exec_cmd("power_profile_toggle.sh"))
