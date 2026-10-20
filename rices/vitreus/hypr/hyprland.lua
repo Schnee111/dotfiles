@@ -40,6 +40,7 @@ if is_external_connected() then
         mode     = "1920x1080@200",
         position = "0x0",
         scale    = 1,
+        disabled = false,
     })
     hl.monitor({
         output   = "eDP-1",
@@ -51,6 +52,7 @@ else
         mode     = "2880x1800@90",
         position = "0x0",
         scale    = 1.6,
+        disabled = false,
     })
     hl.monitor({
         output   = "HDMI-A-1",
@@ -74,7 +76,17 @@ require("hyprland.keybinds")
 -- Vitreus shell binds (loaded last so SUPER+Space/D/L/B win over rice binds)
 pcall(require, "hypr_vitreus")
 pcall(require, "vitreus_brightness") -- DDC-aware brightness keys: wins over hypr_vitreus.lua
-pcall(require, "vitreus_monitors")
+-- Monitor layout kept by Settings > Display (or the SUPER+P display switcher).
+-- Loaded after the static block above so a kept layout wins over the boot default.
+local monitors_file = home .. "/.config/hypr/vitreus_monitors.lua"
+local monitors_fh = io.open(monitors_file, "r")
+if monitors_fh then
+    monitors_fh:close()
+    local ok, err = pcall(dofile, monitors_file)
+    if not ok then
+        io.stderr:write("vitreus_monitors.lua: " .. tostring(err) .. "\n")
+    end
+end
 pcall(require, "vitreus_hypr")
 pcall(require, "vitreus_colors")
 
