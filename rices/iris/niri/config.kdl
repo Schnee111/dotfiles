@@ -41,6 +41,7 @@ input {
     touchpad {
         tap
         tap-button-map "left-right-middle"
+        natural-scroll
     }
     mouse {
         accel-profile "flat"
