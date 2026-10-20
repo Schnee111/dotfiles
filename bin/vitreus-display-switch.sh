@@ -27,7 +27,9 @@ HYPR_DIR="$CONFIG_HOME/hypr"
 VITREUS_DIR="$CONFIG_HOME/vitreus"
 MODE_FILE="$VITREUS_DIR/display-mode"
 MON_FILE="$HYPR_DIR/vitreus_monitors.lua"
-STAMP="${XDG_RUNTIME_DIR:-/tmp}/vitreus-display-switch.stamp"
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache/vitreus-display-switch}"
+STAMP="$RUNTIME_DIR/display-switch.stamp"
+mkdir -p -m 700 "$RUNTIME_DIR" 2>/dev/null || true
 
 # The panels this rice is set up for.
 LAPTOP_MODE="2880x1800@90"
@@ -112,6 +114,7 @@ apply_layout() {
         sleep 0.1
         i=$((i + 1))
     done
+    return 1
 }
 
 workspaces_on() {
@@ -134,10 +137,21 @@ move_workspaces() {
 apply_mode() (
     local mode=$1 remember=${2:-yes}
 
-    mkdir -p "${STAMP%/*}"
+    mkdir -p -m 700 "$RUNTIME_DIR"
     exec 9>"${STAMP}.lock"
     flock -n 9 || exit 0
     date +%s > "$STAMP"
+
+    case "$mode" in
+        external|laptop|extend) ;;
+        *) exit 1 ;;
+    esac
+    # --set must not be able to disable every panel; choose() already checks,
+    # but the CLI and the watcher come through here.
+    if [ "$mode" != laptop ] && ! hdmi_connected; then
+        notify -u critical -i error "Display Error" "HDMI monitor not detected. Switch cancelled."
+        exit 1
+    fi
 
     case "$mode" in
         external)
@@ -177,6 +191,10 @@ apply_mode() (
         laptop)   notify -i laptop_chromebook "Display Output" "Laptop Screen Only (2.8K @ 90Hz, scale 1.6)"; play Swish.mp3 ;;
         extend)   notify -i devices "Display Output" "Extended Displays (both panels)"; play Chord.mp3 ;;
     esac
+
+    # Refresh the debounce stamp after the reloads settle, so events our own
+    # transition wakes late still land inside the guard window.
+    date +%s > "$STAMP"
 )
 
 # The mode to fall back on when the remembered one needs a panel that is not here.
@@ -204,8 +222,14 @@ reapply() {
 }
 
 watch() {
-    local socket="$XDG_RUNTIME_DIR/hypr/${HYPRLAND_INSTANCE_SIGNATURE:-}/.socket2.sock" line
+    local socket="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr/${HYPRLAND_INSTANCE_SIGNATURE:-}/.socket2.sock" line
     [ -S "$socket" ] || { echo "vitreus-display-switch: no Hyprland socket at $socket" >&2; exit 1; }
+    command -v socat >/dev/null 2>&1 || { echo "vitreus-display-switch: socat is required for --watch" >&2; exit 1; }
+
+    # Reconcile once at startup: the hardware may have changed while the watcher
+    # was not running (boot, resume, previous session).
+    sleep 2
+    "$0" --reapply
 
     socat -u UNIX-CONNECT:"$socket" - | while IFS= read -r line; do
         case "$line" in
