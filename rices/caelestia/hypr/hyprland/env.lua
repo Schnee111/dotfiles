@@ -32,6 +32,7 @@ hl.env("LD_LIBRARY_PATH", home .. "/.local/lib:" .. home .. "/.local/lib64")
 -- ~/.local/bin (caelestia, caelestia-display-switch.sh, play_sound.sh, ...)
 -- fails silently -- including `caelestia shell -d`, which leaves no shell at all.
 local path = os.getenv("PATH") or "/usr/local/bin:/usr/bin:/bin"
-if not path:find(home .. "/.local/bin", 1, true) then
+-- match whole PATH components so /opt/x/home/.../.local/bin-extra does not count
+if not (":" .. path .. ":"):find(":" .. home .. "/.local/bin:", 1, true) then
     hl.env("PATH", home .. "/.local/bin:" .. path)
 end

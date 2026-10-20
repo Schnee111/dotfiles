@@ -25,3 +25,13 @@ hl.env("_JAVA_AWT_WM_NONREPARENTING", "1")
 
 -- Locally built libs (libpam/awww/lz4 in ~/.local)
 hl.env("LD_LIBRARY_PATH", home .. "/.local/lib:" .. home .. "/.local/lib64")
+
+-- PATH hardening: GDM hands Hyprland PATH=/usr/local/bin:/usr/bin only, so the
+-- bare ~/.local/bin commands this rice spawns (pleamar, rice-switch,
+-- audio_output_toggle.sh, battery_limit_toggle.sh, power_profile_toggle.sh)
+-- fail silently. Prepend the user bin dir for every spawned command.
+local path = os.getenv("PATH") or "/usr/local/bin:/usr/bin:/bin"
+-- match whole PATH components so /opt/x/home/.../.local/bin-extra does not count
+if not (":" .. path .. ":"):find(":" .. home .. "/.local/bin:", 1, true) then
+    hl.env("PATH", home .. "/.local/bin:" .. path)
+end

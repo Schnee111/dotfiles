@@ -1,3 +1,4 @@
+require("hyprland.envs")
 require("hyprland.autostart")
 require("hyprland.general")
 require("hyprland.rules")
