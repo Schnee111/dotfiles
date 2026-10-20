@@ -48,6 +48,14 @@ hl.window_rule({ match = { class = "^(spotify)$" }, no_blur = false })
 hl.window_rule({ match = { class = "^(spotify)$" }, no_initial_focus = true })
 hl.window_rule({ match = { class = "^(kitty-ws9)$" }, workspace = "9 silent" })
 
+-- xdg-activation guards: misc:focus_on_activate is enabled globally (custom/general.lua)
+-- so browsers focus when you open a link, but these background apps must never
+-- steal focus when they request activation.
+hl.window_rule({ match = { class = "^(spotify)$" }, suppress_event = "activatefocus" })
+hl.window_rule({ match = { class = "^(discord)$" }, suppress_event = "activatefocus" })
+hl.window_rule({ match = { class = "^(org\\.telegram\\.desktop.*)$" }, suppress_event = "activatefocus" })
+hl.window_rule({ match = { class = "^(whatsapp-app)$" }, suppress_event = "activatefocus" })
+
 -- Drawing tablet (OpenTabletDriver 1:1 dynamic monitor binding)
 local is_external = false
 for _, card in ipairs({"card1", "card0"}) do

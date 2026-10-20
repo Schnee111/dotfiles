@@ -73,6 +73,7 @@ require("hyprland.keybinds")
 
 -- Vitreus shell binds (loaded last so SUPER+Space/D/L/B win over rice binds)
 pcall(require, "hypr_vitreus")
+pcall(require, "vitreus_brightness") -- DDC-aware brightness keys: wins over hypr_vitreus.lua
 pcall(require, "vitreus_monitors")
 pcall(require, "vitreus_hypr")
 pcall(require, "vitreus_colors")

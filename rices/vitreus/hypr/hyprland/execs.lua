@@ -27,6 +27,10 @@ hl.on("hyprland.start", function()
     -- Idle daemon (Vitreus Caffeine talks to it; guarded so no double-run)
     hl.exec_cmd("pgrep -x hypridle > /dev/null || hypridle")
 
+    -- Brightness slider to DDC mirror: Vitreus writes the laptop backlight,
+    -- this forwards it to the external monitor while eDP is off
+    hl.exec_cmd("systemctl --user start vitreus-brightness-mirror.service")
+
     -- Start Vitreus shell under its keeper (restarts on crash, gives up after 5 quick deaths)
     -- NOTE: absolute paths, Hyprland exec PATH has no ~/.local/bin
     hl.exec_cmd("/home/schnee/.local/bin/vitreus-keep /home/schnee/.config/pleamar/shells/vitreus/vitreus.plm /home/schnee/.local/share/pleamar/vitreus/vitreus.log")
