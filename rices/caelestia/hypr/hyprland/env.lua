@@ -26,3 +26,12 @@ hl.env("_JAVA_AWT_WM_NONREPARENTING", "1")
 -- Locally built Caelestia QML plugins + audio libs (cava/fftw in ~/.local)
 hl.env("QML2_IMPORT_PATH", home .. "/.local/lib64/qt6/qml")
 hl.env("LD_LIBRARY_PATH", home .. "/.local/lib:" .. home .. "/.local/lib64")
+
+-- PATH hardening: when GDM starts Hyprland the inherited PATH is only
+-- /usr/local/bin:/usr/bin, so every bare command the rice spawns from
+-- ~/.local/bin (caelestia, caelestia-display-switch.sh, play_sound.sh, ...)
+-- fails silently -- including `caelestia shell -d`, which leaves no shell at all.
+local path = os.getenv("PATH") or "/usr/local/bin:/usr/bin:/bin"
+if not path:find(home .. "/.local/bin", 1, true) then
+    hl.env("PATH", home .. "/.local/bin:" .. path)
+end
