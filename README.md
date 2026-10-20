@@ -87,6 +87,25 @@ rice-switch status   # Cek rice & compositor aktif
 3. Letakkan konfigurasi WM/Shell di dalamnya (misal `hypr/`, `waybar/`, `dunst/`).
 4. Jalankan `rice-switch` — profil baru akan otomatis terdeteksi di menu!
 
+### Terminal theming (kitty)
+
+`~/.config/kitty/kitty.conf` **tidak** di-symlink ke repo, tapi di-generate per rice oleh `install.sh`:
+
+```
+~/.config/kitty/kitty.conf          # generated: include common/kitty/kitty.conf
+~/.config/kitty/rice-theme.conf     # symlink ke theme milik rice aktif
+```
+
+Alasannya: beberapa shell rice menulis `include` ke `kitty.conf` saat runtime — iNiR (`generate_terminal_configs.py`) menambahkan `include current-theme.conf` di EOF, setelah `background_opacity 0.50` + `dynamic_background_opacity yes`, sehingga background opaque dari theme-nya mematikan glass. Kalau file itu symlink ke repo, tulisannya mendarat di file tracked: tree jadi dirty tiap sesi iris, dan glass rusak. Dengan wrapper, tulisan itu mendarat di file untracked dan hilang sendiri saat rice diganti.
+
+| Rice | Sumber theme |
+|---|---|
+| `end4`, `ii-p3drovfx` | `~/.local/state/quickshell/user/generated/terminal/kitty-theme.conf` |
+| `iris` | `~/.config/kitty/theme.conf` |
+| lainnya | `common/kitty/default-theme.conf` (palet fallback yang di-track) |
+
+Edit warna dasar di `common/kitty/kitty.conf`; edit palet fallback di `common/kitty/default-theme.conf`. Mapping rice → theme ada di `kitty_theme_source()` (`install.sh`).
+
 ---
 
 ## Installation
