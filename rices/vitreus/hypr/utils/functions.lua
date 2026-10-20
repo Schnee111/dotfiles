@@ -102,8 +102,14 @@ local function default_config()
         music = {
             spotify = {
                 enable  = true,
-                match   = { { class = "Spotify" }, { initial_title = "Spotify" }, { initial_title = "Spotify Free" } },
-                command = { "spicetify", "watch", "-s" },
+                match   = { { class = "com.spotify.Client" }, { class = "Spotify" }, { class = "spotify" },
+                    { initial_title = "Spotify" }, { initial_title = "Spotify Free" }, { title = "Spotify" } },
+                -- Spotify here is a flatpak and already carries the applied spicetify theme,
+                -- so launch it directly. `spicetify watch -s` has no native `spotify` binary to
+                -- attach to, leaves a defunct child behind and busy-waits at ~100% CPU forever,
+                -- and because the match rules also missed the flatpak window class every
+                -- `SUPER + M` press stacked another orphan watcher.
+                command = { "flatpak", "run", "com.spotify.Client" },
                 move    = true,
             },
             feishin = { enable = true, match = { { class = "feishin" } }, move = true },
