@@ -117,11 +117,11 @@ prune_foreign_links() {
     shift
     local root link target
     local -A seen=()
-    # Canonicalise the repo root once: on immutable distros ($HOME under
-    # /var/home, symlinked project roots) the literal "$DOTFILES_DIR" string
-    # never matches a resolved target.
+    # Canonicalise the repo root once (-m: tolerate a symlinked rices/ and a
+    # trailing slash): on immutable distros ($HOME under /var/home, symlinked
+    # project roots) the literal "$DOTFILES_DIR" never matches a resolved link.
     local rices_root
-    rices_root="$(readlink -f "$DOTFILES_DIR" 2>/dev/null || printf '%s' "$DOTFILES_DIR")/rices"
+    rices_root="$(readlink -m "$DOTFILES_DIR/rices" 2>/dev/null || printf '%s/rices' "${DOTFILES_DIR%/}")"
     for root in "$@"; do
         [[ -d "$root" ]] || continue
         while IFS= read -r -d '' link; do
@@ -148,6 +148,20 @@ prune_foreign_links() {
             fi
         done < <(find "$root" -maxdepth 1 -type l -print0 2>/dev/null)
     done
+}
+
+# The shell owns config.json; after an abnormal termination it can be empty or
+# truncated. Never copy that over the tracked rice copy.
+live_state_is_usable() {
+    local f="$1" body
+    [[ -s "$f" ]] || return 1
+    body="$(<"$f")"
+    body="${body//[[:space:]]/}"
+    [[ "${body:0:1}" == "{" && "${body: -1}" == "}" ]] || return 1
+    if command -v jq >/dev/null 2>&1; then
+        jq -e . "$f" >/dev/null 2>&1 || return 1
+    fi
+    return 0
 }
 
 # ==============================================================================
@@ -258,7 +272,9 @@ install_rice() {
         # would get an illogical-impulse/config.json it never reads, committed
         # into the repo by accident.
         if [[ -f "$prev_dir/config.json" ]] && ! cmp -s "$live_config" "$prev_dir/config.json" 2>/dev/null; then
-            if [[ $DRY_RUN -eq 1 ]]; then
+            if ! live_state_is_usable "$live_config"; then
+                print_warn "Skipped state sync: $live_config is empty or not valid JSON"
+            elif [[ $DRY_RUN -eq 1 ]]; then
                 print_msg "[Dry-Run] Would sync live shell state -> $prev_dir/config.json"
             else
                 cp "$live_config" "$prev_dir/config.json"
