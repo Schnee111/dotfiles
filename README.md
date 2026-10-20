@@ -76,6 +76,27 @@ rice-switch iris     # Beralih ke Niri iNiR
 rice-switch status   # Cek rice & compositor aktif
 ```
 
+### Shell Forks
+
+Dua shell di-clone manual ke `~/.config/quickshell/` dan dipakai dari fork sendiri, supaya patch lokal tidak hilang saat upstream update:
+
+| Clone | Fork kita | Upstream |
+|---|---|---|
+| `~/.config/quickshell/end4-pC` | `Schnee111/end4-pC` | `pctrade/end4-pC` |
+| `~/.config/quickshell/inir` | `Schnee111/iNiR` | `snowarch/iNiR` |
+
+Patch yang dibawa fork iNiR (lihat `git log` di clone-nya):
+
+- `fix(config)` — semua resolver config dipaku ke `~/.config/inir`, fallback ke `~/.config/illogical-impulse` (punya end4) dibuang, jadi dua shell tidak saling menimpa state.
+- `fix(iris)` — guard `BackgroundEffect` di `IrisBlurRegion`/`IrisWaveBlur` dan radius region anak dilepas.
+- `fix(shell)` — pragma `DefaultEnv` → `Env` (Quickshell 0.2.1 tidak menerimanya) + fallback panel family dari config.
+
+Update upstream:
+```bash
+cd ~/.config/quickshell/inir
+git fetch upstream && git merge upstream/main   # selesaikan konflik patch di atas, lalu git push
+```
+
 ### Menambahkan Rice Baru
 1. Buat folder baru di bawah `rices/<nama-rice>/`.
 2. Tambahkan `rice.conf` (metadata opsional):
