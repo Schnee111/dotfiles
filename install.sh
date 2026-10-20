@@ -739,6 +739,14 @@ install_rice() {
                 systemctl --user stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service 2>/dev/null || true
             fi
 
+            # ii is an end-4 derivative: it reads AND writes its shell state in
+            # the shared ~/.config/illogical-impulse/config.json. Link this
+            # rice's own copy, otherwise an ii session overwrites end4's
+            # bar/dock/settings with ii's schema and the bar comes back broken.
+            if [[ -f "$rice_dir/illogical-impulse/config.json" ]]; then
+                link_file "$rice_dir/illogical-impulse/config.json" "$CONFIG_DIR/illogical-impulse/config.json"
+            fi
+
             # Ensure quickshell ii fork is linked from rice-sources
             if [[ $DRY_RUN -eq 1 ]]; then
                 print_msg "[Dry-Run] Would link quickshell ii to $CONFIG_DIR/quickshell/ii"
