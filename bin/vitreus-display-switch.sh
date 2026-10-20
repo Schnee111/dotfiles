@@ -9,9 +9,16 @@
 #   vitreus-display-switch.sh --watch      follow Hyprland's socket2 and re-apply
 #                                          the mode when the HDMI panel comes or goes
 #
-# Unlike the old caelestia script this one writes ~/.config/hypr/vitreus_monitors.lua,
-# which hyprland.lua dofiles after its static monitor block. That is the same file
-# Settings > Display keeps, so a choice survives `hyprctl reload` and a restart.
+# The layout is not sent with `hyprctl eval`: every eval makes Hyprland validate
+# the monitors again, and re-enabling a panel at 0x0 while the other is still
+# there makes it warn "monitor layout is set up incorrectly / overlaps". Instead
+# this writes ~/.config/hypr/vitreus_monitors.lua (which hyprland.lua dofiles
+# after its static block, and which Settings > Display also keeps) and reloads:
+# one config pass, one final layout, nothing transient.
+#
+# Workspaces live on a monitor; disabling that monitor would strand them
+# invisible, so a mode that drops a panel first goes through `extend`, moves the
+# workspaces onto the panel that stays, and only then drops the other one.
 # ==============================================================================
 set -uo pipefail
 
@@ -55,20 +62,77 @@ effective_mode() {
 
 hypr_eval() { hyprctl eval "$1" >/dev/null 2>&1; }
 
+# The two hl.monitor lines a mode persists, printed one per line.
+monitor_rules() {
+    case "$1" in
+        external)
+            printf '%s\n%s\n' \
+                'hl.monitor({ output = "HDMI-A-1", mode = "'"$HDMI_MODE"'", position = "0x0", scale = 1, transform = 0, disabled = false })' \
+                'hl.monitor({ output = "eDP-1", disabled = true })'
+            ;;
+        laptop)
+            printf '%s\n%s\n' \
+                'hl.monitor({ output = "eDP-1", mode = "'"$LAPTOP_MODE"'", position = "0x0", scale = '"$LAPTOP_SCALE"', transform = 0, disabled = false })' \
+                'hl.monitor({ output = "HDMI-A-1", disabled = true })'
+            ;;
+        extend)
+            printf '%s\n%s\n' \
+                'hl.monitor({ output = "eDP-1", mode = "'"$LAPTOP_MODE"'", position = "0x0", scale = '"$LAPTOP_SCALE"', transform = 0, disabled = false })' \
+                'hl.monitor({ output = "HDMI-A-1", mode = "'"$HDMI_MODE"'", position = "'"$LAPTOP_WIDTH"'x0", scale = 1, transform = 0, disabled = false })'
+            ;;
+        *) return 1 ;;
+    esac
+}
+
 write_monitors_file() {
-    local body=$1
+    local mode=$1
     mkdir -p "$HYPR_DIR"
     {
         printf '%s\n' '-- Written by the Vitreus display switcher; edits here are overwritten.'
         printf '%s\n' '-- hyprland.lua loads it after its static monitor block, so it wins for the monitors it names.'
-        printf '%s\n' "$body"
+        monitor_rules "$mode"
     } > "$MON_FILE.tmp" && mv -f "$MON_FILE.tmp" "$MON_FILE"
+}
+
+# Write the layout, reload once, and wait until Hyprland reports it.
+apply_layout() {
+    local mode=$1 want i=0
+    case "$mode" in
+        external) want=offon ;;
+        laptop)   want=onoff ;;
+        extend)   want=onon  ;;
+        *)        return 1    ;;
+    esac
+
+    write_monitors_file "$mode"
+    hyprctl reload >/dev/null 2>&1
+
+    while [ "$i" -lt 25 ]; do
+        [ "$(monitor_on eDP-1)$(monitor_on HDMI-A-1)" = "$want" ] && return 0
+        sleep 0.1
+        i=$((i + 1))
+    done
+}
+
+workspaces_on() {
+    hyprctl workspaces -j 2>/dev/null \
+        | jq -r --arg m "$1" '.[] | select(.monitor == $m and .id > 0) | .id' 2>/dev/null
+}
+
+# Move every workspace off one panel and onto the other. The dispatcher only
+# runs when wrapped in hl.dispatch(); calling hl.dsp.workspace.move() on its own
+# just returns ok and does nothing.
+move_workspaces() {
+    local id
+    for id in $(workspaces_on "$1"); do
+        hypr_eval "hl.dispatch(hl.dsp.workspace.move({ workspace = $id, monitor = \"$2\" }))"
+    done
 }
 
 # apply_mode MODE [remember]
 # Runs in a subshell so the lock is released as soon as it returns.
 apply_mode() (
-    local mode=$1 remember=${2:-yes} body
+    local mode=$1 remember=${2:-yes}
 
     mkdir -p "${STAMP%/*}"
     exec 9>"${STAMP}.lock"
@@ -77,36 +141,32 @@ apply_mode() (
 
     case "$mode" in
         external)
-            # Bring the destination up first, then drop the laptop panel:
-            # disabling the source before the target exists loses the workspaces.
-            hypr_eval 'hl.monitor({ output = "HDMI-A-1", mode = "'"$HDMI_MODE"'", position = "0x0", scale = 1, transform = 0, disabled = false })'
-            sleep 0.5
-            hypr_eval 'hl.monitor({ output = "eDP-1", disabled = true })'
-            body=$(printf '%s\n%s' \
-                'hl.monitor({ output = "HDMI-A-1", mode = "'"$HDMI_MODE"'", position = "0x0", scale = 1, transform = 0, disabled = false })' \
-                'hl.monitor({ output = "eDP-1", disabled = true })')
+            # Park the laptop panel's workspaces on the HDMI one while both are up.
+            if [ "$(monitor_on eDP-1)" = on ] && [ -n "$(workspaces_on eDP-1)" ]; then
+                apply_layout extend
+                move_workspaces eDP-1 HDMI-A-1
+            fi
+            apply_layout external
             ;;
         laptop)
-            hypr_eval 'hl.monitor({ output = "eDP-1", mode = "'"$LAPTOP_MODE"'", position = "0x0", scale = '"$LAPTOP_SCALE"', transform = 0, disabled = false })'
-            sleep 0.5
-            hypr_eval 'hl.monitor({ output = "HDMI-A-1", disabled = true })'
-            body=$(printf '%s\n%s' \
-                'hl.monitor({ output = "eDP-1", mode = "'"$LAPTOP_MODE"'", position = "0x0", scale = '"$LAPTOP_SCALE"', transform = 0, disabled = false })' \
-                'hl.monitor({ output = "HDMI-A-1", disabled = true })')
+            # Same for an HDMI panel that is still up; if it is already gone its
+            # workspaces are stranded and get moved straight across.
+            if [ -n "$(workspaces_on HDMI-A-1)" ]; then
+                if [ "$(monitor_on HDMI-A-1)" = on ]; then
+                    apply_layout extend
+                fi
+                move_workspaces HDMI-A-1 eDP-1
+            fi
+            apply_layout laptop
             ;;
         extend)
-            hypr_eval 'hl.monitor({ output = "eDP-1", mode = "'"$LAPTOP_MODE"'", position = "0x0", scale = '"$LAPTOP_SCALE"', transform = 0, disabled = false })
-hl.monitor({ output = "HDMI-A-1", mode = "'"$HDMI_MODE"'", position = "'"$LAPTOP_WIDTH"'x0", scale = 1, transform = 0, disabled = false })'
-            body=$(printf '%s\n%s' \
-                'hl.monitor({ output = "eDP-1", mode = "'"$LAPTOP_MODE"'", position = "0x0", scale = '"$LAPTOP_SCALE"', transform = 0, disabled = false })' \
-                'hl.monitor({ output = "HDMI-A-1", mode = "'"$HDMI_MODE"'", position = "'"$LAPTOP_WIDTH"'x0", scale = 1, transform = 0, disabled = false })')
+            apply_layout extend
             ;;
         *)
             exit 1
             ;;
     esac
 
-    write_monitors_file "$body"
     if [ "$remember" = yes ]; then
         mkdir -p "$VITREUS_DIR"
         printf '%s\n' "$mode" > "$MODE_FILE"
@@ -151,12 +211,13 @@ watch() {
         case "$line" in
             monitoradded\>\>*HDMI-A-1*|monitoraddedv2\>\>*HDMI-A-1*|\
             monitorremoved\>\>*HDMI-A-1*|monitorremovedv2\>\>*HDMI-A-1*)
-                # Our own apply disables/enables the port and wakes the same events:
-                # ignore anything that lands within a few seconds of a change.
+                # Our own reload disables/enables the port and wakes the same
+                # events: ignore anything that lands within a few seconds of a
+                # change, or the watcher fights the switch that triggered it.
                 local last now
                 last=$(cat "$STAMP" 2>/dev/null || echo 0)
                 now=$(date +%s)
-                (( now - last < 4 )) && continue
+                (( now - last < 6 )) && continue
                 sleep 1
                 "$0" --reapply
                 ;;
