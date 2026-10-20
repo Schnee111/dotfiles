@@ -34,7 +34,8 @@ local function is_external_connected()
     return false
 end
 
-if is_external_connected() then
+local external_connected = is_external_connected()
+if external_connected then
     hl.monitor({
         output   = "HDMI-A-1",
         mode     = "1920x1080@200",
@@ -78,13 +79,19 @@ pcall(require, "hypr_vitreus")
 pcall(require, "vitreus_brightness") -- DDC-aware brightness keys: wins over hypr_vitreus.lua
 -- Monitor layout kept by Settings > Display (or the SUPER+P display switcher).
 -- Loaded after the static block above so a kept layout wins over the boot default.
-local monitors_file = home .. "/.config/hypr/vitreus_monitors.lua"
-local monitors_fh = io.open(monitors_file, "r")
-if monitors_fh then
-    monitors_fh:close()
-    local ok, err = pcall(dofile, monitors_file)
-    if not ok then
-        io.stderr:write("vitreus_monitors.lua: " .. tostring(err) .. "\n")
+local config_home = os.getenv("XDG_CONFIG_HOME") or (home .. "/.config")
+local monitors_file = config_home .. "/hypr/vitreus_monitors.lua"
+-- Only honour a saved layout while the external panel is actually here: an
+-- "external" layout disables eDP, and on an undocked boot no monitor event
+-- would ever fire to bring the built-in panel back.
+if external_connected then
+    local monitors_fh = io.open(monitors_file, "r")
+    if monitors_fh then
+        monitors_fh:close()
+        local ok, err = pcall(dofile, monitors_file)
+        if not ok then
+            io.stderr:write("vitreus_monitors.lua: " .. tostring(err) .. "\n")
+        end
     end
 end
 pcall(require, "vitreus_hypr")
