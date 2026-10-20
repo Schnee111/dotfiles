@@ -102,8 +102,12 @@ local function default_config()
         music = {
             spotify = {
                 enable  = true,
-                match   = { { class = "Spotify" }, { initial_title = "Spotify" }, { initial_title = "Spotify Free" } },
-                command = { "spicetify", "watch", "-s" },
+                match   = { { class = "com.spotify.Client" }, { class = "Spotify" }, { class = "spotify" },
+                    { initial_title = "Spotify" }, { initial_title = "Spotify Free" }, { title = "Spotify" } },
+                -- Spotify here is a flatpak and already spicetified, so launch it directly.
+                -- `spicetify watch -s` has no `spotify` binary to attach to, respawns in a
+                -- tight loop and burns a full core per invocation.
+                command = { "flatpak", "run", "com.spotify.Client" },
                 move    = true,
             },
             feishin = { enable = true, match = { { class = "feishin" } }, move = true },
