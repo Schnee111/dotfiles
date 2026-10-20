@@ -34,7 +34,8 @@ if status is-interactive
 end
 
 
-# Added by Antigravity CLI installer
+# opencode
+fish_add_path /home/schnee/.opencode/bin
 set -gx PATH "/home/schnee/.local/bin" $PATH
 if test -f "$HOME/.cargo/env.fish"
     source "$HOME/.cargo/env.fish"
