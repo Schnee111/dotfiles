@@ -106,6 +106,34 @@ link_file() {
     fi
 }
 
+# Remove symlinks under the given directories that point into a *different*
+# rice's dotfiles. A switch only relinks and prunes top-level *.lua modules, so
+# per-file links that exist only in the previous rice (custom/input.lua, extra
+# hyprland/scripts entries, shellOverrides/repo-defaults.lua) survive and load
+# foreign values. Real files are left alone on purpose: shellOverrides/main.lua
+# is written by the shell itself.
+prune_foreign_links() {
+    local rice="$1"
+    shift
+    local root link target
+    for root in "$@"; do
+        [[ -d "$root" ]] || continue
+        while IFS= read -r -d '' link; do
+            target="$(readlink "$link" 2>/dev/null || true)"
+            [[ "$target" == "$DOTFILES_DIR/rices/"* ]] || continue
+            case "$target" in
+                "$DOTFILES_DIR/rices/$rice/"*) continue ;;
+            esac
+            if [[ $DRY_RUN -eq 1 ]]; then
+                print_msg "[Dry-Run] Would remove foreign link: $link -> $target"
+            else
+                rm -f "$link"
+                print_warn "Removed foreign link: $link (was $target)"
+            fi
+        done < <(find "$root" -maxdepth 1 -type l -print0 2>/dev/null)
+    done
+}
+
 # ==============================================================================
 # 1. COMMON SYSTEM CONFIGS (Shared across all rices)
 # ==============================================================================
@@ -210,6 +238,8 @@ install_rice() {
                          "$CONFIG_DIR/hypr/utils/json.lua" \
                          "$CONFIG_DIR/hypr/variables.lua" \
                          "$CONFIG_DIR/hypr/hypr_vitreus.lua" \
+                         "$CONFIG_DIR/hypr/vitreus_hypr.lua" \
+                         "$CONFIG_DIR/hypr/vitreus_colors.lua" \
                          "$CONFIG_DIR/hypr/colors.conf" \
                          "$CONFIG_DIR/hypr/colors.lua"; do
                 if [[ -L "$stale" || -e "$stale" ]]; then
@@ -270,6 +300,17 @@ install_rice() {
                     link_file "$f" "$CONFIG_DIR/hypr/scripts/$(basename "$f")"
                 fi
             done
+
+            # Drop per-file links left by the previous rice. The switch relinks
+            # what this rice ships but never deletes what it doesn't (e.g.
+            # custom/input.lua, hyprland/scripts/zoom.sh,
+            # shellOverrides/repo-defaults.lua from ii-p3drovfx), and a stale
+            # link there wins over this rice's defaults.
+            prune_foreign_links "$rice" \
+                "$CONFIG_DIR/hypr" \
+                "$CONFIG_DIR/hypr/custom" \
+                "$CONFIG_DIR/hypr/scripts" \
+                "$CONFIG_DIR"/hypr/hyprland/*/
 
             # Illogical-impulse config
             if [[ -f "$rice_dir/illogical-impulse/config.json" ]]; then
@@ -684,6 +725,13 @@ install_rice() {
                 [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/custom/$(basename "$f")"
             done
 
+            # Drop per-file links left by the previous rice (see end4 branch).
+            prune_foreign_links "$rice" \
+                "$CONFIG_DIR/hypr" \
+                "$CONFIG_DIR/hypr/custom" \
+                "$CONFIG_DIR/hypr/scripts" \
+                "$CONFIG_DIR"/hypr/hyprland/*/
+
             # Stop end4 monitor watcher so it doesn't conflict
             if [[ $DRY_RUN -eq 1 ]]; then
                 print_msg "[Dry-Run] Would stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service"
@@ -782,6 +830,13 @@ install_rice() {
                     [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/custom/$(basename "$f")"
                 done
             fi
+
+            # Drop per-file links left by the previous rice (see end4 branch).
+            prune_foreign_links "$rice" \
+                "$CONFIG_DIR/hypr" \
+                "$CONFIG_DIR/hypr/custom" \
+                "$CONFIG_DIR/hypr/scripts" \
+                "$CONFIG_DIR"/hypr/hyprland/*/
 
             # Stop end4 monitor watcher so it doesn't conflict
             if [[ $DRY_RUN -eq 1 ]]; then
