@@ -224,6 +224,28 @@ install_rice() {
 
     print_msg "Activating rice: $rice ($rice_dir)"
 
+    # end-4 derived shells rewrite their state with an atomic rename, which
+    # replaces the installer symlink with a regular file. The live file then
+    # holds the newest state while the tracked rice copy goes stale, so a
+    # switch would relink the old copy and silently drop UI changes. Fold the
+    # live state back into the *outgoing* rice before linking the new one.
+    local prev_rice="" live_config="$CONFIG_DIR/illogical-impulse/config.json"
+    if [[ -f "$CURRENT_RICE_FILE" ]]; then
+        prev_rice="$(tr -d '[:space:]' < "$CURRENT_RICE_FILE")"
+    fi
+    if [[ -n "$prev_rice" && "$prev_rice" != "$rice" && -f "$live_config" && ! -L "$live_config" ]]; then
+        local prev_dir="$DOTFILES_DIR/rices/$prev_rice/illogical-impulse"
+        if ! cmp -s "$live_config" "$prev_dir/config.json" 2>/dev/null; then
+            if [[ $DRY_RUN -eq 1 ]]; then
+                print_msg "[Dry-Run] Would sync live shell state -> $prev_dir/config.json"
+            else
+                mkdir -p "$prev_dir"
+                cp "$live_config" "$prev_dir/config.json"
+                print_warn "Synced live shell state -> $prev_dir/config.json"
+            fi
+        fi
+    fi
+
     case "$rice" in
         end4)
             # Hyprland configs
