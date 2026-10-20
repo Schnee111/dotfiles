@@ -116,10 +116,20 @@ prune_foreign_links() {
     local rice="$1"
     shift
     local root link target
+    local -A seen=()
     for root in "$@"; do
         [[ -d "$root" ]] || continue
         while IFS= read -r -d '' link; do
-            target="$(readlink "$link" 2>/dev/null || true)"
+            # A caller may pass a subdir both explicitly and through the
+            # hyprland/*/ glob; never handle the same link twice.
+            [[ -n "${seen[$link]:-}" ]] && continue
+            seen[$link]=1
+            # Resolve relative targets too: a repo link such as
+            # ../../../Projects/dotfiles/rices/<other>/... never matches the
+            # absolute prefix below. Fall back to the raw target for dangling
+            # links, so they still show up instead of being silently ignored.
+            target="$(readlink -f "$link" 2>/dev/null || true)"
+            [[ -n "$target" ]] || target="$(readlink "$link" 2>/dev/null || true)"
             [[ "$target" == "$DOTFILES_DIR/rices/"* ]] || continue
             case "$target" in
                 "$DOTFILES_DIR/rices/$rice/"*) continue ;;
@@ -235,11 +245,14 @@ install_rice() {
     fi
     if [[ -n "$prev_rice" && "$prev_rice" != "$rice" && -f "$live_config" && ! -L "$live_config" ]]; then
         local prev_dir="$DOTFILES_DIR/rices/$prev_rice/illogical-impulse"
-        if ! cmp -s "$live_config" "$prev_dir/config.json" 2>/dev/null; then
+        # Only fold into a rice that already tracks this state; otherwise a
+        # rice using a different shell (vitreus, caelestia, iris, noctalia, ...)
+        # would get an illogical-impulse/config.json it never reads, committed
+        # into the repo by accident.
+        if [[ -f "$prev_dir/config.json" ]] && ! cmp -s "$live_config" "$prev_dir/config.json" 2>/dev/null; then
             if [[ $DRY_RUN -eq 1 ]]; then
                 print_msg "[Dry-Run] Would sync live shell state -> $prev_dir/config.json"
             else
-                mkdir -p "$prev_dir"
                 cp "$live_config" "$prev_dir/config.json"
                 print_warn "Synced live shell state -> $prev_dir/config.json"
             fi
@@ -332,6 +345,7 @@ install_rice() {
                 "$CONFIG_DIR/hypr" \
                 "$CONFIG_DIR/hypr/custom" \
                 "$CONFIG_DIR/hypr/scripts" \
+                "$CONFIG_DIR/hypr/hyprland/shellOverrides" \
                 "$CONFIG_DIR"/hypr/hyprland/*/
 
             # Illogical-impulse config
@@ -752,6 +766,7 @@ install_rice() {
                 "$CONFIG_DIR/hypr" \
                 "$CONFIG_DIR/hypr/custom" \
                 "$CONFIG_DIR/hypr/scripts" \
+                "$CONFIG_DIR/hypr/hyprland/shellOverrides" \
                 "$CONFIG_DIR"/hypr/hyprland/*/
 
             # Stop end4 monitor watcher so it doesn't conflict
@@ -866,6 +881,7 @@ install_rice() {
                 "$CONFIG_DIR/hypr" \
                 "$CONFIG_DIR/hypr/custom" \
                 "$CONFIG_DIR/hypr/scripts" \
+                "$CONFIG_DIR/hypr/hyprland/shellOverrides" \
                 "$CONFIG_DIR"/hypr/hyprland/*/
 
             # Stop end4 monitor watcher so it doesn't conflict
