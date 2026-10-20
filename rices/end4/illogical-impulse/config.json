@@ -70,13 +70,13 @@
         }
     },
     "background": {
-        "blurRadius": 14.736897684605756,
+        "blurRadius": 29.907386555440514,
         "centeredWallpaper": false,
         "centeredWallpaperColor": "primaryContainer",
         "centeredWallpaperOnlyWhenLocked": false,
         "centeredWallpaperShape": "Cookie7Sided",
         "centeredWallpaperSize": 400,
-        "enableWallpaperPreview": false,
+        "enableWallpaperPreview": true,
         "hideWhenFullscreen": true,
         "lockWall": "/home/schnee/Pictures/Wallpapers/naive-girl_raven_wood.png",
         "parallax": {
@@ -129,9 +129,9 @@
                     "animateChange": true,
                     "font": {
                         "family": "Google Sans Flex",
-                        "roundness": 100,
-                        "size": 99.80248748435545,
-                        "weight": 399.56653825093866,
+                        "roundness": 0.36125,
+                        "size": 93.68528907153971,
+                        "weight": 350.728818297076,
                         "width": 100.17306789737171
                     },
                     "showDate": true,
@@ -170,7 +170,7 @@
                 "content": "Schnee.",
                 "enable": true,
                 "fontFamily": "Caveat",
-                "fontSize": 100,
+                "fontSize": 73,
                 "placementStrategy": "free",
                 "shadow": true,
                 "x": 108,
@@ -298,7 +298,7 @@
                 "enable": true
             }
         },
-        "borderless": "transparent",
+        "borderless": "false",
         "bottom": false,
         "centerOnlyReserveFrame": false,
         "cornerStyle": 3,
@@ -591,7 +591,7 @@
         "timeout": 1000
     },
     "osk": {
-        "layout": "English (US)",
+        "layout": "auto",
         "pinnedOnStartup": false
     },
     "overlay": {
@@ -702,7 +702,7 @@
                 "username": "[unset]"
             }
         },
-        "bottomGroup": false,
+        "bottomGroup": true,
         "cornerOpen": {
             "bottom": false,
             "bottomLeftAction": "sidebarLeftOpen",
@@ -749,16 +749,16 @@
                         "type": "idleInhibitor"
                     },
                     {
+                        "size": 1,
+                        "type": "mic"
+                    },
+                    {
                         "size": 2,
                         "type": "audio"
                     },
                     {
                         "size": 2,
                         "type": "nightLight"
-                    },
-                    {
-                        "size": 1,
-                        "type": "darkMode"
                     }
                 ]
             },
