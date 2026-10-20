@@ -31,6 +31,7 @@ hl.env("LD_LIBRARY_PATH", home .. "/.local/lib:" .. home .. "/.local/lib64")
 -- audio_output_toggle.sh, battery_limit_toggle.sh, power_profile_toggle.sh)
 -- fail silently. Prepend the user bin dir for every spawned command.
 local path = os.getenv("PATH") or "/usr/local/bin:/usr/bin:/bin"
-if not path:find(home .. "/.local/bin", 1, true) then
+-- match whole PATH components so /opt/x/home/.../.local/bin-extra does not count
+if not (":" .. path .. ":"):find(":" .. home .. "/.local/bin:", 1, true) then
     hl.env("PATH", home .. "/.local/bin:" .. path)
 end

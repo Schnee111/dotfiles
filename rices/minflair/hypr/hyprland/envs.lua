@@ -22,6 +22,7 @@ hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 -- fail silently. Prepend the user bin dir for every spawned command.
 local home = os.getenv("HOME") or "/home/schnee"
 local path = os.getenv("PATH") or "/usr/local/bin:/usr/bin:/bin"
-if not path:find(home .. "/.local/bin", 1, true) then
+-- match whole PATH components so /opt/x/home/.../.local/bin-extra does not count
+if not (":" .. path .. ":"):find(":" .. home .. "/.local/bin:", 1, true) then
     hl.env("PATH", home .. "/.local/bin:" .. path)
 end
