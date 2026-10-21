@@ -134,9 +134,11 @@ doctor() {
                 continue
             elif [[ -z "$resolved" ]]; then
                 bad "dangling   $dest -> $(readlink "$dest")"
+                drifted+=("$dest")
                 issues=$((issues + 1))
             else
                 bad "drift      $dest -> $resolved (expected $want_resolved)"
+                drifted+=("$dest")
                 issues=$((issues + 1))
             fi
         elif [[ -e "$dest" ]]; then
@@ -189,7 +191,9 @@ doctor() {
         return 0
     fi
 
-    printf '\n%s%d issue(s)%s — %d path(s) need relinking\n' "$c_ylw" "$issues" "$c_rst" "${#drifted[@]}"
+    # issues includes non-path findings (GDM session mismatch), so the path count
+    # is reported separately instead of reusing it as a total.
+    printf '\n%s%d issue(s)%s — %d managed path(s) need relinking\n' "$c_ylw" "$issues" "$c_rst" "${#drifted[@]}"
     if (( fix == 1 )); then
         say "Relinking rice '$rice'..."
         "$DOTFILES_DIR/install.sh" --rice "$rice"
