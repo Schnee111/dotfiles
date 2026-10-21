@@ -7,23 +7,23 @@ Personal dotfiles for **Fedora Linux 44** running eight desktop rices across **H
 ### end4 — Hyprland + Quickshell (Material 3)
 
 <p align="center">
-  <img src="assets/overview-reze.png" width="49%" alt="Muted Sage / Reze Theme" />
-  <img src="assets/workflow-tiling.png" width="49%" alt="Tiling Workflow (Discord, Kitty, Spotify)" />
+  <img src="assets/overview-reze.webp" width="49%" alt="Muted Sage / Reze Theme" />
+  <img src="assets/workflow-tiling.webp" width="49%" alt="Tiling Workflow (Discord, Kitty, Spotify)" />
 </p>
 <p align="center">
-  <img src="assets/overview-customizer.png" width="49%" alt="Wallpaper & Color Customizer (Material You)" />
-  <img src="assets/overview-widgets.png" width="49%" alt="Desktop Widgets & Dashboard" />
+  <img src="assets/overview-customizer.webp" width="49%" alt="Wallpaper & Color Customizer (Material You)" />
+  <img src="assets/overview-widgets.webp" width="49%" alt="Desktop Widgets & Dashboard" />
 </p>
 
 ### Other rices
 
 <p align="center">
-  <img src="assets/rice-caelestia.jpg" width="49%" alt="caelestia — Hyprland + Caelestia Quickshell" />
-  <img src="assets/rice-vitreus.jpg" width="49%" alt="vitreus — Hyprland + pleamar liquid glass" />
+  <img src="assets/rice-caelestia.webp" width="49%" alt="caelestia — Hyprland + Caelestia Quickshell" />
+  <img src="assets/rice-vitreus.webp" width="49%" alt="vitreus — Hyprland + pleamar liquid glass" />
 </p>
 <p align="center">
-  <img src="assets/rice-noctalia.jpg" width="49%" alt="noctalia — Umbriel + Noctalia v5" />
-  <img src="assets/rice-iris.jpg" width="49%" alt="iris — Niri + iNiR" />
+  <img src="assets/rice-noctalia.webp" width="49%" alt="noctalia — Umbriel + Noctalia v5" />
+  <img src="assets/rice-iris.webp" width="49%" alt="iris — Niri + iNiR" />
 </p>
 
 <p align="center">
@@ -59,9 +59,17 @@ Personal dotfiles for **Fedora Linux 44** running eight desktop rices across **H
 
 ```text
 .
-├── install.sh                  # Automated installer & multi-rice linker
-├── bin/                        # rice-switch, display switchers, helper CLIs
-├── tests/                      # Regression tests for the installer
+├── install.sh                  # Entry point: args, library loading, run order
+├── lib/                        # Installer internals (one concern per file)
+│   ├── core.sh                 # logging, atomic linking, backups, manifest
+│   ├── snapshot.sh             # rollback snapshots
+│   ├── backup.sh               # backup retention
+│   ├── common.sh               # rice-independent configs + kitty wrapper
+│   ├── rice.sh                 # dispatcher, foreign-link pruning, state folding
+│   └── rices/                  # one linker per rice
+├── bin/                        # dotfiles CLI, rice-switch, display switchers
+├── tests/                      # Regression tests (rollback, doctor, kitty, …)
+├── docs/                       # recovery guide
 ├── common/                     # Core configs shared across all rices
 │   ├── kitty/                  # Terminal config + tracked fallback palette
 │   ├── fish/                   # Fish shell config & aliases
@@ -73,6 +81,7 @@ Personal dotfiles for **Fedora Linux 44** running eight desktop rices across **H
 │   ├── firefox/                # WhiteSur frosted glass theme
 │   ├── swappy/                 # Screenshot annotation config
 │   ├── fontconfig/             # CJK & Nerd Font priorities
+│   ├── sounds/                 # macOS UI feedback sounds (opus)
 │   └── systemd/                # Background watcher services & timers
 └── rices/                      # Isolated desktop rice environments
     ├── end4/                   # Hyprland + Quickshell end4-pC (Material 3)
@@ -91,15 +100,85 @@ Each rice carries `rice.conf` metadata plus its compositor config and shell stat
 
 ## Multi-Rice Architecture
 
+### How a switch works
+
+The repo is the source of truth; `~/.config` is a board of symlinks into it.
+`common/` holds what every rice shares, `rices/<name>/` holds what differs, and
+`lib/rices/<name>.sh` decides which of those files get linked for that rice.
+
+`rice-switch <rice>` runs four steps in a fixed order:
+
+| Step | What happens | On failure |
+|---|---|---|
+| 1. Link | `install.sh --rice <rice> --no-set-current` relinks configs | abort, nothing written |
+| 2. Verify | `hyprland --verify-config` / `niri validate` / `umbriel config validate` | rollback snapshot restored |
+| 3. Commit | write `~/.config/.current_rice`, set the GDM session | — |
+| 4. Logout | quit the compositor; GDM starts the new session | — |
+
+Step order is the safety property: a rice that cannot start never becomes the
+recorded active rice, and the symlinks are already back on the previous rice
+when the error is printed.
+
+### The `dotfiles` CLI
+
+```bash
+dotfiles switch <rice>     # link → verify → set session → logout
+dotfiles switch -n <rice>  # dry run: show the full plan, change nothing
+dotfiles install <rice>    # relink only (no logout), e.g. Hyprland → Hyprland
+dotfiles status            # active rice, compositor, GDM session, manifest size
+dotfiles doctor            # verify every managed path against the manifest
+dotfiles doctor --fix      # relink the active rice when drift is found
+dotfiles diff              # repo changes vs generated state vs symlink drift
+dotfiles save -m "msg"     # commit only generated/theme state
+dotfiles rollback          # restore the last install snapshot
+```
+
+### Managed-path manifest
+
+Every successful install writes `~/.local/state/dotfiles/manifest.tsv`
+(`dest<TAB>src` per path). That is what `doctor` compares against, and it is the
+only check that catches a shell rewriting a symlink into a regular file with an
+atomic rename — the config silently stops tracking the repo otherwise.
+
+`dotfiles doctor` exits 1 on missing/dangling/drifted/replaced paths and 0 when
+the map is intact (leftover links from other rices are reported as notes, not
+failures). Safe as a pre-commit or CI gate.
+
+### Config vs generated state
+
+| Kind | Examples | How it is committed |
+|---|---|---|
+| Hand-written config | `rices/*/hypr/*.lua`, `hypridle.conf`, `common/**` | normal commits |
+| Generated theme/UI state | `rices/*/illogical-impulse/config.json` (end-4 shell state), `rices/*/hypr/hyprland/colors.lua` (Matugen palette) | `dotfiles save -m "..."` → `chore(state): ...` |
+
+Keeping the two apart is why `git diff` stays readable: the state files churn on
+every wallpaper change, hand-written config does not.
+
+### Backups and rollback
+
+- Replaced real files go to `~/.config/dotfiles_backup_<timestamp>/` with their
+  original path preserved (`.config/hypr/...`), so two files with the same
+  basename can never collide. The last 5 trees are kept.
+- Before touching anything, the pre-state of each path (symlink target, or
+  "real file") is written to `~/.local/state/dotfiles/rollback-<ts>-<pid>.tsv`.
+  On failure the installer restores that snapshot; `install.sh --rollback`
+  replays the last one on demand.
+- Snapshots keep the previous manifest too, so a rollback also restores what
+  `doctor` compares against.
+
+Recovery runbook (black screen, wrong session, lost UI state):
+[`docs/recovery.md`](docs/recovery.md).
+
 ### Switching rices
 
 From a terminal or the keybinding menu:
 
 ```bash
-rice-switch          # Open the Fuzzel-based switcher
+rice-switch          # Open the Rofi/Fuzzel switcher (ACTIVE rice is marked)
 rice-switch end4     # Switch to Hyprland Material 3
 rice-switch iris     # Switch to Niri + iNiR
-rice-switch status   # Show the active rice and compositor
+rice-switch --dry-run vitreus   # Show what a switch would link/verify, change nothing
+rice-switch status   # Show the active rice, compositor and GDM session
 ```
 
 ### Shell forks
@@ -153,7 +232,7 @@ The reason is that rice shells write `include` lines into `kitty.conf` at runtim
 | `iris` | `~/.config/kitty/theme.conf` |
 | everything else | `common/kitty/default-theme.conf` (tracked fallback palette) |
 
-Edit the base colours in `common/kitty/kitty.conf` and the fallback palette in `common/kitty/default-theme.conf`. The rice → theme mapping lives in `kitty_theme_source()` in `install.sh`; `tests/kitty-theme-ownership.sh` asserts the invariants.
+Edit the base colours in `common/kitty/kitty.conf` and the fallback palette in `common/kitty/default-theme.conf`. The rice → theme mapping lives in `kitty_theme_source()` in `lib/common.sh`; `tests/kitty-theme-ownership.sh` asserts the invariants.
 
 ---
 
@@ -174,7 +253,34 @@ cd ~/Projects/dotfiles
 ```bash
 ./install.sh
 ```
-*Note: existing configuration files are backed up to `~/.config/dotfiles_backup_<timestamp>/` before the symlinks are created.*
+What the installer guarantees:
+
+- existing real files are **moved**, never deleted, into
+  `~/.config/dotfiles_backup_<timestamp>/` with their path preserved;
+- every symlink is replaced atomically (`ln -sf` + `mv -T`), so no reader ever
+  sees a half-written config;
+- each touched path is recorded first, and a failed run rolls itself back;
+- the managed-path list is written to `~/.local/state/dotfiles/manifest.tsv`
+  for `dotfiles doctor`;
+- the last 5 backup trees are kept, older ones are pruned.
+
+### 4. Verify
+```bash
+dotfiles doctor
+```
+
+---
+
+## Development
+
+```bash
+bash tests/run.sh                                        # all regression tests
+shellcheck -S warning install.sh bin/* lib/*.sh lib/rices/*.sh tests/*.sh
+./install.sh --dry-run --rice <rice>                     # what a link pass would do
+```
+
+CI (`.github/workflows/ci.yml`) runs ShellCheck, `bash -n`, the test suite and a
+dry-run link pass for every rice on each push.
 
 ---
 
