@@ -58,7 +58,8 @@ install_common() {
         if [[ -L "$chrome_host_dest" ]]; then
             remove_path "$chrome_host_dest"
         fi
-        write_stub "$chrome_host_dest" "$(sed "s|@DOTFILES_DIR@|$DOTFILES_DIR|g" "$DOTFILES_DIR/common/chrome/com.schnee.wallpaper_color.json")"
+        chrome_host_tpl="$(<"$DOTFILES_DIR/common/chrome/com.schnee.wallpaper_color.json")"
+        write_stub "$chrome_host_dest" "${chrome_host_tpl//@DOTFILES_DIR@/$DOTFILES_DIR}"
     fi
 
     # Systemd User Services
