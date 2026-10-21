@@ -257,9 +257,9 @@ def watch_platform_profile():
                 last_profile = new_profile
                 log(f"Platform profile changed: {new_profile}")
                 sounds = {
-                    "quiet": "Blow.aiff",
-                    "balanced": "Pop.aiff",
-                    "performance": "Hero.aiff",
+                    "quiet": "Blow.opus",
+                    "balanced": "Pop.opus",
+                    "performance": "Hero.opus",
                 }
                 if new_profile in sounds:
                     subprocess.Popen(["play_sound.sh", sounds[new_profile]], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
