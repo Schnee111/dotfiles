@@ -2,7 +2,7 @@
 # ==============================================================================
 # Setup Permissions for ASUS Battery Limit & Power Profile
 # Run with: sudo ./setup_power_permissions.sh
-# ASUS laptops only, optional, one-time. Makes the sysfs nodes world-writable.
+# ASUS laptops only, optional, one-time. Makes the sysfs nodes writable by the asus-power group.
 # ==============================================================================
 set -euo pipefail
 
@@ -12,6 +12,16 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "0. Creating the asus-power group..."
+getent group asus-power >/dev/null || groupadd --system asus-power
+TARGET_USER="${SUDO_USER:-}"
+if [[ -n "$TARGET_USER" && "$TARGET_USER" != "root" ]]; then
+    usermod -aG asus-power "$TARGET_USER"
+    echo "   added $TARGET_USER to asus-power (log out and back in for it to apply)"
+else
+    echo "   no sudo user found: add yourself with 'sudo usermod -aG asus-power <user>'"
+fi
 
 echo "1. Installing udev rule (/etc/udev/rules.d/98-asus-power.rules)..."
 cp "$DOTFILES_DIR/common/udev/98-asus-power.rules" /etc/udev/rules.d/98-asus-power.rules
@@ -35,10 +45,11 @@ udevadm trigger --subsystem-match=power_supply || true
 udevadm trigger --subsystem-match=platform || true
 systemd-tmpfiles --create /etc/tmpfiles.d/asus-power.conf || true
 
-# Explicitly ensure permissions right now
-chmod 0666 /sys/class/power_supply/BAT0/charge_control_end_threshold 2>/dev/null || true
-chmod 0666 /sys/firmware/acpi/platform_profile 2>/dev/null || true
-chmod 0666 /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy 2>/dev/null || true
+# Explicitly ensure ownership and mode right now
+for node in /sys/class/power_supply/BAT0/charge_control_end_threshold /sys/firmware/acpi/platform_profile /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy; do
+    chgrp asus-power "$node" 2>/dev/null || true
+    chmod 0664 "$node" 2>/dev/null || true
+done
 echo 80 > /sys/class/power_supply/BAT0/charge_control_end_threshold 2>/dev/null || true
 
 echo "---"
