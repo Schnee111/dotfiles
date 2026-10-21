@@ -276,11 +276,14 @@ they still point at the original author's home directory.
 
 ### Optional: ASUS power controls
 The battery-limit and power-profile toggles need write access to ASUS sysfs
-nodes. `sudo ./setup_power_permissions.sh` installs a udev rule, a tmpfiles
-entry and a boot service that make those nodes **world-writable (0666)**, so
-any local process can change them. It is a one-time, ASUS-only step and the
-installer never runs it. If an older version of the script installed
-`/etc/polkit-1/rules.d/90-asus-power.rules`, re-running the script removes it.
+nodes. `sudo ./setup_power_permissions.sh` creates an `asus-power` group, adds
+the invoking user to it (log out and back in afterwards) and installs a udev
+rule, a tmpfiles entry and a boot service that make those nodes `0664
+root:asus-power`. Only group members can change them. It is a one-time,
+ASUS-only step and the installer never runs it. If an older version of the
+script installed `/etc/polkit-1/rules.d/90-asus-power.rules` or made the nodes
+world-writable (`0666`), re-running the script removes the rule and tightens
+the nodes.
 
 ---
 
