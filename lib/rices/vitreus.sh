@@ -85,19 +85,13 @@ install_rice_vitreus() {
     else
         systemctl --user stop hyprland-monitor-watcher.service vitreus-brightness-mirror.service 2>/dev/null || true
     fi
-    # Clone/update Vitreus shell into ~/.config/pleamar/shells/vitreus
+    # Check out the pinned Vitreus shell into ~/.config/pleamar/shells/vitreus
     # (upstream repo; rice dir only carries our hypr side + rice.conf)
     if [[ $DRY_RUN -eq 1 ]]; then
-        print_msg "[Dry-Run] Would clone/update Vitreus to $CONFIG_DIR/pleamar/shells/vitreus"
+        print_msg "[Dry-Run] Would check out pinned Vitreus to $CONFIG_DIR/pleamar/shells/vitreus"
     else
         mkdir -p "$CONFIG_DIR/pleamar/shells"
-        if [[ -d "$CONFIG_DIR/pleamar/shells/vitreus/.git" ]]; then
-            print_msg "Updating Vitreus shell..."
-            git -C "$CONFIG_DIR/pleamar/shells/vitreus" pull --ff-only --quiet 2>/dev/null || print_warn "Vitreus update failed, kept as-is"
-        elif [[ ! -e "$CONFIG_DIR/pleamar/shells/vitreus" ]]; then
-            print_msg "Cloning Vitreus shell..."
-            git clone --depth 1 https://github.com/natepayn3/Vitreus.git "$CONFIG_DIR/pleamar/shells/vitreus" 2>/dev/null || print_warn "Vitreus clone failed (network?)"
-        fi
+        sync_pinned_repo "$VITREUS_URL" "$CONFIG_DIR/pleamar/shells/vitreus" "$VITREUS_REV" "Vitreus shell" || true
         # Helper binaries (clipimg, polkit-agent, sysmon, term, keep, fonts)
         for hb in vitreus-clipimg vitreus-polkit-agent vitreus-sysmon vitreus-term vitreus-keep vitreus-fonts; do
             if [[ -x "$CONFIG_DIR/pleamar/shells/vitreus/bin/$hb" ]]; then
