@@ -56,4 +56,15 @@ out="$("$REPO/bin/dotfiles" doctor 2>&1)" && status=0 || status=$?
 [[ $status -eq 1 ]] || fail "doctor without manifest should exit 1, got $status"
 echo "ok: missing manifest fails closed"
 
+# A clean manifest must exit 0, and >5 backup trees must actually be counted
+# (an earlier count_glob took pre-expanded args and capped the count at 1).
+ln -s "$src_ok" "$CONFIG_DIR/clean.conf"
+printf '%s\t%s\n' "$CONFIG_DIR/clean.conf" "$src_ok" >"$MANIFEST"
+for i in 1 2 3 4 5 6 7; do mkdir -p "$CONFIG_DIR/dotfiles_backup_2026010${i}_000000"; done
+out="$("$REPO/bin/dotfiles" doctor 2>&1)" && status=0 || status=$?
+echo "$out"
+[[ $status -eq 0 ]] || fail "clean manifest should exit 0, got $status"
+grep -q "7 backup trees" <<<"$out" || fail "backup count not reported (count_glob caps at 1?)"
+echo "ok: clean map exits 0 and counts 7 backup trees"
+
 echo "PASS: doctor"

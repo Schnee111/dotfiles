@@ -38,12 +38,16 @@ bad() { printf '%s fail %s %s\n' "$c_red" "$c_rst" "$*"; }
 # pipefail` returns ls's exit status (2 = "no matches"), which aborts the script
 # when the result is assigned.
 count_glob() {
-    local -a matches=()
+    local pattern="$1" n=0
     shopt -s nullglob
-    # shellcheck disable=SC2206
-    matches=($1)
+    # The pattern must expand HERE, not at the call site: an unquoted glob at the
+    # call site arrives as N positional args and only $1 was counted (a machine
+    # with 8 backups reported 1).
+    # shellcheck disable=SC2086
+    set -- $pattern
+    n=$#
     shopt -u nullglob
-    printf '%s' "${#matches[@]}"
+    printf '%s' "$n"
 }
 
 current_rice() {
@@ -89,9 +93,16 @@ cmd_status() {
         warn "No manifest yet — run 'dotfiles install' so doctor has a baseline"
     fi
     local snaps backups
-    snaps="$(count_glob "$STATE_DIR"/rollback-*.tsv)"
-    say "Snapshots:     $snaps (last: $(basename "$(ls -1dt "$STATE_DIR"/rollback-*.tsv 2>/dev/null | head -n1)" 2>/dev/null || echo none))"
-    backups="$(count_glob "$CONFIG_DIR"/dotfiles_backup_*)"
+    snaps="$(count_glob "$STATE_DIR/rollback-*.tsv")"
+    local last_snap=""
+    last_snap="$(ls -1dt "$STATE_DIR"/rollback-*.tsv 2>/dev/null | head -n1 || true)"
+    if [[ -n "$last_snap" ]]; then
+        last_snap="$(basename "$last_snap")"
+    else
+        last_snap="none"
+    fi
+    say "Snapshots:     $snaps (last: $last_snap)"
+    backups="$(count_glob "$CONFIG_DIR/dotfiles_backup_*")"
     say "Backups:       $backups"
 }
 
@@ -169,7 +180,7 @@ doctor() {
     fi
 
     local backups
-    backups="$(count_glob "$CONFIG_DIR"/dotfiles_backup_*)"
+    backups="$(count_glob "$CONFIG_DIR/dotfiles_backup_*")"
     (( backups > 5 )) && warn "$backups backup trees in $CONFIG_DIR (installer prunes to 5 on the next run)"
 
     if (( issues == 0 )); then
@@ -204,8 +215,11 @@ cmd_diff() {
     local dest src drift=0
     while IFS=$'\t' read -r dest src; do
         [[ -n "$dest" ]] || continue
-        if [[ -L "$dest" && "$(readlink -f "$dest" 2>/dev/null)" == "$src" ]]; then
-            continue
+        if [[ -L "$dest" ]]; then
+            local got want
+            got="$(readlink -f "$dest" 2>/dev/null || true)"
+            want="$(readlink -f "$src" 2>/dev/null || true)"
+            [[ -n "$got" && "$got" == "$want" ]] && continue
         fi
         printf '  %s\n' "$dest"
         drift=$((drift + 1))
@@ -217,11 +231,28 @@ cmd_save() {
     local msg=""
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -m | --message) msg="$2"; shift 2 ;;
-            *) msg="$1"; shift ;;
+            -m | --message)
+                [[ $# -ge 2 ]] || {
+                    bad "-m needs a message"
+                    return 1
+                }
+                msg="$2"
+                shift 2
+                ;;
+            *)
+                msg="$1"
+                shift
+                ;;
         esac
     done
     [[ -n "$msg" ]] || msg="sync generated theme/UI state"
+
+    # 'save' commits the whole index, so refuse when someone else's staged work
+    # is already there instead of silently folding it into chore(state).
+    if ! git -C "$DOTFILES_DIR" diff --cached --quiet; then
+        bad "index already has staged changes; commit or unstage them first"
+        return 1
+    fi
 
     local staged=0
     for glob in "${STATE_GLOBS[@]}"; do
@@ -245,7 +276,7 @@ cmd_save() {
 }
 
 usage() {
-    sed -n '3,13p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '/^#   dotfiles switch/,/^#   dotfiles rollback/p' "$0" | sed 's/^# \{0,1\}//'
 }
 
 case "${1:-status}" in

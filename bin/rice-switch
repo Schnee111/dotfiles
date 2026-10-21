@@ -120,6 +120,12 @@ gui_menu() {
 
 verify_config() {
     local compositor="$1"
+    if ! command -v "$compositor" >/dev/null 2>&1; then
+        # Should not happen (the caller checks first), but a bare "failed" here
+        # reads as a broken config when the real cause is a missing binary.
+        echo "rice-switch: cannot verify, '$compositor' is not installed; skipping" >&2
+        return 0
+    fi
     case "$compositor" in
         hyprland) timeout 60 hyprland --verify-config >/dev/null 2>&1 ;;
         niri) timeout 60 niri validate >/dev/null 2>&1 ;;
