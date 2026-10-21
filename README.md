@@ -1,6 +1,6 @@
 # schnee's dotfiles
 
-Personal dotfiles and configurations for **Fedora Linux 44** running eight desktop rices across **Hyprland**, **Niri** and **Umbriel** — mostly Quickshell-family shells (end-4 / Caelestia / iNiR / pleamar / Noctalia / minflair / prism). Clean, minimalist frosted glassmorphism, tailored for productivity and gaming workflows.
+Personal dotfiles for **Fedora Linux 44** running eight desktop rices across **Hyprland**, **Niri** and **Umbriel** — mostly Quickshell-family shells (end-4, Caelestia, iNiR, pleamar, Noctalia, minflair, Prism). Clean, minimalist frosted glassmorphism, tailored for productivity and gaming workflows.
 
 ## Showcase
 
@@ -15,7 +15,7 @@ Personal dotfiles and configurations for **Fedora Linux 44** running eight deskt
   <img src="assets/overview-widgets.png" width="49%" alt="Desktop Widgets & Dashboard" />
 </p>
 
-### Rice lain
+### Other rices
 
 <p align="center">
   <img src="assets/rice-caelestia.jpg" width="49%" alt="caelestia — Hyprland + Caelestia Quickshell" />
@@ -43,12 +43,12 @@ Personal dotfiles and configurations for **Fedora Linux 44** running eight deskt
 | :--- | :--- |
 | **OS** | Fedora Linux 44 (Workstation Edition) |
 | **Kernel** | Linux 7.2.x x86_64 |
-| **Compositor** | Hyprland (Wayland) |
-| **Shell / Widgets** | Quickshell (end4-pC / Material 3) |
+| **Compositors** | Hyprland (6 rices), Niri, Umbriel (Wayland) |
+| **Shells** | Quickshell-family: end4-pC, Caelestia, II, minflair, Prism, iNiR, pleamar, Noctalia v5 |
 | **Launcher** | Rofi 2.0 (Custom Launchpad Grid) |
 | **Terminal** | Kitty with Fish shell & Starship prompt |
 | **Laptop Hardware** | ASUS (TigerLake Intel Iris Xe GT2) |
-| **Laptop Display** | 14-inch 2.8K 90Hz OLED (`eDP-1`, 1.5x scale) |
+| **Laptop Display** | 14-inch 2.8K 90Hz OLED (`eDP-1`, 1.6x scale) |
 | **External Monitor** | Xiaomi Mi Desktop Monitor 1080p @ 200Hz (`HDMI-A-1`, 1.0x scale) |
 | **Audio DAC** | Intel Tiger Lake-LP Smart Sound Technology (SOF) |
 | **Mouse** | Ajazz AJ139 V2 MC (PAW3311, WebHID driver) |
@@ -60,10 +60,10 @@ Personal dotfiles and configurations for **Fedora Linux 44** running eight deskt
 ```text
 .
 ├── install.sh                  # Automated installer & multi-rice linker
-├── bin/
-│   └── rice-switch             # Dynamic Fuzzel-based rice switcher
+├── bin/                        # rice-switch, display switchers, helper CLIs
+├── tests/                      # Regression tests for the installer
 ├── common/                     # Core configs shared across all rices
-│   ├── kitty/                  # Terminal emulator config
+│   ├── kitty/                  # Terminal config + tracked fallback palette
 │   ├── fish/                   # Fish shell config & aliases
 │   ├── starship/               # Starship minimalist prompt
 │   ├── rofi/                   # Launchpad & display switcher
@@ -75,79 +75,85 @@ Personal dotfiles and configurations for **Fedora Linux 44** running eight deskt
 │   ├── fontconfig/             # CJK & Nerd Font priorities
 │   └── systemd/                # Background watcher services & timers
 └── rices/                      # Isolated desktop rice environments
-    ├── end4/                   # Rice 1: Hyprland + Quickshell (Material 3)
-    │   ├── rice.conf           # Profile metadata
-    │   ├── hypr/               # Hyprland custom configs, rules & scripts
-    │   └── illogical-impulse/  # Quickshell bar, dock & widget state
-    └── iris/                   # Rice 2: Niri + iNiR
-        ├── rice.conf           # Profile metadata
-        ├── niri/               # Niri config (config.kdl)
-        └── inir/               # iNiR Quickshell state
+    ├── end4/                   # Hyprland + Quickshell end4-pC (Material 3)
+    ├── caelestia/              # Hyprland + Caelestia Quickshell
+    ├── ii-p3drovfx/            # Hyprland + Quickshell II (dynamic VFX)
+    ├── minflair/               # Hyprland + Quickshell minflair
+    ├── prism-shell/            # Hyprland + Quickshell Prism
+    ├── vitreus/                # Hyprland + pleamar (liquid glass)
+    ├── iris/                   # Niri + iNiR
+    └── noctalia/               # Umbriel + Noctalia v5
 ```
+
+Each rice carries `rice.conf` metadata plus its compositor config and shell state.
 
 ---
 
 ## Multi-Rice Architecture
 
-### Switching Rices
-Bisa via terminal atau shortcut:
+### Switching rices
+
+From a terminal or the keybinding menu:
+
 ```bash
-rice-switch          # Membuka GUI menu switcher (Fuzzel)
-rice-switch end4     # Beralih ke Hyprland Material 3
-rice-switch iris     # Beralih ke Niri iNiR
-rice-switch status   # Cek rice & compositor aktif
+rice-switch          # Open the Fuzzel-based switcher
+rice-switch end4     # Switch to Hyprland Material 3
+rice-switch iris     # Switch to Niri + iNiR
+rice-switch status   # Show the active rice and compositor
 ```
 
-### Shell Forks
+### Shell forks
 
-Dua shell di-clone manual ke `~/.config/quickshell/` dan dipakai dari fork sendiri, supaya patch lokal tidak hilang saat upstream update:
+Two shells are cloned manually into `~/.config/quickshell/` and run from our own forks, so local patches survive upstream updates:
 
-| Clone | Fork kita | Upstream |
+| Clone | Our fork | Upstream |
 |---|---|---|
 | `~/.config/quickshell/end4-pC` | `Schnee111/end4-pC` | `pctrade/end4-pC` |
 | `~/.config/quickshell/inir` | `Schnee111/iNiR` | `snowarch/iNiR` |
 
-Patch yang dibawa fork iNiR (lihat `git log` di clone-nya):
+What the iNiR fork carries (see `git log` in the clone):
 
-- `fix(config)` — semua resolver config dipaku ke `~/.config/inir`, fallback ke `~/.config/illogical-impulse` (punya end4) dibuang, jadi dua shell tidak saling menimpa state.
-- `fix(iris)` — guard `BackgroundEffect` di `IrisBlurRegion`/`IrisWaveBlur` dan radius region anak dilepas.
-- `fix(shell)` — pragma `DefaultEnv` → `Env` (Quickshell 0.2.1 tidak menerimanya) + fallback panel family dari config.
+- `fix(config)` — every config resolver is pinned to `~/.config/inir`; the fallback to `~/.config/illogical-impulse` (end4's path) is gone, so the two shells no longer overwrite each other's state.
+- `fix(iris)` — `BackgroundEffect` guards in `IrisBlurRegion`/`IrisWaveBlur`, and the explicit radius on the child regions dropped.
+- `fix(shell)` — `DefaultEnv` pragmas changed to `Env` (Quickshell 0.2.1 does not accept the former) plus a panel-family fallback from the config.
 
-Update upstream:
+Updating upstream:
+
 ```bash
 cd ~/.config/quickshell/inir
-git fetch upstream && git merge upstream/main   # selesaikan konflik patch di atas, lalu git push
+git fetch upstream && git merge upstream/main   # resolve the patch conflicts, then git push
 ```
 
-### Menambahkan Rice Baru
-1. Buat folder baru di bawah `rices/<nama-rice>/`.
-2. Tambahkan `rice.conf` (metadata opsional):
+### Adding a new rice
+
+1. Create a directory under `rices/<rice-name>/`.
+2. Add `rice.conf` metadata:
    ```bash
-   NAME="nama-rice"
-   DISPLAY_NAME="🎨  Nama Rice (Hyprland / Waybar)"
+   NAME="rice-name"
+   DISPLAY_NAME="🎨  Rice Name (Hyprland / Waybar)"
    COMPOSITOR="hyprland"
    ```
-3. Letakkan konfigurasi WM/Shell di dalamnya (misal `hypr/`, `waybar/`, `dunst/`).
-4. Jalankan `rice-switch` — profil baru akan otomatis terdeteksi di menu!
+3. Put the compositor and shell configuration inside it (e.g. `hypr/`, `waybar/`, `dunst/`).
+4. Run `rice-switch` — the new profile is picked up automatically.
 
 ### Terminal theming (kitty)
 
-`~/.config/kitty/kitty.conf` **tidak** di-symlink ke repo, tapi di-generate per rice oleh `install.sh`:
+`~/.config/kitty/kitty.conf` is **not** symlinked into the repo; `install.sh` generates it per rice:
 
-```
+```text
 ~/.config/kitty/kitty.conf          # generated: include common/kitty/kitty.conf
-~/.config/kitty/rice-theme.conf     # symlink ke theme milik rice aktif
+~/.config/kitty/rice-theme.conf     # symlink to the active rice's theme
 ```
 
-Alasannya: beberapa shell rice menulis `include` ke `kitty.conf` saat runtime — iNiR (`generate_terminal_configs.py`) menambahkan `include current-theme.conf` di EOF, setelah `background_opacity 0.50` + `dynamic_background_opacity yes`, sehingga background opaque dari theme-nya mematikan glass. Kalau file itu symlink ke repo, tulisannya mendarat di file tracked: tree jadi dirty tiap sesi iris, dan glass rusak. Dengan wrapper, tulisan itu mendarat di file untracked dan hilang sendiri saat rice diganti.
+The reason is that rice shells write `include` lines into `kitty.conf` at runtime — iNiR (`generate_terminal_configs.py`) appends `include current-theme.conf` at EOF, i.e. after `background_opacity 0.50` + `dynamic_background_opacity yes`, so the theme's opaque background turns the glass off. With the file symlinked into the repo those writes land in a tracked file, dirtying the tree every iris session. The generated wrapper absorbs them and is rewritten on the next switch, so they disappear.
 
-| Rice | Sumber theme |
+| Rice | Theme source |
 |---|---|
 | `end4`, `ii-p3drovfx` | `~/.local/state/quickshell/user/generated/terminal/kitty-theme.conf` |
 | `iris` | `~/.config/kitty/theme.conf` |
-| lainnya | `common/kitty/default-theme.conf` (palet fallback yang di-track) |
+| everything else | `common/kitty/default-theme.conf` (tracked fallback palette) |
 
-Edit warna dasar di `common/kitty/kitty.conf`; edit palet fallback di `common/kitty/default-theme.conf`. Mapping rice → theme ada di `kitty_theme_source()` (`install.sh`).
+Edit the base colours in `common/kitty/kitty.conf` and the fallback palette in `common/kitty/default-theme.conf`. The rice → theme mapping lives in `kitty_theme_source()` in `install.sh`; `tests/kitty-theme-ownership.sh` asserts the invariants.
 
 ---
 
@@ -168,7 +174,7 @@ cd ~/Projects/dotfiles
 ```bash
 ./install.sh
 ```
-*Note: Existing configuration files will automatically be backed up to `~/.config/dotfiles_backup_<timestamp>/` before creating symbolic links.*
+*Note: existing configuration files are backed up to `~/.config/dotfiles_backup_<timestamp>/` before the symlinks are created.*
 
 ---
 
