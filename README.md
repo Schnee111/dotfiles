@@ -1,8 +1,10 @@
 # schnee's dotfiles
 
-Personal dotfiles and configurations for **Fedora Linux 44** running **Hyprland** with **Quickshell** (Material 3 / end-4 framework). Crafted with a clean, minimalist frosted glassmorphism aesthetic tailored for productivity and gaming workflows.
+Personal dotfiles and configurations for **Fedora Linux 44** running eight desktop rices across **Hyprland**, **Niri** and **Umbriel** — mostly Quickshell-family shells (end-4 / Caelestia / iNiR / pleamar / Noctalia / minflair / prism). Clean, minimalist frosted glassmorphism, tailored for productivity and gaming workflows.
 
 ## Showcase
+
+### end4 — Hyprland + Quickshell (Material 3)
 
 <p align="center">
   <img src="assets/overview-reze.png" width="49%" alt="Muted Sage / Reze Theme" />
@@ -11,6 +13,26 @@ Personal dotfiles and configurations for **Fedora Linux 44** running **Hyprland*
 <p align="center">
   <img src="assets/overview-customizer.png" width="49%" alt="Wallpaper & Color Customizer (Material You)" />
   <img src="assets/overview-widgets.png" width="49%" alt="Desktop Widgets & Dashboard" />
+</p>
+
+### Rice lain
+
+<p align="center">
+  <img src="assets/rice-caelestia.jpg" width="49%" alt="caelestia — Hyprland + Caelestia Quickshell" />
+  <img src="assets/rice-vitreus.jpg" width="49%" alt="vitreus — Hyprland + pleamar liquid glass" />
+</p>
+<p align="center">
+  <img src="assets/rice-noctalia.jpg" width="49%" alt="noctalia — Umbriel + Noctalia v5" />
+  <img src="assets/rice-iris.jpg" width="49%" alt="iris — Niri + iNiR" />
+</p>
+
+<p align="center">
+  <sub>
+    <b>caelestia</b> · Hyprland + Caelestia Quickshell &nbsp;•&nbsp;
+    <b>vitreus</b> · Hyprland + pleamar &nbsp;•&nbsp;
+    <b>noctalia</b> · Umbriel + Noctalia v5 &nbsp;•&nbsp;
+    <b>iris</b> · Niri + iNiR
+  </sub>
 </p>
 
 ---
