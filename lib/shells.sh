@@ -1,4 +1,5 @@
 # shellcheck shell=bash
+# shellcheck disable=SC2034  # URL/REV variables are read by lib/rices/*.sh
 # Third-party shell checkouts. The installer used to clone HEAD and `git pull`
 # on every run, so upstream changes were fetched and then executed from the
 # Hyprland autostart without review. Each shell is now pinned to a commit:
@@ -10,7 +11,6 @@
 
 VITREUS_URL="https://github.com/natepayn3/Vitreus.git"
 VITREUS_REV="${VITREUS_REV:-aff648cbd6405305093d0de4ad5719c711e09800}"
-# shellcheck disable=SC2034  # read by lib/rices/end4.sh
 END4PC_URL="https://github.com/Schnee111/end4-pC.git"
 END4PC_REV="${END4PC_REV:-4cb63198ba9e1be69fcc1e90154593635b7d3baf}"
 
