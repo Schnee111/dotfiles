@@ -269,6 +269,14 @@ What the installer guarantees:
 dotfiles doctor
 ```
 
+### Optional: ASUS power controls
+The battery-limit and power-profile toggles need write access to ASUS sysfs
+nodes. `sudo ./setup_power_permissions.sh` installs a udev rule, a tmpfiles
+entry and a boot service that make those nodes **world-writable (0666)**, so
+any local process can change them. It is a one-time, ASUS-only step and the
+installer never runs it. If an older version of the script installed
+`/etc/polkit-1/rules.d/90-asus-power.rules`, re-running the script removes it.
+
 ---
 
 ## Development

@@ -2,6 +2,7 @@
 # ==============================================================================
 # Setup Permissions for ASUS Battery Limit & Power Profile
 # Run with: sudo ./setup_power_permissions.sh
+# ASUS laptops only, optional, one-time. Makes the sysfs nodes world-writable.
 # ==============================================================================
 set -euo pipefail
 
@@ -13,19 +14,20 @@ fi
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "1. Installing udev rule (/etc/udev/rules.d/98-asus-power.rules)..."
-cp "$DOTFILES_DIR/udev/98-asus-power.rules" /etc/udev/rules.d/98-asus-power.rules
+cp "$DOTFILES_DIR/common/udev/98-asus-power.rules" /etc/udev/rules.d/98-asus-power.rules
 
 echo "2. Installing tmpfiles config (/etc/tmpfiles.d/asus-power.conf)..."
-cp "$DOTFILES_DIR/tmpfiles/asus-power.conf" /etc/tmpfiles.d/asus-power.conf
+cp "$DOTFILES_DIR/common/tmpfiles/asus-power.conf" /etc/tmpfiles.d/asus-power.conf
 
 echo "3. Installing systemd boot service (/etc/systemd/system/asus-power-permissions.service)..."
-cp "$DOTFILES_DIR/systemd/system/asus-power-permissions.service" /etc/systemd/system/asus-power-permissions.service
+cp "$DOTFILES_DIR/common/systemd/system/asus-power-permissions.service" /etc/systemd/system/asus-power-permissions.service
 systemctl daemon-reload
 systemctl enable --now asus-power-permissions.service >/dev/null 2>&1 || true
 
-echo "4. Installing polkit rule (/etc/polkit-1/rules.d/90-asus-power.rules)..."
-mkdir -p /etc/polkit-1/rules.d
-cp "$DOTFILES_DIR/polkit/90-asus-power.rules" /etc/polkit-1/rules.d/90-asus-power.rules
+echo "4. Removing the legacy polkit rule, if an earlier run installed it..."
+# It allowed any wheel user to run an arbitrary pkexec bash command containing
+# the platform_profile path as root. The sysfs nodes are writable directly now.
+rm -f /etc/polkit-1/rules.d/90-asus-power.rules
 
 echo "5. Reloading udev rules & applying permissions..."
 udevadm control --reload
