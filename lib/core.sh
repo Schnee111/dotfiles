@@ -116,6 +116,21 @@ remove_path() {
     manifest_drop "$path"
 }
 
+# Write a small generated stub (e.g. a shell's hypr-vars.lua on first run) while
+# keeping it inside the rollback snapshot, so a rollback removes it again.
+write_stub() {
+    local path="$1"
+    shift
+    snapshot_record "$path"
+    if [[ $DRY_RUN -eq 1 ]]; then
+        print_msg "[Dry-Run] Would create stub: $path"
+        return 0
+    fi
+    mkdir -p "$(dirname "$path")"
+    printf '%s\n' "${*:-}" >"$path"
+    print_msg "Created stub: $path"
+}
+
 manifest_record() {
     [[ $MANIFEST_ACTIVE -eq 1 ]] || return 0
     MANIFEST_MAP["$1"]="$2"

@@ -8,13 +8,8 @@ install_rice_vitreus() {
     # Entry-point requires ~/.config/vitreus/hypr-vars.lua on first
     # run (package.path points there); pre-create so --verify-config
     # does not fail on a fresh switch.
-    mkdir -p "$CONFIG_DIR/vitreus"
     if [[ ! -f "$CONFIG_DIR/vitreus/hypr-vars.lua" ]]; then
-        if [[ $DRY_RUN -eq 1 ]]; then
-            print_msg "[Dry-Run] Would create stub: $CONFIG_DIR/vitreus/hypr-vars.lua"
-        else
-            echo 'return {}' > "$CONFIG_DIR/vitreus/hypr-vars.lua"
-        fi
+        write_stub "$CONFIG_DIR/vitreus/hypr-vars.lua" 'return {}'
     fi
     # Drop end4-only leftovers (mirror of the caelestia branch cleanup):
     # shared entry files end4 owns, plus end4-specific modules and

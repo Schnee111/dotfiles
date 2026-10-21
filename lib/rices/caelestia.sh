@@ -8,13 +8,8 @@ install_rice_caelestia() {
     # Entry-point requires ~/.config/caelestia/hypr-vars.lua on first
     # run (package.path points there); pre-create so --verify-config
     # does not fail on a fresh switch.
-    mkdir -p "$CONFIG_DIR/caelestia"
     if [[ ! -f "$CONFIG_DIR/caelestia/hypr-vars.lua" ]]; then
-        if [[ $DRY_RUN -eq 1 ]]; then
-            print_msg "[Dry-Run] Would create stub: $CONFIG_DIR/caelestia/hypr-vars.lua"
-        else
-            echo 'return {}' > "$CONFIG_DIR/caelestia/hypr-vars.lua"
-        fi
+        write_stub "$CONFIG_DIR/caelestia/hypr-vars.lua" 'return {}'
     fi
     # Drop end4-only and vitreus-only leftovers (mirror of the end4 branch cleanup):
     # shared entry files end4 owns, plus end4-specific modules and

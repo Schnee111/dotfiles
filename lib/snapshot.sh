@@ -30,9 +30,13 @@ snapshot_begin() {
 
     mkdir -p "$DOTFILES_STATE_DIR"
     SNAPSHOT_FILE="$DOTFILES_STATE_DIR/rollback-$(date +%Y%m%d_%H%M%S)-$$.tsv"
+    local prev_rice=""
+    if [[ -f "$CURRENT_RICE_FILE" ]]; then
+        prev_rice="$(tr -d '[:space:]' <"$CURRENT_RICE_FILE")"
+    fi
     {
         printf 'meta\tbackup_dir\t%s\n' "$BACKUP_DIR"
-        printf 'meta\tcurrent_rice\t%s\n' "$(tr -d '[:space:]' <"$CURRENT_RICE_FILE" 2>/dev/null || true)"
+        printf 'meta\tcurrent_rice\t%s\n' "$prev_rice"
     } >"$SNAPSHOT_FILE"
 
     # The manifest is part of the state being replaced: keep a copy so a
