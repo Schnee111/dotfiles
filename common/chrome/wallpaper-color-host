@@ -17,8 +17,8 @@ import time
 PALETTE = os.path.expanduser(
     "~/.local/state/quickshell/user/generated/colors.json"
 )
-EXT_DIR = os.path.expanduser(
-    "~/Projects/dotfiles/common/chrome/wallpaper-color-sync"
+EXT_DIR = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "wallpaper-color-sync"
 )
 MANIFEST = os.path.join(EXT_DIR, "manifest.json")
 LOG = os.path.expanduser("~/.cache/wallpaper-color-host.log")

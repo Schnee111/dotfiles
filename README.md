@@ -269,6 +269,11 @@ What the installer guarantees:
 dotfiles doctor
 ```
 
+After installing on a new account, adjust the user-data paths stored in the
+shell configs (wallpaper, download and recording folders in
+`rices/*/illogical-impulse/config.json` and `rices/iris/inir/config.json`);
+they still point at the original author's home directory.
+
 ### Optional: ASUS power controls
 The battery-limit and power-profile toggles need write access to ASUS sysfs
 nodes. `sudo ./setup_power_permissions.sh` installs a udev rule, a tmpfiles

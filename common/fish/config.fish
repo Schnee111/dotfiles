@@ -35,8 +35,8 @@ end
 
 
 # opencode
-fish_add_path /home/schnee/.opencode/bin
-set -gx PATH "/home/schnee/.local/bin" $PATH
+fish_add_path $HOME/.opencode/bin
+set -gx PATH "$HOME/.local/bin" $PATH
 if test -f "$HOME/.cargo/env.fish"
     source "$HOME/.cargo/env.fish"
 end
