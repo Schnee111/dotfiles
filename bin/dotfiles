@@ -43,7 +43,9 @@ count_glob() {
     # with spaces in its path still counts correctly, and it prints nothing for
     # a pattern that matches no files.
     while IFS= read -r line; do
-        [[ -n "$line" ]] && n=$((n + 1))
+        if [[ -n "$line" ]]; then
+            n=$((n + 1))
+        fi
     done < <(compgen -G "$pattern" || true)
     printf '%s' "$n"
 }
@@ -181,11 +183,15 @@ doctor() {
 
     local backups
     backups="$(count_glob "$CONFIG_DIR/dotfiles_backup_*")"
-    (( backups > 5 )) && warn "$backups backup trees in $CONFIG_DIR (installer prunes to 5 on the next run)"
+    if (( backups > 5 )); then
+        warn "$backups backup trees in $CONFIG_DIR (installer prunes to 5 on the next run)"
+    fi
 
     if (( issues == 0 )); then
         ok "all managed paths match the manifest"
-        (( notes > 0 )) && warn "$notes leftover link(s) from other rices (harmless unless the active rice loads them)"
+        if (( notes > 0 )); then
+            warn "$notes leftover link(s) from other rices (harmless unless the active rice loads them)"
+        fi
         return 0
     fi
 
@@ -226,7 +232,11 @@ cmd_diff() {
         printf '  %s\n' "$dest"
         drift=$((drift + 1))
     done <"$MANIFEST"
-    (( drift == 0 )) && ok "none"
+    if (( drift == 0 )); then
+        ok "none"
+    fi
+    # Informational command: reporting drift is success, not an error.
+    return 0
 }
 
 cmd_save() {

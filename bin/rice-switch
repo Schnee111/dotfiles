@@ -119,7 +119,7 @@ gui_menu() {
 }
 
 verify_config() {
-    local compositor="$1"
+    local compositor="${1,,}"
     if ! command -v "$compositor" >/dev/null 2>&1; then
         # Should not happen (the caller checks first), but a bare "failed" here
         # reads as a broken config when the real cause is a missing binary.
@@ -142,8 +142,12 @@ switch_to() {
     if [ "$target" = "status" ]; then
         echo "Active compositor process: $(pgrep -x Hyprland >/dev/null && echo Hyprland || (pgrep -x niri >/dev/null && echo niri || (pgrep -x umbriel >/dev/null && echo umbriel || echo none)))"
         echo "Active rice profile: $(current_rice)"
-        echo "Configured GDM session: $(busctl get-property org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User Session 2>/dev/null || echo unknown)"
-        command -v dotfiles >/dev/null 2>&1 && echo "Verify symlink map: dotfiles doctor"
+        local session
+        session="$(busctl get-property org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User Session 2>/dev/null | sed -e 's/^s //' -e 's/^"//' -e 's/"$//' || true)"
+        echo "Configured GDM session: ${session:-unknown}"
+        if command -v dotfiles >/dev/null 2>&1; then
+            echo "Verify symlink map: dotfiles doctor"
+        fi
         return 0
     fi
 
