@@ -98,7 +98,9 @@ link_file() {
 remove_path() {
     local path="$1" label="stale"
     [[ -e "$path" || -L "$path" ]] || return 0
-    [[ -d "$path" && ! -L "$path" ]] && label="stale dir"
+    if [[ -d "$path" && ! -L "$path" ]]; then
+        label="stale dir"
+    fi
 
     snapshot_record "$path"
 

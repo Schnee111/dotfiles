@@ -44,7 +44,9 @@ install_rice_vitreus() {
     done
     if [[ -d "$rice_dir/hypr" ]]; then
         for f in "$rice_dir/hypr/"*.lua; do
-            [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/$(basename "$f")"
+            if [[ -f "$f" ]]; then
+                link_file "$f" "$CONFIG_DIR/hypr/$(basename "$f")"
+            fi
         done
         for d in "$rice_dir/hypr"/*/; do
             if [[ -d "$d" ]]; then
@@ -52,7 +54,9 @@ install_rice_vitreus() {
                 subname="$(basename "$d")"
                 mkdir -p "$CONFIG_DIR/hypr/$subname"
                 for sf in "$d"*; do
-                    [[ -f "$sf" ]] && link_file "$sf" "$CONFIG_DIR/hypr/$subname/$(basename "$sf")"
+                    if [[ -f "$sf" ]]; then
+                        link_file "$sf" "$CONFIG_DIR/hypr/$subname/$(basename "$sf")"
+                    fi
                 done
             fi
         done

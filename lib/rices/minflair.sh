@@ -46,7 +46,9 @@ install_rice_minflair() {
     if [[ -d "$rice_dir/hypr/hyprland" ]]; then
         mkdir -p "$CONFIG_DIR/hypr/hyprland"
         for sf in "$rice_dir/hypr/hyprland/"*.lua; do
-            [[ -f "$sf" ]] && link_file "$sf" "$CONFIG_DIR/hypr/hyprland/$(basename "$sf")"
+            if [[ -f "$sf" ]]; then
+                link_file "$sf" "$CONFIG_DIR/hypr/hyprland/$(basename "$sf")"
+            fi
         done
     fi
 
@@ -54,7 +56,9 @@ install_rice_minflair() {
     if [[ -d "$rice_dir/hypr/scripts" ]]; then
         mkdir -p "$CONFIG_DIR/hypr/scripts"
         for sf in "$rice_dir/hypr/scripts/"*.sh; do
-            [[ -f "$sf" ]] && link_file "$sf" "$CONFIG_DIR/hypr/scripts/$(basename "$sf")"
+            if [[ -f "$sf" ]]; then
+                link_file "$sf" "$CONFIG_DIR/hypr/scripts/$(basename "$sf")"
+            fi
         done
     fi
 

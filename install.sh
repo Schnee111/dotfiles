@@ -110,7 +110,9 @@ install_on_error() {
 }
 
 snapshot_begin
-[[ $DRY_RUN -eq 0 ]] && MANIFEST_ACTIVE=1
+if [[ $DRY_RUN -eq 0 ]]; then
+    MANIFEST_ACTIVE=1
+fi
 trap install_on_error ERR
 
 print_msg "Running dotfiles installer..."

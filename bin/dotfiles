@@ -114,7 +114,9 @@ cmd_status() {
 # ------------------------------------------------------------------------------
 doctor() {
     local fix=0 issues=0
-    [[ "${1:-}" == "--fix" ]] && fix=1
+    if [[ "${1:-}" == "--fix" ]]; then
+        fix=1
+    fi
 
     if [[ ! -f "$MANIFEST" ]]; then
         bad "No manifest at $MANIFEST — cannot verify ownership. Run: dotfiles install"
@@ -142,7 +144,10 @@ doctor() {
                 issues=$((issues + 1))
             fi
         elif [[ -e "$dest" ]]; then
-            kind="file"; [[ -d "$dest" ]] && kind="dir"
+            kind="file"
+            if [[ -d "$dest" ]]; then
+                kind="dir"
+            fi
             bad "replaced   $dest is a real $kind, not a symlink to $src"
             drifted+=("$dest")
             issues=$((issues + 1))
@@ -227,7 +232,9 @@ cmd_diff() {
             local got want
             got="$(readlink -f "$dest" 2>/dev/null || true)"
             want="$(readlink -f "$src" 2>/dev/null || true)"
-            [[ -n "$got" && "$got" == "$want" ]] && continue
+            if [[ -n "$got" && "$got" == "$want" ]]; then
+                continue
+            fi
         fi
         printf '  %s\n' "$dest"
         drift=$((drift + 1))

@@ -51,7 +51,9 @@ install_rice_ii_p3drovfx() {
 
     # Hyprland modules (keybinds + upstream defaults tracked per-rice)
     for f in "$rice_dir/hypr/hyprland/"*.lua; do
-        [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/hyprland/$(basename "$f")"
+        if [[ -f "$f" ]]; then
+            link_file "$f" "$CONFIG_DIR/hypr/hyprland/$(basename "$f")"
+        fi
     done
 
     # Hyprland module subdirs (lib, services, scripts, shellOverrides)
@@ -61,7 +63,9 @@ install_rice_ii_p3drovfx() {
             subname="$(basename "$d")"
             mkdir -p "$CONFIG_DIR/hypr/hyprland/$subname"
             for sf in "$d"*; do
-                [[ -f "$sf" ]] && link_file "$sf" "$CONFIG_DIR/hypr/hyprland/$subname/$(basename "$sf")"
+                if [[ -f "$sf" ]]; then
+                    link_file "$sf" "$CONFIG_DIR/hypr/hyprland/$subname/$(basename "$sf")"
+                fi
             done
         fi
     done
@@ -81,7 +85,9 @@ install_rice_ii_p3drovfx() {
 
     # Custom user configs (keybinds, rules, session layout)
     for f in "$rice_dir/hypr/custom/"*.lua "$rice_dir/hypr/custom/"*.json; do
-        [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/custom/$(basename "$f")"
+        if [[ -f "$f" ]]; then
+            link_file "$f" "$CONFIG_DIR/hypr/custom/$(basename "$f")"
+        fi
     done
 
     # Drop per-file links left by the previous rice (see end4 branch).

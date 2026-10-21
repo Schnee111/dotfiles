@@ -51,7 +51,9 @@ install_rice_prism_shell() {
 
     # Hyprland modules (keybinds + upstream defaults tracked per-rice)
     for f in "$rice_dir/hypr/hyprland/"*.lua; do
-        [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/hyprland/$(basename "$f")"
+        if [[ -f "$f" ]]; then
+            link_file "$f" "$CONFIG_DIR/hypr/hyprland/$(basename "$f")"
+        fi
     done
 
     # Hyprland module subdirs (lib, services, scripts, shellOverrides)
@@ -61,7 +63,9 @@ install_rice_prism_shell() {
             subname="$(basename "$d")"
             mkdir -p "$CONFIG_DIR/hypr/hyprland/$subname"
             for sf in "$d"*; do
-                [[ -f "$sf" ]] && link_file "$sf" "$CONFIG_DIR/hypr/hyprland/$subname/$(basename "$sf")"
+                if [[ -f "$sf" ]]; then
+                    link_file "$sf" "$CONFIG_DIR/hypr/hyprland/$subname/$(basename "$sf")"
+                fi
             done
         fi
     done
@@ -82,7 +86,9 @@ install_rice_prism_shell() {
     # Custom user configs (keybinds, rules, session layout)
     if [[ -d "$rice_dir/hypr/custom" ]]; then
         for f in "$rice_dir/hypr/custom/"*.lua "$rice_dir/hypr/custom/"*.json; do
-            [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/hypr/custom/$(basename "$f")"
+            if [[ -f "$f" ]]; then
+                link_file "$f" "$CONFIG_DIR/hypr/custom/$(basename "$f")"
+            fi
         done
     fi
 

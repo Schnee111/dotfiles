@@ -26,7 +26,9 @@ prune_snapshots() {
 snapshot_begin() {
     SNAPSHOT_ACTIVE=1
     SNAPSHOT_SEEN=()
-    [[ $DRY_RUN -eq 1 ]] && return 0
+    if [[ $DRY_RUN -eq 1 ]]; then
+        return 0
+    fi
 
     mkdir -p "$DOTFILES_STATE_DIR"
     SNAPSHOT_FILE="$DOTFILES_STATE_DIR/rollback-$(date +%Y%m%d_%H%M%S)-$$.tsv"
@@ -50,7 +52,9 @@ snapshot_begin() {
 snapshot_record() {
     local path="$1" kind data
     [[ $SNAPSHOT_ACTIVE -eq 1 && $DRY_RUN -eq 0 && -n "$SNAPSHOT_FILE" ]] || return 0
-    [[ -n "${SNAPSHOT_SEEN[$path]:-}" ]] && return 0
+    if [[ -n "${SNAPSHOT_SEEN[$path]:-}" ]]; then
+        return 0
+    fi
     SNAPSHOT_SEEN["$path"]=1
 
     if [[ -L "$path" ]]; then

@@ -42,7 +42,9 @@ install_common() {
     if [[ -d "$DOTFILES_DIR/common/fastfetch/logos" ]]; then
         mkdir -p "$CONFIG_DIR/fastfetch/logos"
         for f in "$DOTFILES_DIR/common/fastfetch/logos/"*; do
-            [[ -e "$f" || -L "$f" ]] && link_file "$f" "$CONFIG_DIR/fastfetch/logos/$(basename "$f")"
+            if [[ -e "$f" || -L "$f" ]]; then
+                link_file "$f" "$CONFIG_DIR/fastfetch/logos/$(basename "$f")"
+            fi
         done
     fi
 
@@ -55,7 +57,9 @@ install_common() {
     # Systemd User Services
     if [[ -d "$DOTFILES_DIR/common/systemd/user" ]]; then
         for f in "$DOTFILES_DIR/common/systemd/user/"*.service "$DOTFILES_DIR/common/systemd/user/"*.timer; do
-            [[ -f "$f" ]] && link_file "$f" "$CONFIG_DIR/systemd/user/$(basename "$f")"
+            if [[ -f "$f" ]]; then
+                link_file "$f" "$CONFIG_DIR/systemd/user/$(basename "$f")"
+            fi
         done
         if [[ $DRY_RUN -eq 1 ]]; then
             print_msg "[Dry-Run] Would reload user systemd daemon"

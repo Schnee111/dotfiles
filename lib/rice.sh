@@ -23,7 +23,9 @@ prune_foreign_links() {
         while IFS= read -r -d '' link; do
             # A caller may pass a subdir both explicitly and through the
             # hyprland/*/ glob; never handle the same link twice.
-            [[ -n "${seen[$link]:-}" ]] && continue
+            if [[ -n "${seen[$link]:-}" ]]; then
+                continue
+            fi
             seen[$link]=1
             # Resolve relative targets too: a repo link such as
             # ../../../Projects/dotfiles/rices/<other>/... never matches the

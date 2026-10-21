@@ -119,17 +119,20 @@ gui_menu() {
 }
 
 verify_config() {
-    local compositor="${1,,}"
-    if ! command -v "$compositor" >/dev/null 2>&1; then
-        # Should not happen (the caller checks first), but a bare "failed" here
-        # reads as a broken config when the real cause is a missing binary.
-        echo "rice-switch: cannot verify, '$compositor' is not installed; skipping" >&2
+    local compositor="${1,,}" bin=""
+    # Fedora ships both /usr/bin/hyprland and /usr/bin/Hyprland, but do not assume
+    # the binary matches the rice.conf spelling: try the lower-case name first,
+    # then the capitalised one, and report a missing binary as such instead of
+    # letting it masquerade as a config failure.
+    bin="$(command -v "$compositor" 2>/dev/null || command -v "${compositor^}" 2>/dev/null || true)"
+    if [[ -z "$bin" ]]; then
+        echo "rice-switch: cannot verify, no '$compositor' binary in PATH; skipping" >&2
         return 0
     fi
     case "$compositor" in
-        hyprland) timeout 60 hyprland --verify-config >/dev/null 2>&1 ;;
-        niri) timeout 60 niri validate >/dev/null 2>&1 ;;
-        umbriel) timeout 60 umbriel config validate -c "$HOME/.config/umbriel/config.toml" >/dev/null 2>&1 ;;
+        hyprland) timeout 60 "$bin" --verify-config >/dev/null 2>&1 ;;
+        niri) timeout 60 "$bin" validate >/dev/null 2>&1 ;;
+        umbriel) timeout 60 "$bin" config validate -c "$HOME/.config/umbriel/config.toml" >/dev/null 2>&1 ;;
         *) return 0 ;;
     esac
 }
