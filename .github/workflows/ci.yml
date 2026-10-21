@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          shellcheck -S warning install.sh bin/* lib/*.sh lib/rices/*.sh tests/*.sh
+
+      - name: Bash syntax
+        run: |
+          for f in install.sh bin/* lib/*.sh lib/rices/*.sh tests/*.sh; do
+            bash -n "$f"
+          done
+
+      - name: Tests
+        run: bash tests/run.sh
+
+      - name: Dry-run every rice
+        run: |
+          for d in rices/*/; do
+            rice="$(basename "$d")"
+            echo "== $rice"
+            ./install.sh --dry-run --rice "$rice" >/dev/null
+          done
+
+      - name: Rice metadata parses as data
+        run: |
+          for f in rices/*/rice.conf; do
+            name="$(grep -m1 -E '^NAME=' "$f" | cut -d= -f2 | tr -d '"')"
+            [[ -n "$name" ]] || { echo "$f has no NAME="; exit 1; }
+          done
