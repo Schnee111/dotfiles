@@ -105,13 +105,11 @@ install_rice_end4() {
         link_file "$rice_dir/illogical-impulse/config.json" "$CONFIG_DIR/illogical-impulse/config.json"
     fi
 
-    # Ensure quickshell end4-pC fork is cloned
-    if [[ ! -d "$CONFIG_DIR/quickshell/end4-pC" ]]; then
-        if [[ $DRY_RUN -eq 1 ]]; then
-            print_succ "[Dry-Run] Would clone Schnee111/end4-pC to $CONFIG_DIR/quickshell/end4-pC"
-        else
-            print_msg "Cloning Quickshell end4-pC fork..."
-            git clone https://github.com/Schnee111/end4-pC.git "$CONFIG_DIR/quickshell/end4-pC"
-        fi
+    # Ensure the quickshell end4-pC fork is checked out at the pinned commit
+    if [[ $DRY_RUN -eq 1 ]]; then
+        print_succ "[Dry-Run] Would sync Schnee111/end4-pC at ${END4PC_REV:0:7} in $CONFIG_DIR/quickshell/end4-pC"
+    else
+        mkdir -p "$CONFIG_DIR/quickshell"
+        sync_pinned_repo "$END4PC_URL" "$CONFIG_DIR/quickshell/end4-pC" "$END4PC_REV" "end4-pC" || true
     fi
 }

@@ -7,6 +7,7 @@
 #   lib/snapshot.sh rollback snapshots (restore on failure)
 #   lib/backup.sh   backup retention
 #   lib/common.sh   rice-independent configs + generated kitty wrapper
+#   lib/shells.sh   pinned third-party shell checkouts
 #   lib/rice.sh     dispatcher, foreign-link pruning, live-state folding
 #   lib/rices/*.sh  one linker per rice
 # ==============================================================================
@@ -78,6 +79,8 @@ source "$DOTFILES_DIR/lib/snapshot.sh"
 source "$DOTFILES_DIR/lib/backup.sh"
 # shellcheck source=lib/common.sh
 source "$DOTFILES_DIR/lib/common.sh"
+# shellcheck source=lib/shells.sh
+source "$DOTFILES_DIR/lib/shells.sh"
 # shellcheck source=lib/rice.sh
 source "$DOTFILES_DIR/lib/rice.sh"
 for _rice_lib in "$DOTFILES_DIR"/lib/rices/*.sh; do
