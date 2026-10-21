@@ -9,15 +9,18 @@ set -uo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DOTFILES_DIR="$REPO_DIR"
+# shellcheck disable=SC2034  # consumed by lib/common.sh
 DRY_RUN=0
 CONFIG_DIR=""
 print_msg() { printf '[INFO] %s\n' "$*"; }
 print_succ() { printf '[OK] %s\n' "$*"; }
 print_warn() { printf '[WARN] %s\n' "$*"; }
 
-# Pull the two functions out of install.sh instead of running the installer: a
-# real run also clones shells, folds live state and stops services.
-eval "$(awk '/^kitty_theme_source\(\)/{f=1} /^# 2\. SPECIFIC RICE LINKER/{f=0} f' "$REPO_DIR/install.sh")"
+# Source the library instead of running the installer: a real run also clones
+# shells, folds live state and stops services. The kitty wrapper lives in
+# lib/common.sh since the install.sh/lib split.
+# shellcheck source=../lib/common.sh
+source "$REPO_DIR/lib/common.sh"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -96,8 +99,10 @@ expect "foreign include gone after a rice switch" \
 
 # --- 7. dry-run must describe what the real run does ------------------------
 CONFIG_DIR="$TMP/dryrun"
+# shellcheck disable=SC2034  # consumed by generate_kitty_conf
 DRY_RUN=1
 out="$(generate_kitty_conf "$TMP/dryrun/not-there-yet.conf")"
+# shellcheck disable=SC2034  # consumed by generate_kitty_conf
 DRY_RUN=0
 expect "dry-run mentions the pending target" \
     grep -q "not generated yet" <<<"$out"
