@@ -93,7 +93,7 @@ hl.bind("SUPER + SHIFT + ALT + R", hl.dsp.exec_cmd(qsScripts .. "/videos/record.
     { locked = true, description = "Utilities: Record screen (with sound)" })
 --# Fullscreen screenshot
 local grimhyprctl = "grim -o \"$(hyprctl activeworkspace -j | jq -r '.monitor')\""
-hl.bind("Print", hl.dsp.exec_cmd("/home/schnee/.config/hypr/scripts/screenshot_fullscreen.sh"),
+hl.bind("Print", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/screenshot_fullscreen.sh"),
     { locked = true, description = "Utilities: Fullscreen screenshot >> file & clipboard" })
 hl.bind("CTRL + Print", hl.dsp.exec_cmd(
     "mkdir -p $(xdg-user-dir PICTURES)/Screenshots && " ..

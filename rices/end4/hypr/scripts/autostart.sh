@@ -14,4 +14,4 @@ if [ -f "$RUN_LOCK" ]; then
 fi
 touch "$RUN_LOCK"
 
-python3 /home/schnee/.config/hypr/scripts/layout_engine.py --run
+python3 $HOME/.config/hypr/scripts/layout_engine.py --run

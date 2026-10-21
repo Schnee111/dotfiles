@@ -269,6 +269,11 @@ What the installer guarantees:
 dotfiles doctor
 ```
 
+After installing on a new account, adjust the user-data paths stored in the
+shell configs (wallpaper, download and recording folders in
+`rices/*/illogical-impulse/config.json` and `rices/iris/inir/config.json`);
+they still point at the original author's home directory.
+
 ---
 
 ## Development

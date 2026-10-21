@@ -35,7 +35,7 @@
   {
     "workspace": 3,
     "name": "Hermes Desktop",
-    "cmd": "/home/schnee/.local/bin/hermes desktop",
+    "cmd": "$HOME/.local/bin/hermes desktop",
     "match": "com.nousresearch.hermes",
     "split": "root",
     "target": "",
@@ -80,7 +80,7 @@
   {
     "workspace": 7,
     "name": "Telegram Desktop",
-    "cmd": "/home/schnee/.local/bin/telegram",
+    "cmd": "$HOME/.local/bin/telegram",
     "match": "telegram",
     "split": "right",
     "target": "whatsapp-app",

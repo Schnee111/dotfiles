@@ -37,8 +37,8 @@ hl.on("hyprland.start", function()
 
     -- Start Vitreus shell under its keeper (restarts on crash, gives up after 5 quick deaths)
     -- NOTE: absolute paths, Hyprland exec PATH has no ~/.local/bin
-    hl.exec_cmd("/home/schnee/.local/bin/vitreus-keep /home/schnee/.config/pleamar/shells/vitreus/vitreus.plm /home/schnee/.local/share/pleamar/vitreus/vitreus.log")
-    hl.exec_cmd("/home/schnee/.local/bin/vitreus-keep /home/schnee/.config/pleamar/shells/vitreus/lockscreen/lockscreen.plm")
-    hl.exec_cmd("/home/schnee/.local/bin/vitreus-keep /home/schnee/.config/pleamar/shells/vitreus/wptrans/wptrans.plm")
-    hl.exec_cmd("/home/schnee/.local/bin/vitreus-keep /home/schnee/.config/pleamar/shells/vitreus/desktopclock/desktopclock.plm")
+    hl.exec_cmd("$HOME/.local/bin/vitreus-keep $HOME/.config/pleamar/shells/vitreus/vitreus.plm $HOME/.local/share/pleamar/vitreus/vitreus.log")
+    hl.exec_cmd("$HOME/.local/bin/vitreus-keep $HOME/.config/pleamar/shells/vitreus/lockscreen/lockscreen.plm")
+    hl.exec_cmd("$HOME/.local/bin/vitreus-keep $HOME/.config/pleamar/shells/vitreus/wptrans/wptrans.plm")
+    hl.exec_cmd("$HOME/.local/bin/vitreus-keep $HOME/.config/pleamar/shells/vitreus/desktopclock/desktopclock.plm")
 end)

@@ -51,7 +51,14 @@ install_common() {
     # Chrome Native Messaging Host
     if [[ -f "$DOTFILES_DIR/common/chrome/com.schnee.wallpaper_color.json" ]]; then
         mkdir -p "$CONFIG_DIR/google-chrome/NativeMessagingHosts"
-        link_file "$DOTFILES_DIR/common/chrome/com.schnee.wallpaper_color.json" "$CONFIG_DIR/google-chrome/NativeMessagingHosts/com.schnee.wallpaper_color.json"
+        # Chrome needs an absolute host path, so render the template instead of
+        # linking it. Drop any old link first: writing through it would
+        # overwrite the tracked template.
+        chrome_host_dest="$CONFIG_DIR/google-chrome/NativeMessagingHosts/com.schnee.wallpaper_color.json"
+        if [[ -L "$chrome_host_dest" ]]; then
+            remove_path "$chrome_host_dest"
+        fi
+        write_stub "$chrome_host_dest" "$(sed "s|@DOTFILES_DIR@|$DOTFILES_DIR|g" "$DOTFILES_DIR/common/chrome/com.schnee.wallpaper_color.json")"
     fi
 
     # Systemd User Services
