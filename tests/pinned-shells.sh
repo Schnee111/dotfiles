@@ -53,4 +53,14 @@ if sync_pinned_repo "$url" "$TMP/missing" "0000000000000000000000000000000000000
     fail "an unknown commit was reported as success"
 fi
 
-echo "ok: pinned shells (fresh, existing kept, opt-in update, non-git, bad rev)"
+# An initialised-but-empty repo (failed first fetch) must recover on the next run.
+sync_pinned_repo "$url" "$TMP/missing" "$pinned" recover >/dev/null || fail "an empty repo did not recover"
+[[ "$(git -C "$TMP/missing" rev-parse HEAD)" == "$pinned" ]] || fail "recovery is not at the pinned commit"
+
+# An existing origin is never rewritten.
+git -C "$TMP/missing" remote set-url origin "$url"
+before="$(git -C "$TMP/missing" remote get-url origin)"
+DOTFILES_UPDATE_SHELLS=1 sync_pinned_repo "https://example.invalid/other.git" "$TMP/missing" "$pinned" keep >/dev/null
+[[ "$(git -C "$TMP/missing" remote get-url origin)" == "$before" ]] || fail "origin was rewritten"
+
+echo "ok: pinned shells (fresh, existing kept, opt-in update, non-git, bad rev, recovery)"

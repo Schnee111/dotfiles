@@ -19,15 +19,20 @@ sync_pinned_repo() {
     local url="$1" dest="$2" rev="$3" label="$4" head=""
 
     if [[ -d "$dest/.git" ]]; then
-        head="$(git -C "$dest" rev-parse HEAD 2>/dev/null || true)"
+        head="$(git -C "$dest" rev-parse --verify -q HEAD 2>/dev/null || true)"
         if [[ "$head" == "$rev" ]]; then
             return 0
         fi
-        if [[ "${DOTFILES_UPDATE_SHELLS:-0}" != "1" ]]; then
-            if [[ -n "$head" ]]; then
-                print_warn "$label is at ${head:0:7}, pinned ${rev:0:7}; kept as-is (DOTFILES_UPDATE_SHELLS=1 to move it)"
-            fi
+        # A checkout with commits is the user's: keep it unless they opt in.
+        # One without (a `git init` whose fetch failed earlier) falls through
+        # so the next run retries instead of reporting success.
+        if [[ -n "$head" && "${DOTFILES_UPDATE_SHELLS:-0}" != "1" ]]; then
+            print_warn "$label is at ${head:0:7}, pinned ${rev:0:7}; kept as-is (DOTFILES_UPDATE_SHELLS=1 to move it)"
             return 0
+        fi
+        # Never rewrite an existing origin, only supply a missing one.
+        if ! git -C "$dest" remote get-url origin >/dev/null 2>&1; then
+            git -C "$dest" remote add origin "$url" || return 1
         fi
     elif [[ -e "$dest" ]]; then
         print_warn "$label: $dest exists and is not a git checkout, left as-is"
