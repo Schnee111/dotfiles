@@ -32,7 +32,7 @@ if [[ "$ACTIVE_PROFILE" == *"Headphones"* ]]; then
     pactl set-default-sink "$TARGET_SINK"
     move_streams_to "$TARGET_SINK"
     notify-send -a "Audio Output" -n "speaker" "Audio Output: Speaker" "Switched to Laptop Speaker" -t 2000
-    play_sound.sh Sosumi.aiff
+    play_sound.sh Sosumi.opus
 else
     # Currently Speaker -> switch to Headphones
     HW_SINK="alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Headphones__sink"
@@ -43,5 +43,5 @@ else
     pactl set-default-sink "$TARGET_SINK"
     move_streams_to "$TARGET_SINK"
     notify-send -a "Audio Output" -n "headphones" "Audio Output: Headset" "Switched to Headphones" -t 2000
-    play_sound.sh Sosumi.aiff
+    play_sound.sh Sosumi.opus
 fi

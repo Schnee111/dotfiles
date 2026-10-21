@@ -11,7 +11,7 @@ if [[ -f "$FLAG" ]]; then
     rm -f "$FLAG"
     # Restore adaptive glass and kitty background opacity dynamically
     "$HOME/.config/hypr/scripts/apply_adaptive_glass.sh" &
-    play_sound.sh Bottle.aiff
+    play_sound.sh Bottle.opus
     notify-send -a "Window Opacity" -n "blur_on" "Window Opacity" "Mode: Frosted Glass (Adaptive)" -t 1500
 else
     touch "$FLAG"
@@ -27,6 +27,6 @@ else
         done
     fi
     hyprctl reload config-only
-    play_sound.sh Bottle.aiff
+    play_sound.sh Bottle.opus
     notify-send -a "Window Opacity" -n "contrast" "Window Opacity" "Mode: Solid / Focus (100%)" -t 1500
 fi

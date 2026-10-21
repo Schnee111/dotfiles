@@ -29,7 +29,7 @@ MODE_FILE="$VITREUS_DIR/display-mode"
 MON_FILE="$HYPR_DIR/vitreus_monitors.lua"
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.cache/vitreus-display-switch}"
 STAMP="$RUNTIME_DIR/display-switch.stamp"
-mkdir -p -m 700 "$RUNTIME_DIR" 2>/dev/null || true
+mkdir -p "$RUNTIME_DIR" && chmod 700 "$RUNTIME_DIR" 2>/dev/null || true
 
 # The panels this rice is set up for.
 LAPTOP_MODE="2880x1800@90"
@@ -137,7 +137,8 @@ move_workspaces() {
 apply_mode() (
     local mode=$1 remember=${2:-yes}
 
-    mkdir -p -m 700 "$RUNTIME_DIR"
+    mkdir -p "$RUNTIME_DIR"
+    chmod 700 "$RUNTIME_DIR" 2>/dev/null || true
     exec 9>"${STAMP}.lock"
     flock -n 9 || exit 0
     date +%s > "$STAMP"

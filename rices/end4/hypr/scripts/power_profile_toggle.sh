@@ -19,21 +19,21 @@ case "$CURRENT_PROFILE" in
         MSG_TITLE="Power Mode: Balanced"
         MSG_DESC="Standard dynamic fan & performance scaling."
         ICON="power"
-        SOUND="Pop.aiff"
+        SOUND="Pop.opus"
         ;;
     "balanced")
         NEW_PROFILE="performance"
         MSG_TITLE="Power Mode: Performance"
         MSG_DESC="Turbo cooling & maximum performance active."
         ICON="power"
-        SOUND="Hero.aiff"
+        SOUND="Hero.opus"
         ;;
     "performance"|*)
         NEW_PROFILE="quiet"
         MSG_TITLE="Power Mode: Quiet"
         MSG_DESC="Whisper silent fans & power saving active."
         ICON="power"
-        SOUND="Blow.aiff"
+        SOUND="Blow.opus"
         ;;
 esac
 

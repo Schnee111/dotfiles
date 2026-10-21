@@ -2,11 +2,11 @@
 # ==============================================================================
 # macOS UI Feedback Sound Player
 # Boosts quiet macOS alert sounds on-the-fly and plays via PipeWire.
-# Usage: play_sound.sh <filename>  (e.g. play_sound.sh Sosumi.aiff)
+# Usage: play_sound.sh <filename>  (e.g. play_sound.sh Sosumi.opus)
 # ==============================================================================
 set -euo pipefail
 
-# +5 dB: quietest packed file (Hero.aiff) peaks at -5.4 dB, so this stays
+# +5 dB: quietest packed file (Hero.opus) peaks at -5.4 dB, so this stays
 # just under clipping for every sound in the pack.
 GAIN_DB="${MACOS_SOUND_GAIN_DB:-5}"
 

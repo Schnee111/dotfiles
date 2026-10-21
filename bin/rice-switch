@@ -2,11 +2,16 @@
 # ==============================================================================
 # Desktop Rice & Compositor Switcher
 # Seamlessly switch between desktop rices & compositors
+#
+# Order of operations matters: link -> verify -> commit session/state -> logout.
+# If verification fails the install snapshot is rolled back, so a broken rice
+# can never leave ~/.config pointing at config that cannot start.
 # ==============================================================================
 set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
 CURRENT_RICE_FILE="$HOME/.config/.current_rice"
+DRY_RUN=0
 
 notify() {
     timeout 0.5 notify-send "Desktop Switcher" "$*" 2>/dev/null &
@@ -20,7 +25,7 @@ die() {
 
 current_rice() {
     if [ -f "$CURRENT_RICE_FILE" ]; then
-        cat "$CURRENT_RICE_FILE" | tr -d '[:space:]'
+        tr -d '[:space:]' <"$CURRENT_RICE_FILE"
     elif pgrep -x Hyprland >/dev/null 2>&1; then
         echo "end4"
     elif pgrep -x niri >/dev/null 2>&1; then
@@ -28,6 +33,20 @@ current_rice() {
     else
         echo "unknown"
     fi
+}
+
+# Read one KEY="value" from a rice.conf without executing it. The file is data,
+# not a script: sourcing it three times per menu render was both slower and an
+# unnecessary code-execution path.
+rice_meta() {
+    local file="$1" key="$2" line
+    [[ -f "$file" ]] || return 0
+    line="$(grep -m1 -E "^[[:space:]]*${key}=" "$file" || true)"
+    [[ -n "$line" ]] || return 0
+    line="${line#*=}"
+    line="${line#\"}"
+    line="${line%\"}"
+    printf '%s' "$line"
 }
 
 exit_compositor() {
@@ -51,13 +70,14 @@ gui_menu() {
 
     for d in "$DOTFILES_DIR"/rices/*/; do
         if [[ -d "$d" ]]; then
-            local rname="$(basename "$d")"
+            local rname
+            rname="$(basename "$d")"
             local dname="$rname"
             local conf_file="$d/rice.conf"
 
             if [[ -f "$conf_file" ]]; then
-                # Source metadata in subshell
-                dname="$(bash -c "source '$conf_file' 2>/dev/null && echo \"\${DISPLAY_NAME:-\$rname}\"")"
+                dname="$(rice_meta "$conf_file" DISPLAY_NAME)"
+                [[ -n "$dname" ]] || dname="$rname"
             fi
 
             if [[ "$rname" == "$current" ]]; then
@@ -98,6 +118,25 @@ gui_menu() {
     exit 0
 }
 
+verify_config() {
+    local compositor="${1,,}" bin=""
+    # Fedora ships both /usr/bin/hyprland and /usr/bin/Hyprland, but do not assume
+    # the binary matches the rice.conf spelling: try the lower-case name first,
+    # then the capitalised one, and report a missing binary as such instead of
+    # letting it masquerade as a config failure.
+    bin="$(command -v "$compositor" 2>/dev/null || command -v "${compositor^}" 2>/dev/null || true)"
+    if [[ -z "$bin" ]]; then
+        echo "rice-switch: cannot verify, no '$compositor' binary in PATH; skipping" >&2
+        return 0
+    fi
+    case "$compositor" in
+        hyprland) timeout 60 "$bin" --verify-config >/dev/null 2>&1 ;;
+        niri) timeout 60 "$bin" validate >/dev/null 2>&1 ;;
+        umbriel) timeout 60 "$bin" config validate -c "$HOME/.config/umbriel/config.toml" >/dev/null 2>&1 ;;
+        *) return 0 ;;
+    esac
+}
+
 switch_to() {
     local target="$1"
     local current
@@ -106,7 +145,12 @@ switch_to() {
     if [ "$target" = "status" ]; then
         echo "Active compositor process: $(pgrep -x Hyprland >/dev/null && echo Hyprland || (pgrep -x niri >/dev/null && echo niri || (pgrep -x umbriel >/dev/null && echo umbriel || echo none)))"
         echo "Active rice profile: $(current_rice)"
-        echo "Configured GDM session: $(busctl get-property org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User Session 2>/dev/null || echo unknown)"
+        local session
+        session="$(busctl get-property org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User Session 2>/dev/null | sed -e 's/^s //' -e 's/^"//' -e 's/"$//' || true)"
+        echo "Configured GDM session: ${session:-unknown}"
+        if command -v dotfiles >/dev/null 2>&1; then
+            echo "Verify symlink map: dotfiles doctor"
+        fi
         return 0
     fi
 
@@ -114,11 +158,13 @@ switch_to() {
         echo "Available rices in $DOTFILES_DIR/rices/:"
         for d in "$DOTFILES_DIR"/rices/*/; do
             if [[ -d "$d" ]]; then
-                local rname="$(basename "$d")"
+                local rname
+                rname="$(basename "$d")"
                 local dname="$rname"
                 local conf_file="$d/rice.conf"
                 if [[ -f "$conf_file" ]]; then
-                    dname="$(bash -c "source '$conf_file' 2>/dev/null && echo \"\${DISPLAY_NAME:-\$rname}\"")"
+                    dname="$(rice_meta "$conf_file" DISPLAY_NAME)"
+                    [[ -n "$dname" ]] || dname="$rname"
                 fi
                 if [[ "$rname" == "$current" ]]; then
                     echo "  * $dname   [ACTIVE]"
@@ -145,8 +191,10 @@ switch_to() {
     local session="hyprland"
     local conf_file="$target_dir/rice.conf"
     if [[ -f "$conf_file" ]]; then
-        compositor="$(bash -c "source '$conf_file' 2>/dev/null && echo \"\${COMPOSITOR:-hyprland}\"")"
-        session="$(bash -c "source '$conf_file' 2>/dev/null && echo \"\${SESSION:-\$compositor}\"")"
+        compositor="$(rice_meta "$conf_file" COMPOSITOR)"
+        compositor="${compositor:-hyprland}"
+        session="$(rice_meta "$conf_file" SESSION)"
+        session="${session:-$compositor}"
     elif [[ -d "$target_dir/niri" ]]; then
         compositor="niri"
         session="niri"
@@ -162,42 +210,55 @@ switch_to() {
         die "Wayland session '${session}.desktop' not found in /usr/share/wayland-sessions/."
     fi
 
+    if [[ $DRY_RUN -eq 1 ]]; then
+        echo "rice-switch: dry run for '$target' (compositor: $compositor, session: $session)"
+        "$DOTFILES_DIR/install.sh" --dry-run --rice "$target" --no-set-current
+        echo "rice-switch: dry run only — would verify '$compositor' config, set GDM session '$session', then log out."
+        exit 0
+    fi
+
     notify "Switching to '$target' ($compositor)... Logging out"
 
-    # Link new rice configs
-    "$DOTFILES_DIR/install.sh" --rice "$target" || die "install.sh failed for '$target'. Configs unchanged, staying on '$current'."
+    # 1. Link new rice configs. --no-set-current keeps the active-rice marker
+    #    untouched until verification passes, so a failed switch never claims a
+    #    rice it just rolled back.
+    if ! "$DOTFILES_DIR/install.sh" --rice "$target" --no-set-current; then
+        die "install.sh failed for '$target'. Configs unchanged, staying on '$current'."
+    fi
 
-    # Validate the target compositor config before committing the switch.
-    # On failure the switch aborts here: GDM session and .current_rice are
-    # left untouched, so the user stays on the working rice.
-    case "$compositor" in
-        hyprland)
-            if ! timeout 60 hyprland --verify-config >/dev/null 2>&1; then
-                die "hyprland --verify-config failed after linking '$target'. Staying on '$current'."
-            fi
-            ;;
-        niri)
-            if ! timeout 60 niri validate >/dev/null 2>&1; then
-                die "niri validate failed after linking '$target'. Staying on '$current'."
-            fi
-            ;;
-        umbriel)
-            if ! timeout 60 umbriel config validate -c "$HOME/.config/umbriel/config.toml" >/dev/null 2>&1; then
-                die "umbriel config validate failed after linking '$target'. Staying on '$current'."
-            fi
-            ;;
-    esac
+    # 2. Validate the target compositor config before committing the switch.
+    #    On failure restore the pre-install symlink map; the installer recorded
+    #    every touched path, so "staying on current" is now literal.
+    if ! verify_config "$compositor"; then
+        notify "'$target' config failed verification — rolled back to '$current'"
+        echo "rice-switch: verification failed for '$target'; restoring previous config." >&2
+        "$DOTFILES_DIR/install.sh" --rollback || echo "rice-switch: rollback failed, inspect $HOME/.local/state/dotfiles" >&2
+        exit 1
+    fi
 
-    # Configure GDM session
+    # 3. Commit: GDM session + active-rice marker.
     busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSession s "$session" 2>/dev/null || true
     busctl call org.freedesktop.Accounts "/org/freedesktop/Accounts/User$UID" org.freedesktop.Accounts.User SetSessionType s "wayland" 2>/dev/null || true
 
-    echo "$target" > "$CURRENT_RICE_FILE"
+    echo "$target" >"$CURRENT_RICE_FILE"
     sleep 0.5
     exit_compositor
 }
 
-ACTION="${1:-}"
+ACTION=""
+for arg in "$@"; do
+    case "$arg" in
+        -n | --dry-run) DRY_RUN=1 ;;
+        *)
+            if [[ -z "$ACTION" ]]; then
+                ACTION="$arg"
+            else
+                die "Unexpected argument: $arg"
+            fi
+            ;;
+    esac
+done
+
 if [ -z "$ACTION" ]; then
     ACTION="$(gui_menu)"
 fi
