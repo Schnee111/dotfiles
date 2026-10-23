@@ -205,7 +205,6 @@ run_switcher
 echo "ok: unchanged colors.json -> skipped"
 
 # Case 1d: colors.json modified (newer) -> regenerated
-sleep 0.05
 cat << 'EOF' > "$COLORS_JSON"
 {
     "surface_container": "#222222",
@@ -217,6 +216,10 @@ cat << 'EOF' > "$COLORS_JSON"
     "primary": "#ffffff"
 }
 EOF
+# Push the mtime clearly past colors.rasi so -nt does not depend on timer
+# resolution (the sleep stub is a no-op here, and some filesystems store
+# whole-second mtimes).
+touch -d '+2 seconds' "$COLORS_JSON"
 
 reset_logs
 run_switcher
