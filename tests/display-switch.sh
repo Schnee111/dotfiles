@@ -148,7 +148,7 @@ set_choice() {
 }
 run_switcher() {
     local rc=0
-    bash "$SWITCHER" "$@" || rc=$?
+    bash "$SWITCHER" || rc=$?
     sleep 0.05
     return "$rc"
 }
