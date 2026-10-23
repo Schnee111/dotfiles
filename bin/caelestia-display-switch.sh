@@ -28,8 +28,9 @@ fi
 
 # Sync colors with the Caelestia / Matugen palette so the menu matches the shell
 COLORS_JSON="$HOME/.local/state/quickshell/user/generated/colors.json"
+ROFI_COLORS="$HOME/.config/rofi/colors.rasi"
 
-if [ -f "$COLORS_JSON" ]; then
+if [ -f "$COLORS_JSON" ] && [ "$COLORS_JSON" -nt "$ROFI_COLORS" ]; then
     python3 -c '
 import json, os
 try:
