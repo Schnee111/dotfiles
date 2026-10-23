@@ -60,7 +60,7 @@ OPTIONS="󰍹  External Monitor Only\n󰌢  Laptop Screen Only\n󰍺  Extend Dis
 ROFI_THEME_ARGS=()
 [ -f "$HOME/.config/rofi/display.rasi" ] && ROFI_THEME_ARGS=(-theme "$HOME/.config/rofi/display.rasi")
 
-CHOSEN=$(printf "%b" "$OPTIONS" | rofi -dmenu -i -no-custom -p "󰍹 " ${ROFI_THEME_ARGS[@]+"${ROFI_THEME_ARGS[@]}"})
+CHOSEN=$(printf '%b\n' "$OPTIONS" | rofi -dmenu -i -no-custom -p "󰍹 " ${ROFI_THEME_ARGS[@]+"${ROFI_THEME_ARGS[@]}"})
 
 # If user cancels (Escape or click outside), exit immediately
 [ -z "$CHOSEN" ] && exit 0
