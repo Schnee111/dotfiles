@@ -305,6 +305,20 @@ included) and a dry-run link pass for every rice on each push.
 
 ---
 
+## License
+
+[GPL-3.0](LICENSE). The Hyprland modules under `rices/end4/` and `rices/ii-p3drovfx/` derive
+from [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland), which is GPL-3.0, so the
+repository as a whole is distributed under the same terms.
+
+Vendored files keep their own licenses: for example the Apache-2.0
+`show-loaded-ollama-models.sh` under `rices/*/hypr/hyprland/scripts/ai/` carries its license
+text next to it. The shells the installer fetches (Quickshell configurations, Vitreus,
+end4-pC, ...) are separate projects under their own licenses and are not part of this
+repository.
+
+---
+
 ## Credits
 
 - [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland) for the base framework.

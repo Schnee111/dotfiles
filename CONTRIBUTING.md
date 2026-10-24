@@ -51,6 +51,10 @@ worktree.
 - **Changes that touch permissions** (`common/udev`, `common/tmpfiles`, systemd units,
   `setup_power_permissions.sh`) should say in the PR who can do what afterwards.
 
+## License
+
+Contributions are accepted under the repository's [GPL-3.0](LICENSE) license.
+
 ## Security issues
 
 Do not open a public issue for a vulnerability; see [SECURITY.md](SECURITY.md).
