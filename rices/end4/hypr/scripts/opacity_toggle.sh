@@ -4,8 +4,6 @@
 FLAG="$HOME/.config/hypr/custom/.solid_mode"
 CONFIGURATOR="$HOME/.config/quickshell/end4-pC/scripts/hyprland/hyprconfigurator.py"
 MAIN_LUA="$HOME/.config/hypr/hyprland/shellOverrides/main.lua"
-ICON_GLASS="$HOME/.config/hypr/assets/glass_mode.svg"
-ICON_SOLID="$HOME/.config/hypr/assets/solid_mode.svg"
 
 if [[ -f "$FLAG" ]]; then
     rm -f "$FLAG"

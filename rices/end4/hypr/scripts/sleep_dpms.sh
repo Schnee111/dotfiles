@@ -20,7 +20,7 @@ touch /tmp/hypr-dpms-sleeping
 if ! hyprctl monitors -j | jq -e '.[] | select(.name == "HEADLESS-1")' >/dev/null 2>&1; then
     hyprctl output create headless HEADLESS-1 >/dev/null 2>&1
     # Verify that HEADLESS-1 is acknowledged by the compositor
-    for i in {1..20}; do
+    for _ in {1..20}; do
         if hyprctl monitors -j | jq -e '.[] | select(.name == "HEADLESS-1")' >/dev/null 2>&1; then
             break
         fi

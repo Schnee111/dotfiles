@@ -1,21 +1,9 @@
 #!/usr/bin/env bash
-# Fast local gate: syntax, lint (when shellcheck is installed), tests.
+# Fast local gate: tests/run.sh covers syntax, lint (when shellcheck is installed) and tests.
 # Enable with: git config core.hooksPath .githooks
 set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
-
-mapfile -t all < <(printf '%s\n' install.sh bin/* lib/*.sh lib/rices/*.sh tests/*.sh)
-
-for f in "${all[@]}"; do
-    bash -n "$f"
-done
-
-if command -v shellcheck >/dev/null 2>&1; then
-    shellcheck -S warning "${all[@]}"
-else
-    echo "pre-commit: shellcheck not installed, skipping lint"
-fi
 
 bash tests/run.sh >/dev/null || {
     echo "pre-commit: tests failed, run 'bash tests/run.sh' for details"
