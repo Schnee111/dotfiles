@@ -285,6 +285,17 @@ script installed `/etc/polkit-1/rules.d/90-asus-power.rules` or made the nodes
 world-writable (`0666`), re-running the script removes the rule and tightens
 the nodes.
 
+### Optional: inotify instance limit
+The kernel default of 128 inotify instances per user is nearly used up by a
+normal session here: every kitty window, fish shell, dev server and Electron
+app takes one or more. When it runs out, new file watchers stop working without
+an error, and kded6 shows "Inotify Instance Capacity Low".
+`sudo ./setup_inotify_limit.sh` installs `common/sysctl/90-inotify.conf` into
+`/etc/sysctl.d/` and applies it, raising `fs.inotify.max_user_instances` to
+1024. It only changes a per-user resource limit, not who can access what. It is
+a one-time step, and the installer never runs it. To undo it, delete
+`/etc/sysctl.d/90-inotify.conf` and reboot.
+
 ---
 
 ## Development
