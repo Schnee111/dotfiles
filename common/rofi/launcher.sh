@@ -7,7 +7,6 @@ if pidof rofi >/dev/null 2>&1; then
 fi
 
 COLORS_JSON="$HOME/.local/state/quickshell/user/generated/colors.json"
-ROFI_COLORS="$HOME/.config/rofi/colors.rasi"
 
 # Sync colors with Quickshell / Matugen
 if [ -f "$COLORS_JSON" ]; then

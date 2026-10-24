@@ -8,7 +8,6 @@ fi
 
 # Sync colors with Quickshell / Matugen palette if needed
 COLORS_JSON="$HOME/.local/state/quickshell/user/generated/colors.json"
-ROFI_COLORS="$HOME/.config/rofi/colors.rasi"
 
 if [ -f "$COLORS_JSON" ]; then
     python3 -c '

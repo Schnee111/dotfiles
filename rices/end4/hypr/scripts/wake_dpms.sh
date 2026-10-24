@@ -20,7 +20,7 @@ hyprctl dispatch 'hl.dsp.dpms({ action = "enable" })' >/dev/null 2>&1
 
 # 2. Allow monitor handshake & clock signal to stabilize:
 # Wait up to 8 seconds (40 iterations x 0.2s) until at least 1 physical monitor is active with dpmsStatus: true
-for i in {1..40}; do
+for _ in {1..40}; do
     if hyprctl monitors -j | jq -e '.[] | select(.name != "HEADLESS-1" and .dpmsStatus == true)' >/dev/null 2>&1; then
         break
     fi
@@ -52,7 +52,7 @@ else
     # 4. If physical display takes longer (e.g. slow wake from suspend / power strip),
     # run a background retry watcher to clean up the moment the display finishes handshake.
     (
-        for retry in {1..40}; do
+        for _ in {1..40}; do
             sleep 0.5
             if hyprctl monitors -j | jq -e '.[] | select(.name != "HEADLESS-1" and .dpmsStatus == true)' >/dev/null 2>&1; then
                 do_cleanup

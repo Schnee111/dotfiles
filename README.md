@@ -290,13 +290,17 @@ the nodes.
 ## Development
 
 ```bash
-bash tests/run.sh                                        # all regression tests
-shellcheck -S warning install.sh bin/* lib/*.sh lib/rices/*.sh tests/*.sh
+bash tests/run.sh                                        # syntax, lint and regression tests
+bash tests/shell-lint.sh                                 # just `bash -n` + ShellCheck on every tracked script
 ./install.sh --dry-run --rice <rice>                     # what a link pass would do
 ```
 
-CI (`.github/workflows/ci.yml`) runs ShellCheck, `bash -n`, the test suite and a
-dry-run link pass for every rice on each push.
+`tests/shell-lint.sh` checks every tracked `.sh`, `bin/*` and `.githooks/*` (vendored
+scripts under `rices/*/hypr/hyprland/scripts/` are skipped). Enable the pre-commit hook,
+which just runs `tests/run.sh`, with `git config core.hooksPath .githooks`.
+
+CI (`.github/workflows/ci.yml`) runs the same test suite (so ShellCheck and `bash -n`
+included) and a dry-run link pass for every rice on each push.
 
 ---
 

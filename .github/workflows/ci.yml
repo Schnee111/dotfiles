@@ -11,19 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: ShellCheck
+      - name: Install shellcheck
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y shellcheck
-          shellcheck -S warning install.sh bin/* lib/*.sh lib/rices/*.sh tests/*.sh
 
-      - name: Bash syntax
-        run: |
-          for f in install.sh bin/* lib/*.sh lib/rices/*.sh tests/*.sh; do
-            bash -n "$f"
-          done
-
-      - name: Tests
+      - name: Syntax, lint and tests
         run: bash tests/run.sh
 
       - name: Dry-run every rice
