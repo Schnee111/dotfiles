@@ -3,6 +3,11 @@
 # checkouts are never moved unless DOTFILES_UPDATE_SHELLS=1.
 set -euo pipefail
 
+# git exports GIT_DIR, GIT_INDEX_FILE and friends to hooks (always when committing
+# from a linked worktree). Left set, the git init/commit/remote calls below would run
+# against the real repository instead of the temporary ones.
+unset "${!GIT_@}"
+
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
