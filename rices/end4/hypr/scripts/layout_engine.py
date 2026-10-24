@@ -12,7 +12,7 @@ import subprocess
 import argparse
 from pathlib import Path
 
-CONFIG_FILE = Path(os.environ.get("HOME", "/home/schnee")) / ".config/hypr/custom/session_layout.json"
+CONFIG_FILE = Path.home() / ".config/hypr/custom/session_layout.json"
 
 
 def dispatch(lua_expr: str):
