@@ -23,7 +23,11 @@ if status is-interactive
     alias celar "printf '\033[2J\033[3J\033[1;1H'"
     alias claer "printf '\033[2J\033[3J\033[1;1H'"
     alias pamcan pacman
-    alias q 'qs -c ii'
+    # quickshell client for the active rice: every rice exports its shell configuration as
+    # $qsConfig (end4-pC, ii, ...); fall back to ii when it is not set
+    function q --description 'qs for the active rice'
+        qs -c (set -q qsConfig; and echo $qsConfig; or echo ii) $argv
+    end
     alias set-fastfetch '~/.config/fastfetch/set-logo.sh'
     if test "$TERM" != "linux"
         alias ls 'eza --icons=auto'
