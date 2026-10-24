@@ -292,6 +292,7 @@ the nodes.
 ```bash
 bash tests/run.sh                                        # syntax, lint and regression tests
 bash tests/shell-lint.sh                                 # just `bash -n` + ShellCheck on every tracked script
+bash tests/network/check-pins.sh                         # pinned third-party shells still fetchable (needs network)
 ./install.sh --dry-run --rice <rice>                     # what a link pass would do
 ```
 
