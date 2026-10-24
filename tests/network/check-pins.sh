@@ -23,6 +23,17 @@ export HOME="$TMP/home"
 export GIT_CONFIG_GLOBAL="$TMP/gitconfig"
 mkdir -p "$HOME"
 
+# retry <command...>: run it, retrying twice with a pause, so a network blip does not
+# fail the check.
+retry() {
+    local delay
+    for delay in 0 2 4; do
+        sleep "$delay"
+        "$@" && return 0
+    done
+    return 1
+}
+
 checked=0
 failed=0
 for url_var in $(compgen -v | grep -E '_URL$'); do
@@ -34,16 +45,7 @@ for url_var in $(compgen -v | grep -E '_URL$'); do
     checked=$((checked + 1))
 
     git init -q "$TMP/$name"
-    ok=0
-    for delay in 0 2 4; do
-        sleep "$delay"
-        if git -C "$TMP/$name" fetch -q --depth 1 "$url" "$rev" 2>/dev/null; then
-            ok=1
-            break
-        fi
-    done
-
-    if ((!ok)); then
+    if ! retry git -C "$TMP/$name" fetch -q --depth 1 "$url" "$rev" 2>/dev/null; then
         echo "FAIL: $name ${rev:0:7} cannot be fetched from $url" >&2
         failed=$((failed + 1))
         continue
@@ -52,7 +54,7 @@ for url_var in $(compgen -v | grep -E '_URL$'); do
     # History only (no trees or blobs) of the default branch, in a repository of its own
     # because the one above is shallow.
     git init -q "$TMP/$name-history"
-    if git -C "$TMP/$name-history" fetch -q --filter=tree:0 "$url" HEAD 2>/dev/null &&
+    if retry git -C "$TMP/$name-history" fetch -q --filter=tree:0 "$url" HEAD 2>/dev/null &&
         git -C "$TMP/$name-history" merge-base --is-ancestor "$rev" FETCH_HEAD 2>/dev/null; then
         echo "ok:   $name ${rev:0:7} is on the default branch of $url"
     else
