@@ -15,7 +15,7 @@ repository.
 
 | Installed path | Source in this repo | Called by the shell | Interface |
 |---|---|---|---|
-| `~/.config/hypr/scripts/autostart.sh` | `rices/end4/hypr/scripts/autostart.sh` | `LockScreen.qml` after the first unlock, and `hl.exec_cmd` in `custom/execs.lua` 10 s after login if `qs` is not running | no arguments; guarded by `/tmp/hypr-autostart-<instance>.lock` so it runs once per login |
+| `~/.config/hypr/scripts/autostart.sh` | `rices/end4/hypr/scripts/autostart.sh` | `LockScreen.qml` after the first unlock, and `hl.exec_cmd` in `custom/execs.lua` 10 s after login if `qs` is not running; both run it with `bash` | no arguments; exits unless `hyprland.sessionAutostart` is `true` in the shell's `config.json`; guarded by `/tmp/hypr-autostart-<instance>.lock` so it runs once per login |
 | `~/.config/hypr/scripts/layout_engine.py` | `rices/end4/hypr/scripts/layout_engine.py` | `SessionLayoutEditor.qml`, and `autostart.sh` | `--run` places the windows, `--capture` writes the current windows into the config, `--config <path>` overrides it |
 | `~/.config/hypr/custom/session_layout.json` | `rices/end4/hypr/custom/session_layout.json` | read and written by `SessionLayoutEditor.qml` | a JSON list; each entry has `workspace`, `name`, `cmd`, `match`, `split`, `target`, `width`, `height`, `timeout` |
 | `~/.config/hypr/scripts/restore_kitty_fonts.py` | `rices/end4/hypr/scripts/restore_kitty_fonts.py` | `scripts/colors/applycolor.sh`, in the background | no arguments; exits quietly when `hyprctl` or kitty is missing |
@@ -31,15 +31,15 @@ shell as well and needs a matching pull request there, merged first or together.
 | `rices/end4/hypr/scripts/apply_adaptive_glass.sh`, `opacity_toggle.sh` | `python3 ~/.config/quickshell/end4-pC/scripts/hyprland/hyprconfigurator.py --file <main.lua> --set <key> <value>` |
 | `rices/end4/hypr/{custom,hyprland}/variables.lua`, `rices/end4/hypr/scripts/monitor_watcher.py` | the install directory name (`qsConfig=end4-pC`, `qs -c end4-pC`) |
 | `lib/rices/end4.sh` | links `rices/end4/illogical-impulse/config.json` to `~/.config/illogical-impulse/config.json`, and checks out `END4PC_REV` |
+| `lib/rice.sh` (`fold_live_state`) | the shell saves with an atomic rename, which replaces that link with a regular file; the next install run (a switch or a re-run) copies the live file back into the outgoing rice's `illogical-impulse/config.json` |
 | `lib/common.sh` (`kitty_theme_source`) | reads `~/.local/state/quickshell/user/generated/terminal/kitty-theme.conf` |
 
 ## Things to know
 
-- **The executable bit of `autostart.sh` is a switch.** The shell turns "session autostart"
-  on and off with `chmod +x` / `chmod -x` on `~/.config/hypr/scripts/autostart.sh`. Because
-  that path is a symlink into this repository, the change lands on the tracked file: the
-  working tree shows a mode change, and committing it would turn autostart off for every new
-  install (the file is `100755` in git).
+- **`autostart.sh` decides for itself whether to run.** It reads `hyprland.sessionAutostart`
+  (the "Restore layout on boot" switch) and exits when it is not `true`; if `jq` or the
+  config file is missing it runs, as before. Its file mode does not matter, and the shell no
+  longer changes it.
 - **Both `LockScreen.qml` and `custom/execs.lua` can start autostart**; the lock file is what
   keeps it to once per login.
 - **Generated state is committed separately** from hand-written config (see "Config vs
