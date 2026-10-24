@@ -679,7 +679,13 @@
             "symbols": ".",
             "webSearch": "?"
         },
-        "sloppy": false
+        "sloppy": false,
+        "pinnedApps": [
+            {
+                "id": "osu-wine",
+                "keyword": "osu"
+            }
+        ]
     },
     "settings": {
         "borderColor": "layer0Border",

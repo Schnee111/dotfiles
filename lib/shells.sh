@@ -12,7 +12,7 @@
 VITREUS_URL="https://github.com/natepayn3/Vitreus.git"
 VITREUS_REV="${VITREUS_REV:-aff648cbd6405305093d0de4ad5719c711e09800}"
 END4PC_URL="https://github.com/Schnee111/end4-pC.git"
-END4PC_REV="${END4PC_REV:-c2cb8cfbbd2e28dc1ea26f419ce8340330d7a033}"
+END4PC_REV="${END4PC_REV:-5423ba908260e0e6ac73ee6e4787db15686971ba}"
 
 # sync_pinned_repo <url> <dest> <rev> <label>
 sync_pinned_repo() {
