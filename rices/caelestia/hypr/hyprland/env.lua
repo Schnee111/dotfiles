@@ -1,5 +1,5 @@
 local vars = require("variables")
-local home = os.getenv("HOME") or "/home/schnee"
+local home = os.getenv("HOME") or ""
 
 -- Themes
 hl.env("QT_QPA_PLATFORMTHEME", "qtengine")
