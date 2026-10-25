@@ -93,6 +93,8 @@ gui_menu() {
     current="$(current_rice)"
 
     local rice_names=() plain_rows="" rofi_rows="" active=""
+    local gutter_on='<span font="JetBrainsMono Nerd Font 8" alpha="80%">●  </span>'
+    local gutter_off='<span font="JetBrainsMono Nerd Font 8" alpha="1%">●  </span>'
     for d in "$DOTFILES_DIR"/rices/*/; do
         [[ -d "$d" ]] || continue
         local rname title subtitle
@@ -103,8 +105,13 @@ gui_menu() {
         [[ "$rname" == "$current" ]] && active="${#rice_names[@]}"
         rice_names+=("$rname")
         plain_rows+="$title${subtitle:+ — $subtitle}"$'\n'
-        rofi_rows+="<span weight=\"600\">$(markup_escape "$title")</span>"
-        [[ -n "$subtitle" ]] && rofi_rows+=$'\n'"<span size=\"small\" alpha=\"55%\">$(markup_escape "$subtitle")</span>"
+        # A leading column holds a dot for the current rice. Both lines start
+        # with the same monospace glyph (invisible where unused), so the name
+        # and the subtitle stay aligned whatever the proportional font does.
+        local dot="$gutter_off"
+        [[ "$rname" == "$current" ]] && dot="$gutter_on"
+        rofi_rows+="$dot<span weight=\"600\">$(markup_escape "$title")</span>"
+        [[ -n "$subtitle" ]] && rofi_rows+=$'\n'"$gutter_off<span size=\"small\" alpha=\"55%\">$(markup_escape "$subtitle")</span>"
         rofi_rows+=$'\x1f'
     done
 
@@ -121,7 +128,7 @@ gui_menu() {
         # separated by \x1f instead of newlines
         local args=(-dmenu -i -no-custom -format i -markup-rows -sep $'\x1f' -eh 2
             -l "${#rice_names[@]}" -p "󰍉" -theme "$theme"
-            -mesg "Current: $(markup_escape "$current")   ·   ↵ switch and log out   ·   esc cancel")
+            -mesg "Switching logs you out   ·   ↵ switch   ·   esc cancel")
         [[ -n "$active" ]] && args+=(-a "$active" -selected-row "$active")
         choice=$(printf '%s' "$rofi_rows" | rofi "${args[@]}") || return 0
     elif command -v fuzzel >/dev/null 2>&1; then
