@@ -51,7 +51,7 @@ header {
 
 textbox-title {
     expand: true;
-    content: "Switch Desktop";
+    str: "Switch Desktop";
     font: "Inter Display Semi-Bold 16";
     vertical-align: 0.5;
     horizontal-align: 0.0;

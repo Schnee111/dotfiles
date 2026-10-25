@@ -94,6 +94,7 @@ gui_menu() {
 
     local rice_names=() plain_rows="" rofi_rows="" active=""
     local gutter_on='<span font="JetBrainsMono Nerd Font 8" alpha="80%">●  </span>'
+    # alpha 1%: Pango's alpha range starts at 1, so 0% is not a valid value
     local gutter_off='<span font="JetBrainsMono Nerd Font 8" alpha="1%">●  </span>'
     for d in "$DOTFILES_DIR"/rices/*/; do
         [[ -d "$d" ]] || continue
