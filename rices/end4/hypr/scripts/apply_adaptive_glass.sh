@@ -67,10 +67,19 @@ fi
 
 FLAG="$HOME/.config/hypr/custom/.solid_mode"
 
-# Persist native background opacity to kitty.conf and dynamically adjust running Kitty windows via IPC without killing font zoom
+# Persist native background opacity to kitty.conf and dynamically adjust running Kitty windows via IPC without killing font zoom.
+# The live kitty.conf is the untracked wrapper from generate_kitty_conf (lib/common.sh):
+# a line after its include overrides common/kitty/kitty.conf. A symlink would be the
+# tracked file itself (install from before the wrapper), so leave that alone.
 KITTY_CONF="$HOME/.config/kitty/kitty.conf"
 if [[ -f "$KITTY_CONF" && ! -f "$FLAG" ]]; then
-    sed --follow-symlinks -i -E "s/^background_opacity [0-9.]+/background_opacity $TARGET_KITTY_BG/" "$KITTY_CONF"
+    if [[ ! -L "$KITTY_CONF" ]]; then
+        if grep -q '^background_opacity ' "$KITTY_CONF"; then
+            sed -i -E "s/^background_opacity [0-9.]+/background_opacity $TARGET_KITTY_BG/" "$KITTY_CONF"
+        else
+            echo "background_opacity $TARGET_KITTY_BG" >>"$KITTY_CONF"
+        fi
+    fi
     for pid in $(pgrep -x kitty 2>/dev/null); do
         kitten @ --to "unix:@kitty-$pid" set-background-opacity "$TARGET_KITTY_BG" 2>/dev/null || true
     done
