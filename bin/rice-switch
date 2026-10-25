@@ -176,6 +176,10 @@ switch_to() {
         return 0
     fi
 
+    # An empty name would resolve to rices/ itself and pass the check below
+    if [[ ! "$target" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+        die "Invalid rice name '$target'"
+    fi
     local target_dir="$DOTFILES_DIR/rices/$target"
     if [[ ! -d "$target_dir" ]]; then
         die "Rice '$target' not found in $DOTFILES_DIR/rices/"
@@ -261,6 +265,9 @@ done
 
 if [ -z "$ACTION" ]; then
     ACTION="$(gui_menu)"
+    # gui_menu runs in a subshell, so its `exit 0` on Esc only ends that subshell
+    # and leaves ACTION empty: nothing was chosen, so stop here.
+    [[ -n "$ACTION" ]] || exit 0
 fi
 
 switch_to "$ACTION"
