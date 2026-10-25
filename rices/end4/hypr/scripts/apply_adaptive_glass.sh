@@ -93,6 +93,25 @@ if [[ ! -f "$FLAG" && -f "$CONFIGURATOR" && -f "$MAIN_LUA" ]]; then
     python3 "$CONFIGURATOR" --file "$MAIN_LUA" --set "decoration:inactive_opacity" "$TARGET_GLOBAL_INACTIVE" >/dev/null 2>&1
 fi
 
+# Store the same opacity in the shell's options: its Hyprland settings page rewrites
+# main.lua from them when opened, which would otherwise put back an older value.
+# Write the resolved file (tmp + mv beside it) so a symlink into dotfiles stays one.
+SHELL_CONFIG="$HOME/.config/illogical-impulse/config.json"
+if [[ ! -f "$FLAG" && -f "$SHELL_CONFIG" ]] && command -v jq >/dev/null 2>&1; then
+    SHELL_CONFIG_REAL="$(readlink -f "$SHELL_CONFIG")"
+    if ! jq -e --argjson a "$TARGET_GLOBAL_ACTIVE" --argjson i "$TARGET_GLOBAL_INACTIVE" \
+        '.hyprland.decoration.activeOpacity == $a and .hyprland.decoration.inactiveOpacity == $i' \
+        "$SHELL_CONFIG_REAL" >/dev/null 2>&1; then
+        if jq --argjson a "$TARGET_GLOBAL_ACTIVE" --argjson i "$TARGET_GLOBAL_INACTIVE" \
+            '.hyprland.decoration.activeOpacity = $a | .hyprland.decoration.inactiveOpacity = $i' \
+            "$SHELL_CONFIG_REAL" >"$SHELL_CONFIG_REAL.tmp" 2>/dev/null; then
+            mv -f "$SHELL_CONFIG_REAL.tmp" "$SHELL_CONFIG_REAL"
+        else
+            rm -f "$SHELL_CONFIG_REAL.tmp"
+        fi
+    fi
+fi
+
 # Reload config dynamically in real-time (config-only avoids display flicker)
 hyprctl reload config-only >/dev/null 2>&1
 
