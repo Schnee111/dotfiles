@@ -507,6 +507,9 @@
                 "scrollFactor": 0.3
             }
         },
+        "misc": {
+            "focusOnActivate": true
+        },
         "sessionAutostart": true
     },
     "interactions": {
