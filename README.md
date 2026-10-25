@@ -149,7 +149,7 @@ failures). Safe as a pre-commit or CI gate.
 | Kind | Examples | How it is committed |
 |---|---|---|
 | Hand-written config | `rices/*/hypr/*.lua`, `hypridle.conf`, `common/**` | normal commits |
-| Generated theme/UI state | `rices/*/illogical-impulse/config.json` (end-4 shell state), `rices/*/hypr/hyprland/colors.lua` (Matugen palette) | `dotfiles save -m "..."` → `chore(state): ...` |
+| Generated theme/UI state | `rices/*/illogical-impulse/config.json` (end-4 shell state), `rices/*/hypr/hyprland/colors.lua` (Matugen palette), `rices/*/hypr/hyprland/glass.lua` (blur brightness from the wallpaper) | `dotfiles save -m "..."` → `chore(state): ...` |
 
 Keeping the two apart is why `git diff` stays readable: the state files churn on
 every wallpaper change, hand-written config does not.
