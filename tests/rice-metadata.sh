@@ -8,7 +8,8 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 failed=0
 
 field() {
-    grep -m1 -E "^$2=" "$1" | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//'
+    # a missing key is reported by the caller, so it must not trip set -e here
+    { grep -m1 -E "^$2=" "$1" || true; } | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//'
 }
 
 for conf in "$REPO"/rices/*/rice.conf; do
@@ -26,5 +27,7 @@ for conf in "$REPO"/rices/*/rice.conf; do
     done
 done
 
-(( failed == 0 )) && echo "ok: rice metadata is complete and plain text"
+if (( failed == 0 )); then
+    echo "ok: rice metadata is complete and plain text"
+fi
 exit "$failed"
