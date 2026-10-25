@@ -86,26 +86,63 @@ markup_escape() {
     printf '%s' "${s//>/&gt;}"
 }
 
+# App-style tile for the menu: a rounded square in the rice's ACCENT with the
+# initial of its name. Written on every open (eight small files), so a changed
+# rice.conf or tile design never shows a stale cache.
+rice_icon() {
+    local dir="$1" rname icon accent initial
+    rname="$(basename "$dir")"
+    icon="${XDG_CACHE_HOME:-$HOME/.cache}/rice-switch/$rname.svg"
+    accent="$(rice_meta "$dir/rice.conf" ACCENT)"
+    [[ "$accent" =~ ^#[0-9A-Fa-f]{6}$ ]] || accent="#8E8E93"
+    initial="$(rice_title "$dir")"
+    initial="$(markup_escape "${initial:0:1}")"
+    mkdir -p "${icon%/*}"
+    cat >"$icon.tmp" <<EOF
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.12"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="116" height="116" rx="27" fill="$accent"/>
+  <rect x="6" y="6" width="116" height="116" rx="27" fill="url(#sheen)"/>
+  <rect x="6.75" y="6.75" width="114.5" height="114.5" rx="26.25" fill="none" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.5"/>
+  <text x="64" y="83" text-anchor="middle" font-family="Google Sans Flex" font-weight="600" font-size="56" fill="#ffffff">${initial^^}</text>
+</svg>
+EOF
+    mv -f "$icon.tmp" "$icon"
+    printf '%s' "$icon"
+}
+
 # Prints the chosen rice name, or nothing when the menu is cancelled. Both menus
 # return the row index (-format i / --index), so the shown text can be anything.
 gui_menu() {
     local current
     current="$(current_rice)"
 
-    local rice_names=() plain_rows="" rofi_rows="" active=""
+    # rofi tiles: name, compositor and a Dock-style dot under the current rice
+    # (invisible on the others so every tile has the same height), then the
+    # icon as a row option. A NUL cannot live in a bash string, so the rows are
+    # kept as printf arguments and written out when rofi runs.
+    local rice_names=() plain_rows="" tiles=() active=""
     for d in "$DOTFILES_DIR"/rices/*/; do
         [[ -d "$d" ]] || continue
-        local rname title subtitle
+        local rname title subtitle compositor dot='<span alpha="1%">●</span>'
         rname="$(basename "$d")"
         title="$(rice_title "$d")"
         subtitle="$(rice_subtitle "$d")"
+        compositor="$(rice_meta "$d/rice.conf" COMPOSITOR)"
 
-        [[ "$rname" == "$current" ]] && active="${#rice_names[@]}"
+        if [[ "$rname" == "$current" ]]; then
+            active="${#rice_names[@]}"
+            dot='<span alpha="80%">●</span>'
+        fi
         rice_names+=("$rname")
         plain_rows+="$title${subtitle:+ — $subtitle}"$'\n'
-        rofi_rows+="<span weight=\"600\">$(markup_escape "$title")</span>"
-        [[ -n "$subtitle" ]] && rofi_rows+=$'\n'"<span size=\"small\" alpha=\"55%\">$(markup_escape "$subtitle")</span>"
-        rofi_rows+=$'\x1f'
+        tiles+=("<span weight=\"600\">$(markup_escape "$title")</span>"$'\n'"<span size=\"small\" alpha=\"55%\">$(markup_escape "${compositor^}")</span>"$'\n'"<span size=\"x-small\">$dot</span>"
+            "$(rice_icon "$d")")
     done
 
     if [[ ${#rice_names[@]} -eq 0 ]]; then
@@ -117,13 +154,13 @@ gui_menu() {
         [[ -z "$theme" || -f "$theme" ]] && break
     done
     if command -v rofi >/dev/null 2>&1 && [[ -n "$theme" ]]; then
-        # Rows are two lines (name, then compositor · shell), so they are
-        # separated by \x1f instead of newlines
-        local args=(-dmenu -i -no-custom -format i -markup-rows -sep $'\x1f' -eh 2
-            -l "${#rice_names[@]}" -p "󰍉" -theme "$theme"
-            -mesg "Current: $(markup_escape "$current")   ·   ↵ switch and log out   ·   esc cancel")
+        # Tiles are three lines and \x1f belongs to the icon option, so rows are
+        # separated by \x1e. The theme lays them out four to a row.
+        local args=(-dmenu -i -no-custom -format i -markup-rows -sep $'\x1e' -eh 3
+            -l "$(((${#rice_names[@]} + 3) / 4))" -p "󰍉" -theme "$theme"
+            -mesg "Switching logs you out   ·   ↵ switch   ·   esc cancel")
         [[ -n "$active" ]] && args+=(-a "$active" -selected-row "$active")
-        choice=$(printf '%s' "$rofi_rows" | rofi "${args[@]}") || return 0
+        choice=$(printf '%s\0icon\x1f%s\x1e' "${tiles[@]}" | rofi "${args[@]}") || return 0
     elif command -v fuzzel >/dev/null 2>&1; then
         choice=$(printf '%s' "$plain_rows" | fuzzel --dmenu --index --prompt "Switch rice ❯ " --lines "${#rice_names[@]}") || return 0
     else

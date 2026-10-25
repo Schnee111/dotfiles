@@ -4,9 +4,9 @@
 # 2. Closing the menu without a row (rofi exits 0, prints nothing) does the same.
 # 3. A chosen row still reaches the switch.
 # 4. Empty or path-like rice names are rejected.
-# 5. Menu content: one two-line row per rice (DISPLAY_NAME, then COMPOSITOR ·
-#    SHELL_NAME), the current rice marked active, an out-of-range index
-#    ignored, theme fallback.
+# 5. Menu content: one tile per rice (DISPLAY_NAME, COMPOSITOR and a dot under
+#    the current rice) with a generated icon in its ACCENT, the current rice
+#    marked active, an out-of-range index ignored, theme fallback.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -78,15 +78,21 @@ echo "ok: path-like rice names are rejected"
 # --- 5: menu content ----------------------------------------------------------------
 
 MOCK_ROFI_EXIT=1 run
-rows="$(tr -cd '\037' <"$TMP/rofi.stdin" | wc -c)"
+rows="$(tr -cd '\036' <"$TMP/rofi.stdin" | wc -c)"
 rices="$(find "$REPO/rices" -mindepth 1 -maxdepth 1 -type d | wc -l)"
 [[ "$rows" -eq "$rices" ]] || fail "expected $rices rows, got $rows"
 grep -qF '<span weight="600">end4</span>' "$TMP/rofi.stdin" || fail "end4 row has no plain title: $(cat "$TMP/rofi.stdin")"
-grep -qF '>Hyprland · end4-pC Material 3</span>' "$TMP/rofi.stdin" || fail "end4 row has no subtitle"
+grep -qF '>Hyprland</span>' "$TMP/rofi.stdin" || fail "end4 tile has no compositor"
+icon="$HOME/.cache/rice-switch/end4.svg"
+grep -qaF "icon"$'\x1f'"$icon" "$TMP/rofi.stdin" || fail "end4 tile has no icon option"
+accent="$(grep -m1 '^ACCENT=' "$REPO/rices/end4/rice.conf" | cut -d= -f2- | tr -d '"')"
+grep -qF "fill=\"$accent\"" "$icon" || fail "end4 icon does not use ACCENT $accent"
+grep -qF '>E</text>' "$icon" || fail "end4 icon does not show its initial"
+[[ "$(grep -c '<span alpha="80%">●</span>' "$TMP/rofi.stdin")" == 1 ]] || fail "expected one visible dot, for the current rice"
 end4_index="$(find "$REPO/rices" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | LC_ALL=C sort | grep -nx end4 | cut -d: -f1)"
 grep -A1 -x -- '-a' "$TMP/rofi.args" | tail -n1 | grep -qx "$((end4_index - 1))" || fail "current rice not marked active: $(cat "$TMP/rofi.args")"
 grep -A1 -x -- '-theme' "$TMP/rofi.args" | tail -n1 | grep -q 'rice-switch.rasi$' || fail "rice-switch.rasi not used"
-echo "ok: one two-line row per rice, current rice active"
+echo "ok: one tile per rice with its icon, current rice dotted and active"
 
 MOCK_ROFI_EXIT=0 MOCK_ROFI_OUT=99 run
 [[ $status -eq 0 && -z "$out" ]] || fail "out-of-range index switched: $out"

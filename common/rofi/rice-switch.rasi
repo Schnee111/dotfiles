@@ -1,25 +1,27 @@
-/* Rice switcher (bin/rice-switch): frosted panel in the style of macOS Spotlight.
- * Translucent enough for the compositor's blur, opaque enough to read without it.
- * Only the accent comes from the palette (colors.rasi). */
-@import "colors.rasi"
+/* Rice switcher (bin/rice-switch): a frosted grid of app-style tiles, after the
+ * macOS Launchpad / Dock. Neutral glass on purpose: the tiles carry the colour. */
 
 configuration {
-    show-icons: false;
+    show-icons: true;
     hover-select: true;
     me-select-entry: "";
     me-accept-entry: "MousePrimary";
+    /* the grid moves with the arrow keys; the entry keeps Ctrl+B / Ctrl+F */
+    kb-row-left: "Left";
+    kb-row-right: "Right";
+    kb-move-char-back: "Control+b";
+    kb-move-char-forward: "Control+f";
 }
 
 * {
-    font: "Inter 11";
+    font: "Inter 10.5";
 
-    glass: rgba(28, 28, 32, 70%);
-    stroke: rgba(255, 255, 255, 13%);
-    hairline: rgba(255, 255, 255, 7%);
+    glass: rgba(30, 30, 34, 66%);
+    stroke: rgba(255, 255, 255, 14%);
+    field: rgba(255, 255, 255, 8%);
     text: rgba(255, 255, 255, 92%);
-    text-dim: rgba(235, 235, 245, 50%);
-    hover: rgba(255, 255, 255, 10%);
-    accent: @selected-fg;
+    text-dim: rgba(235, 235, 245, 52%);
+    tile: rgba(255, 255, 255, 11%);
 
     background-color: transparent;
     text-color: @text;
@@ -29,81 +31,99 @@ window {
     transparency: "real";
     location: center;
     anchor: center;
-    width: 520px;
-    padding: 8px;
+    width: 664px;
+    padding: 22px 22px 16px 22px;
     border: 1px;
     border-color: @stroke;
-    border-radius: 18px;
+    border-radius: 26px;
     background-color: @glass;
 }
 
 mainbox {
-    spacing: 6px;
-    children: [ "inputbar", "listview", "message" ];
+    spacing: 18px;
+    children: [ "header", "listview", "message" ];
+}
+
+header {
+    orientation: horizontal;
+    expand: false;
+    spacing: 16px;
+    children: [ "textbox-title", "inputbar" ];
+}
+
+textbox-title {
+    expand: true;
+    content: "Switch Desktop";
+    font: "Inter Display Semi-Bold 16";
+    vertical-align: 0.5;
 }
 
 inputbar {
-    padding: 10px 12px 12px 12px;
-    spacing: 12px;
-    border: 0 0 1px 0;
-    border-color: @hairline;
+    expand: false;
+    width: 220px;
+    padding: 7px 12px;
+    spacing: 8px;
+    border-radius: 10px;
+    background-color: @field;
     children: [ "prompt", "entry" ];
 }
 
 prompt {
-    font: "JetBrainsMono Nerd Font 15";
+    font: "JetBrainsMono Nerd Font 11";
     text-color: @text-dim;
     vertical-align: 0.5;
 }
 
 entry {
-    font: "Inter Display 15";
-    placeholder: "Switch rice";
+    placeholder: "Search";
     placeholder-color: @text-dim;
     cursor: text;
     vertical-align: 0.5;
 }
 
 listview {
-    columns: 1;
-    dynamic: true;
-    fixed-height: false;
+    columns: 4;
+    lines: 2;
+    fixed-columns: true;
+    fixed-height: true;
+    flow: horizontal;
     cycle: true;
     scrollbar: false;
-    spacing: 2px;
-    padding: 2px 0;
+    spacing: 8px;
 }
 
 element {
-    padding: 8px 12px;
-    border-radius: 11px;
+    orientation: vertical;
+    padding: 14px 6px 10px 6px;
+    spacing: 9px;
+    border-radius: 16px;
     cursor: pointer;
 }
 
 element selected.normal,
 element selected.active {
-    background-color: @hover;
+    background-color: @tile;
 }
 
-element-text {
-    text-color: inherit;
-    vertical-align: 0.5;
+element-icon {
+    size: 68px;
+    horizontal-align: 0.5;
     cursor: pointer;
 }
 
-element normal.active,
-element selected.active,
-element alternate.active {
-    text-color: @accent;
+element-text {
+    horizontal-align: 0.5;
+    text-color: inherit;
+    highlight: bold;
+    cursor: pointer;
 }
 
 message {
-    padding: 8px 12px 4px 12px;
-    border: 1px 0 0 0;
-    border-color: @hairline;
+    padding: 2px 0 0 0;
 }
 
 textbox {
-    font: "Inter 9.5";
+    font: "Inter 9";
     text-color: @text-dim;
+    horizontal-align: 0.5;
 }

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Every rices/*/rice.conf has the fields rice-switch shows, as plain text:
 # NAME matching the directory, DISPLAY_NAME, SHELL_NAME and COMPOSITOR, with no
-# emoji or other non-ASCII symbols in the user-facing ones.
+# emoji or other non-ASCII symbols in the user-facing ones, and ACCENT (the
+# menu tile colour) as #RRGGBB.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -25,6 +26,8 @@ for conf in "$REPO"/rices/*/rice.conf; do
             failed=1
         fi
     done
+    accent="$(field "$conf" ACCENT)"
+    [[ "$accent" =~ ^#[0-9A-Fa-f]{6}$ ]] || { echo "FAIL: $rice: ACCENT is not #RRGGBB: '$accent'" >&2; failed=1; }
 done
 
 if (( failed == 0 )); then

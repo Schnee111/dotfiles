@@ -211,6 +211,7 @@ git fetch upstream && git merge upstream/main   # resolve the patch conflicts, t
    NAME="rice-name"
    DISPLAY_NAME="Rice Name"        # plain text, no emoji
    SHELL_NAME="Waybar"             # shown next to the compositor in rice-switch
+   ACCENT="#0A84FF"                # colour of its tile in the rice-switch menu
    COMPOSITOR="hyprland"
    ```
 3. Put the compositor and shell configuration inside it (e.g. `hypr/`, `waybar/`, `dunst/`).
