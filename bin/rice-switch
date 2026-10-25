@@ -61,61 +61,68 @@ exit_compositor() {
     fi
 }
 
+markup_escape() {
+    local s="${1//&/&amp;}"
+    s="${s//</&lt;}"
+    printf '%s' "${s//>/&gt;}"
+}
+
+# Prints the chosen rice name, or nothing when the menu is cancelled. Both menus
+# return the row index (-format i / --index), so the shown text can be anything.
 gui_menu() {
     local current
     current="$(current_rice)"
 
-    local options=()
-    local rice_names=()
-
+    local rice_names=() plain_rows="" rofi_rows="" active=""
     for d in "$DOTFILES_DIR"/rices/*/; do
-        if [[ -d "$d" ]]; then
-            local rname
-            rname="$(basename "$d")"
-            local dname="$rname"
-            local conf_file="$d/rice.conf"
+        [[ -d "$d" ]] || continue
+        local rname dname title subtitle=""
+        rname="$(basename "$d")"
+        dname="$(rice_meta "$d/rice.conf" DISPLAY_NAME)"
+        dname="${dname:-$rname}"
 
-            if [[ -f "$conf_file" ]]; then
-                dname="$(rice_meta "$conf_file" DISPLAY_NAME)"
-                [[ -n "$dname" ]] || dname="$rname"
-            fi
-
-            if [[ "$rname" == "$current" ]]; then
-                dname="✓  $dname   [ACTIVE]"
-            fi
-
-            options+=("$dname")
-            rice_names+=("$rname")
+        # DISPLAY_NAME is "<glyph>  <name> (<compositor> · <shell>)": drop the
+        # glyph and show the part in parentheses as a subtitle
+        [[ "$dname" == *"  "* ]] && dname="${dname#*  }"
+        title="${dname%% (*}"
+        if [[ "$dname" == *" ("*")" ]]; then
+            subtitle="${dname#* (}"
+            subtitle="${subtitle%)}"
         fi
+
+        [[ "$rname" == "$current" ]] && active="${#rice_names[@]}"
+        rice_names+=("$rname")
+        plain_rows+="$title${subtitle:+ — $subtitle}"$'\n'
+        rofi_rows+="<span weight=\"600\">$(markup_escape "$title")</span>"
+        [[ -n "$subtitle" ]] && rofi_rows+=$'\n'"<span size=\"small\" alpha=\"55%\">$(markup_escape "$subtitle")</span>"
+        rofi_rows+=$'\x1f'
     done
 
-    if [[ ${#options[@]} -eq 0 ]]; then
+    if [[ ${#rice_names[@]} -eq 0 ]]; then
         die "No rices found in $DOTFILES_DIR/rices/"
     fi
 
-    local menu_input=""
-    for opt in "${options[@]}"; do
-        menu_input+="$opt"$'\n'
+    local choice="" theme=""
+    for theme in "$HOME/.config/rofi/rice-switch.rasi" "$HOME/.config/rofi/display.rasi" ""; do
+        [[ -z "$theme" || -f "$theme" ]] && break
     done
-
-    local choice=""
-    if command -v rofi >/dev/null 2>&1 && [[ -f "$HOME/.config/rofi/display.rasi" ]]; then
-        choice=$(printf "%s" "$menu_input" | rofi -dmenu -i -p "󰍹 Switch Rice" -theme "$HOME/.config/rofi/display.rasi") || exit 0
+    if command -v rofi >/dev/null 2>&1 && [[ -n "$theme" ]]; then
+        # Rows are two lines (name, then compositor · shell), so they are
+        # separated by \x1f instead of newlines
+        local args=(-dmenu -i -no-custom -format i -markup-rows -sep $'\x1f' -eh 2
+            -l "${#rice_names[@]}" -p "󰍉" -theme "$theme"
+            -mesg "Current: $(markup_escape "$current")   ·   ↵ switch and log out   ·   esc cancel")
+        [[ -n "$active" ]] && args+=(-a "$active" -selected-row "$active")
+        choice=$(printf '%s' "$rofi_rows" | rofi "${args[@]}") || return 0
     elif command -v fuzzel >/dev/null 2>&1; then
-        choice=$(printf "%s" "$menu_input" | fuzzel --dmenu --prompt "Switch Rice ❯ " --lines "${#options[@]}") || exit 0
+        choice=$(printf '%s' "$plain_rows" | fuzzel --dmenu --index --prompt "Switch rice ❯ " --lines "${#rice_names[@]}") || return 0
     else
         die "Neither rofi nor fuzzel is installed"
     fi
 
-    # Match choice back to rice name
-    for i in "${!options[@]}"; do
-        if [[ "${options[$i]}" == "$choice" ]]; then
-            echo "${rice_names[$i]}"
-            return 0
-        fi
-    done
-
-    exit 0
+    if [[ "$choice" =~ ^[0-9]+$ && -n "${rice_names[$choice]:-}" ]]; then
+        echo "${rice_names[$choice]}"
+    fi
 }
 
 verify_config() {
@@ -265,8 +272,7 @@ done
 
 if [ -z "$ACTION" ]; then
     ACTION="$(gui_menu)"
-    # gui_menu runs in a subshell, so its `exit 0` on Esc only ends that subshell
-    # and leaves ACTION empty: nothing was chosen, so stop here.
+    # Empty when the menu was cancelled (Esc): nothing was chosen, so stop here.
     [[ -n "$ACTION" ]] || exit 0
 fi
 

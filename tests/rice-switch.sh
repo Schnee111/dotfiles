@@ -4,6 +4,8 @@
 # 2. Closing the menu without a row (rofi exits 0, prints nothing) does the same.
 # 3. A chosen row still reaches the switch.
 # 4. Empty or path-like rice names are rejected.
+# 5. Menu content: one two-line row per rice without the glyph, the current
+#    rice marked active, an out-of-range index ignored, theme fallback.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -24,11 +26,12 @@ echo end4 >"$HOME/.config/.current_rice"
 STUBS="$TMP/bin"
 mkdir -p "$STUBS"
 # rofi: MOCK_ROFI_EXIT is its status, MOCK_ROFI_OUT what it prints
-cat >"$STUBS/rofi" <<'EOF'
+cat >"$STUBS/rofi" <<EOF
 #!/usr/bin/env bash
-cat >/dev/null
-printf '%s' "${MOCK_ROFI_OUT:-}"
-exit "${MOCK_ROFI_EXIT:-0}"
+cat >"$TMP/rofi.stdin"
+printf '%s\n' "\$@" >"$TMP/rofi.args"
+printf '%s' "\${MOCK_ROFI_OUT:-}"
+exit "\${MOCK_ROFI_EXIT:-0}"
 EOF
 for cmd in notify-send hyprland niri; do
     printf '#!/usr/bin/env bash\nexit 0\n' >"$STUBS/$cmd"
@@ -55,9 +58,9 @@ echo "ok: Esc and an empty choice cancel without switching"
 
 # --- 3: a chosen row -----------------------------------------------------------
 
-# rofi prints the chosen row, which is the rice's DISPLAY_NAME
-iris_row="$(grep -m1 '^DISPLAY_NAME=' "$REPO/rices/iris/rice.conf" | cut -d= -f2- | tr -d '"')"
-MOCK_ROFI_EXIT=0 MOCK_ROFI_OUT="$iris_row" run
+# rofi prints the chosen row's index (-format i)
+index="$(find "$REPO/rices" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | LC_ALL=C sort | grep -nx iris | cut -d: -f1)"
+MOCK_ROFI_EXIT=0 MOCK_ROFI_OUT="$((index - 1))" run
 # CI has no niri session file; reaching that check still proves iris was chosen
 [[ "$out" == *"dry run for 'iris'"* || "$out" == *"'niri.desktop' not found"* ]] \
     || fail "choosing iris did not reach the switch: $out"
@@ -70,3 +73,26 @@ for bad in "../end4" "." "end4/../iris" "-x"; do
     [[ $status -ne 0 && "$out" == *"Invalid rice name"* ]] || fail "'$bad' not rejected: $out"
 done
 echo "ok: path-like rice names are rejected"
+
+# --- 5: menu content ----------------------------------------------------------------
+
+MOCK_ROFI_EXIT=1 run
+rows="$(tr -cd '\037' <"$TMP/rofi.stdin" | wc -c)"
+rices="$(find "$REPO/rices" -mindepth 1 -maxdepth 1 -type d | wc -l)"
+[[ "$rows" -eq "$rices" ]] || fail "expected $rices rows, got $rows"
+grep -qF '<span weight="600">end4</span>' "$TMP/rofi.stdin" || fail "end4 row has no plain title: $(cat "$TMP/rofi.stdin")"
+grep -qF '>Hyprland · end4-pC Material 3</span>' "$TMP/rofi.stdin" || fail "end4 row has no subtitle"
+grep -qF '◈' "$TMP/rofi.stdin" && fail "DISPLAY_NAME glyph still shown"
+end4_index="$(find "$REPO/rices" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | LC_ALL=C sort | grep -nx end4 | cut -d: -f1)"
+grep -A1 -x -- '-a' "$TMP/rofi.args" | tail -n1 | grep -qx "$((end4_index - 1))" || fail "current rice not marked active: $(cat "$TMP/rofi.args")"
+grep -A1 -x -- '-theme' "$TMP/rofi.args" | tail -n1 | grep -q 'rice-switch.rasi$' || fail "rice-switch.rasi not used"
+echo "ok: one two-line row per rice, current rice active"
+
+MOCK_ROFI_EXIT=0 MOCK_ROFI_OUT=99 run
+[[ $status -eq 0 && -z "$out" ]] || fail "out-of-range index switched: $out"
+echo "ok: out-of-range index ignored"
+
+rm "$HOME/.config/rofi/rice-switch.rasi"
+MOCK_ROFI_EXIT=1 run
+grep -A1 -x -- '-theme' "$TMP/rofi.args" | tail -n1 | grep -q 'display.rasi$' || fail "no fallback to display.rasi"
+echo "ok: falls back to display.rasi before the next install links the theme"

@@ -1,0 +1,109 @@
+/* Rice switcher (bin/rice-switch): frosted panel in the style of macOS Spotlight.
+ * Translucent enough for the compositor's blur, opaque enough to read without it.
+ * Only the accent comes from the palette (colors.rasi). */
+@import "colors.rasi"
+
+configuration {
+    show-icons: false;
+    hover-select: true;
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+}
+
+* {
+    font: "Inter 11";
+
+    glass: rgba(28, 28, 32, 70%);
+    stroke: rgba(255, 255, 255, 13%);
+    hairline: rgba(255, 255, 255, 7%);
+    text: rgba(255, 255, 255, 92%);
+    text-dim: rgba(235, 235, 245, 50%);
+    hover: rgba(255, 255, 255, 10%);
+    accent: @selected-fg;
+
+    background-color: transparent;
+    text-color: @text;
+}
+
+window {
+    transparency: "real";
+    location: center;
+    anchor: center;
+    width: 520px;
+    padding: 8px;
+    border: 1px;
+    border-color: @stroke;
+    border-radius: 18px;
+    background-color: @glass;
+}
+
+mainbox {
+    spacing: 6px;
+    children: [ "inputbar", "listview", "message" ];
+}
+
+inputbar {
+    padding: 10px 12px 12px 12px;
+    spacing: 12px;
+    border: 0 0 1px 0;
+    border-color: @hairline;
+    children: [ "prompt", "entry" ];
+}
+
+prompt {
+    font: "JetBrainsMono Nerd Font 15";
+    text-color: @text-dim;
+    vertical-align: 0.5;
+}
+
+entry {
+    font: "Inter Display 15";
+    placeholder: "Switch rice";
+    placeholder-color: @text-dim;
+    cursor: text;
+    vertical-align: 0.5;
+}
+
+listview {
+    columns: 1;
+    dynamic: true;
+    fixed-height: false;
+    cycle: true;
+    scrollbar: false;
+    spacing: 2px;
+    padding: 2px 0;
+}
+
+element {
+    padding: 8px 12px;
+    border-radius: 11px;
+    cursor: pointer;
+}
+
+element selected.normal,
+element selected.active {
+    background-color: @hover;
+}
+
+element-text {
+    text-color: inherit;
+    vertical-align: 0.5;
+    cursor: pointer;
+}
+
+element normal.active,
+element selected.active,
+element alternate.active {
+    text-color: @accent;
+}
+
+message {
+    padding: 8px 12px 4px 12px;
+    border: 1px 0 0 0;
+    border-color: @hairline;
+}
+
+textbox {
+    font: "Inter 9.5";
+    text-color: @text-dim;
+}
