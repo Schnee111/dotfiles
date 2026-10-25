@@ -15,6 +15,7 @@ install_common() {
     link_file "$DOTFILES_DIR/common/rofi/colors.rasi" "$CONFIG_DIR/rofi/colors.rasi"
     link_file "$DOTFILES_DIR/common/rofi/launchpad.rasi" "$CONFIG_DIR/rofi/launchpad.rasi"
     link_file "$DOTFILES_DIR/common/rofi/display.rasi" "$CONFIG_DIR/rofi/display.rasi"
+    link_file "$DOTFILES_DIR/common/rofi/rice-switch.rasi" "$CONFIG_DIR/rofi/rice-switch.rasi"
     link_file "$DOTFILES_DIR/common/rofi/launcher.sh" "$CONFIG_DIR/rofi/launcher.sh"
     chmod +x "$DOTFILES_DIR/common/rofi/launcher.sh" 2>/dev/null || true
 
