@@ -12,7 +12,7 @@ configuration {
     hover-select: true;
     me-select-entry: "";
     me-accept-entry: "MousePrimary";
-    /* Arrows move between apps. Page_Up/Page_Down turn the page. The entry
+    /* Arrows move between apps (the grid fills row by row and scrolls). The entry
      * keeps Ctrl+B / Ctrl+F for its cursor. */
     kb-row-left: "Left,Control+Page_Up";
     kb-row-right: "Right,Control+Page_Down";
@@ -78,10 +78,11 @@ entry {
 listview {
     columns: 6;
     lines: 4;
-    cycle: true;
+    flow: horizontal;
+    cycle: false;
     dynamic: true;
     scrollbar: true;
-    scroll-method: 0;
+    scroll-method: 1;
     spacing: 6px;
     padding: 12px 0 0 0;
     border: 1px 0 0 0;
@@ -117,7 +118,7 @@ element-text {
 
 textbox-footer {
     expand: false;
-    str: "PgUp PgDn page   ·   ↵ open   ·   esc close";
+    str: "↵ open   ·   esc close";
     font: "Inter 9";
     text-color: @text-dim;
     horizontal-align: 0.5;
