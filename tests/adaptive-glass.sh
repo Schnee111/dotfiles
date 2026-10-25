@@ -6,6 +6,8 @@
 # 3. Without a hyprland/ directory nothing is created.
 # 4. Kitty opacity goes to the untracked live wrapper, after its include: appended
 #    once, then replaced; a symlinked kitty.conf and solid mode are left alone.
+# 5. Window opacity is stored in the shell's config.json too, through a symlink
+#    without replacing it; solid mode and a missing config.json are left alone.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -101,3 +103,37 @@ ln -sfn "$SRC/kitty.conf" "$KITTY"
 run 80
 cmp -s "$SRC/kitty.conf" "$REPO/common/kitty/kitty.conf" || fail "symlinked (tracked) kitty.conf was modified"
 echo "ok: symlinked kitty.conf left alone"
+
+# --- 5: shell config.json --------------------------------------------------------
+
+SHELL_CONFIG="$HOME/.config/illogical-impulse/config.json"
+run 50
+[[ ! -e "$SHELL_CONFIG" ]] || fail "config.json was created"
+
+mkdir -p "${SHELL_CONFIG%/*}"
+echo '{"bar": {"x": 1}, "hyprland": {"decoration": {"activeOpacity": 0.86, "inactiveOpacity": 0.76, "rounding": 16}}}' \
+    >"$SRC/config.json"
+ln -s "$SRC/config.json" "$SHELL_CONFIG"
+opacity() { jq -c '[.hyprland.decoration.activeOpacity, .hyprland.decoration.inactiveOpacity]' "$SRC/config.json"; }
+
+run 50
+[[ "$(opacity)" == "[0.88,0.78]" ]] || fail "lum 50: expected [0.88,0.78], got $(opacity)"
+[[ -L "$SHELL_CONFIG" ]] || fail "config.json symlink was replaced"
+[[ "$(jq -c '[.bar.x, .hyprland.decoration.rounding]' "$SRC/config.json")" == "[1,16]" ]] \
+    || fail "other config.json keys changed: $(cat "$SRC/config.json")"
+run 10
+[[ "$(opacity)" == "[0.84,0.74]" ]] || fail "lum 10: expected [0.84,0.74], got $(opacity)"
+echo "ok: window opacity stored in config.json, symlink and other keys kept"
+
+touch "$HOME/.config/hypr/custom/.solid_mode"
+run 80
+[[ "$(opacity)" == "[0.84,0.74]" ]] || fail "solid mode still wrote config.json"
+rm "$HOME/.config/hypr/custom/.solid_mode"
+echo "ok: solid mode leaves config.json alone"
+
+echo '{"hyprland": ' >"$SRC/config.json"
+cp "$SRC/config.json" "$TMP/broken.json"
+run 50
+cmp -s "$SRC/config.json" "$TMP/broken.json" || fail "unparsable config.json was rewritten"
+[[ ! -e "$SRC/config.json.tmp" ]] || fail "config.json.tmp left behind"
+echo "ok: unparsable config.json left alone"
