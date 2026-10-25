@@ -12,10 +12,10 @@ configuration {
     hover-select: true;
     me-select-entry: "";
     me-accept-entry: "MousePrimary";
-    /* Left/Right turn the page; Up/Down already move through the rows and
-     * across pages. The entry keeps Ctrl+B / Ctrl+F for its cursor. */
-    kb-page-prev: "Page_Up,Left";
-    kb-page-next: "Page_Down,Right";
+    /* Arrows move between apps. Page_Up/Page_Down turn the page. The entry
+     * keeps Ctrl+B / Ctrl+F for its cursor. */
+    kb-row-left: "Left,Control+Page_Up";
+    kb-row-right: "Right,Control+Page_Down";
     kb-move-char-back: "Control+b";
     kb-move-char-forward: "Control+f";
 }
@@ -117,7 +117,7 @@ element-text {
 
 textbox-footer {
     expand: false;
-    str: "← → page   ·   ↵ open   ·   esc close";
+    str: "PgUp PgDn page   ·   ↵ open   ·   esc close";
     font: "Inter 9";
     text-color: @text-dim;
     horizontal-align: 0.5;
