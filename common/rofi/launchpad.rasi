@@ -12,6 +12,12 @@ configuration {
     hover-select: true;
     me-select-entry: "";
     me-accept-entry: "MousePrimary";
+    /* Left/Right turn the page; Up/Down already move through the rows and
+     * across pages. The entry keeps Ctrl+B / Ctrl+F for its cursor. */
+    kb-page-prev: "Page_Up,Left";
+    kb-page-next: "Page_Down,Right";
+    kb-move-char-back: "Control+b";
+    kb-move-char-forward: "Control+f";
 }
 
 * {
@@ -74,7 +80,8 @@ listview {
     lines: 4;
     cycle: true;
     dynamic: true;
-    scrollbar: false;
+    scrollbar: true;
+    scroll-method: 0;
     spacing: 6px;
     padding: 12px 0 0 0;
     border: 1px 0 0 0;
@@ -110,11 +117,20 @@ element-text {
 
 textbox-footer {
     expand: false;
-    str: "↵ open   ·   esc close";
+    str: "← → page   ·   ↵ open   ·   esc close";
     font: "Inter 9";
     text-color: @text-dim;
     horizontal-align: 0.5;
     padding: 10px 0 0 0;
     border: 1px 0 0 0;
     border-color: @hairline;
+}
+
+/* page indicator: the handle's position and length show which page of how many */
+scrollbar {
+    width: 4px;
+    handle-width: 4px;
+    handle-color: rgba(255, 255, 255, 38%);
+    border-radius: 2px;
+    margin: 0 0 0 10px;
 }
