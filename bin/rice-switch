@@ -49,6 +49,25 @@ rice_meta() {
     printf '%s' "$line"
 }
 
+rice_title() {
+    local name
+    name="$(rice_meta "$1/rice.conf" DISPLAY_NAME)"
+    printf '%s' "${name:-$(basename "$1")}"
+}
+
+# "Hyprland · end4-pC Material 3", from COMPOSITOR and SHELL_NAME
+rice_subtitle() {
+    local compositor shell
+    compositor="$(rice_meta "$1/rice.conf" COMPOSITOR)"
+    shell="$(rice_meta "$1/rice.conf" SHELL_NAME)"
+    compositor="${compositor^}"
+    if [[ -n "$compositor" && -n "$shell" ]]; then
+        printf '%s · %s' "$compositor" "$shell"
+    else
+        printf '%s' "$compositor$shell"
+    fi
+}
+
 exit_compositor() {
     if pgrep -x Hyprland >/dev/null 2>&1; then
         hyprctl dispatch exit 2>/dev/null || pkill -x Hyprland || loginctl terminate-session "${XDG_SESSION_ID:-}"
@@ -76,19 +95,10 @@ gui_menu() {
     local rice_names=() plain_rows="" rofi_rows="" active=""
     for d in "$DOTFILES_DIR"/rices/*/; do
         [[ -d "$d" ]] || continue
-        local rname dname title subtitle=""
+        local rname title subtitle
         rname="$(basename "$d")"
-        dname="$(rice_meta "$d/rice.conf" DISPLAY_NAME)"
-        dname="${dname:-$rname}"
-
-        # DISPLAY_NAME is "<glyph>  <name> (<compositor> · <shell>)": drop the
-        # glyph and show the part in parentheses as a subtitle
-        [[ "$dname" == *"  "* ]] && dname="${dname#*  }"
-        title="${dname%% (*}"
-        if [[ "$dname" == *" ("*")" ]]; then
-            subtitle="${dname#* (}"
-            subtitle="${subtitle%)}"
-        fi
+        title="$(rice_title "$d")"
+        subtitle="$(rice_subtitle "$d")"
 
         [[ "$rname" == "$current" ]] && active="${#rice_names[@]}"
         rice_names+=("$rname")
@@ -165,19 +175,11 @@ switch_to() {
         echo "Available rices in $DOTFILES_DIR/rices/:"
         for d in "$DOTFILES_DIR"/rices/*/; do
             if [[ -d "$d" ]]; then
-                local rname
+                local rname mark="   "
                 rname="$(basename "$d")"
-                local dname="$rname"
-                local conf_file="$d/rice.conf"
-                if [[ -f "$conf_file" ]]; then
-                    dname="$(rice_meta "$conf_file" DISPLAY_NAME)"
-                    [[ -n "$dname" ]] || dname="$rname"
-                fi
-                if [[ "$rname" == "$current" ]]; then
-                    echo "  * $dname   [ACTIVE]"
-                else
-                    echo "    $dname"
-                fi
+                [[ "$rname" == "$current" ]] && mark="  *"
+                # the directory name is what `rice-switch <name>` takes
+                printf '%s %-13s %s\n' "$mark" "$rname" "$(rice_subtitle "$d")"
             fi
         done
         return 0
