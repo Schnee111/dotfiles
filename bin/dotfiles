@@ -24,6 +24,7 @@ CURRENT_RICE_FILE="$CONFIG_DIR/.current_rice"
 STATE_GLOBS=(
     "rices/*/illogical-impulse/config.json"
     "rices/*/hypr/hyprland/colors.lua"
+    "rices/*/hypr/hyprland/glass.lua"
 )
 
 c_red=$'\033[1;31m'; c_grn=$'\033[1;32m'; c_ylw=$'\033[1;33m'
@@ -216,8 +217,11 @@ doctor() {
 
 cmd_diff() {
     say "Repo changes (hand-written config):"
-    git -C "$DOTFILES_DIR" status --short -- . ':(exclude)rices/*/illogical-impulse/config.json' \
-        ':(exclude)rices/*/hypr/hyprland/colors.lua' || true
+    local exclude=() glob
+    for glob in "${STATE_GLOBS[@]}"; do
+        exclude+=(":(exclude)$glob")
+    done
+    git -C "$DOTFILES_DIR" status --short -- . "${exclude[@]}" || true
     say "Generated/state changes:"
     git -C "$DOTFILES_DIR" status --short -- "${STATE_GLOBS[@]}" || true
     say "Symlink drift:"

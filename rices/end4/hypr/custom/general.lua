@@ -32,7 +32,7 @@ hl.config({
     decoration = {
         dim_inactive = false,
         blur = {
-            brightness = 1.08,
+            -- brightness follows the wallpaper: hyprland/glass.lua
             size = 7,
             passes = 3,
             noise = 0.055,
