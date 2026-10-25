@@ -44,7 +44,7 @@ window {
 
 mainbox {
     spacing: 14px;
-    children: [ "inputbar", "listview" ];
+    children: [ "inputbar", "listview", "textbox-footer" ];
 }
 
 inputbar {
@@ -106,4 +106,15 @@ element-text {
     text-color: inherit;
     highlight: bold;
     cursor: pointer;
+}
+
+textbox-footer {
+    expand: false;
+    str: "↵ open   ·   esc close";
+    font: "Inter 9";
+    text-color: @text-dim;
+    horizontal-align: 0.5;
+    padding: 10px 0 0 0;
+    border: 1px 0 0 0;
+    border-color: @hairline;
 }
