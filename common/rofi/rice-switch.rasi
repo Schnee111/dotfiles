@@ -1,7 +1,6 @@
-/* Rice switcher (bin/rice-switch): frosted panel in the style of macOS Spotlight.
- * Translucent enough for the compositor's blur, opaque enough to read without it.
- * Only the accent comes from the palette (colors.rasi). */
-@import "colors.rasi"
+/* Rice switcher (bin/rice-switch): a frosted row list in the style of macOS.
+ * Neutral glass on purpose; translucent enough for the compositor's blur and
+ * opaque enough to read without it. */
 
 configuration {
     show-icons: false;
@@ -11,15 +10,15 @@ configuration {
 }
 
 * {
-    font: "Inter 11";
+    font: "Inter 10.5";
 
-    glass: rgba(28, 28, 32, 70%);
-    stroke: rgba(255, 255, 255, 13%);
+    glass: rgba(30, 30, 34, 66%);
+    stroke: rgba(255, 255, 255, 14%);
     hairline: rgba(255, 255, 255, 7%);
+    field: rgba(255, 255, 255, 8%);
     text: rgba(255, 255, 255, 92%);
-    text-dim: rgba(235, 235, 245, 50%);
+    text-dim: rgba(235, 235, 245, 52%);
     hover: rgba(255, 255, 255, 10%);
-    accent: @selected-fg;
 
     background-color: transparent;
     text-color: @text;
@@ -29,36 +28,54 @@ window {
     transparency: "real";
     location: center;
     anchor: center;
-    width: 520px;
-    padding: 8px;
+    width: 540px;
+    padding: 20px 14px 14px 14px;
     border: 1px;
     border-color: @stroke;
-    border-radius: 18px;
+    border-radius: 24px;
     background-color: @glass;
 }
 
 mainbox {
-    spacing: 6px;
-    children: [ "inputbar", "listview", "message" ];
+    spacing: 12px;
+    children: [ "header", "listview", "message" ];
+}
+
+header {
+    orientation: horizontal;
+    expand: false;
+    spacing: 16px;
+    padding: 0 6px;
+    children: [ "textbox-title", "inputbar" ];
+}
+
+textbox-title {
+    expand: true;
+    str: "Switch Desktop";
+    font: "Inter Display Semi-Bold 16";
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+    text-color: @text;
 }
 
 inputbar {
-    padding: 10px 12px 12px 12px;
-    spacing: 12px;
-    border: 0 0 1px 0;
-    border-color: @hairline;
+    expand: false;
+    width: 200px;
+    padding: 7px 12px;
+    spacing: 8px;
+    border-radius: 10px;
+    background-color: @field;
     children: [ "prompt", "entry" ];
 }
 
 prompt {
-    font: "JetBrainsMono Nerd Font 15";
+    font: "JetBrainsMono Nerd Font 11";
     text-color: @text-dim;
     vertical-align: 0.5;
 }
 
 entry {
-    font: "Inter Display 15";
-    placeholder: "Switch rice";
+    placeholder: "Search";
     placeholder-color: @text-dim;
     cursor: text;
     vertical-align: 0.5;
@@ -71,12 +88,14 @@ listview {
     cycle: true;
     scrollbar: false;
     spacing: 2px;
-    padding: 2px 0;
+    padding: 8px 0 0 0;
+    border: 1px 0 0 0;
+    border-color: @hairline;
 }
 
 element {
-    padding: 8px 12px;
-    border-radius: 11px;
+    padding: 9px 14px;
+    border-radius: 12px;
     cursor: pointer;
 }
 
@@ -88,22 +107,19 @@ element selected.active {
 element-text {
     text-color: inherit;
     vertical-align: 0.5;
+    highlight: bold;
     cursor: pointer;
 }
 
-element normal.active,
-element selected.active,
-element alternate.active {
-    text-color: @accent;
-}
-
 message {
-    padding: 8px 12px 4px 12px;
+    padding: 10px 0 2px 0;
     border: 1px 0 0 0;
     border-color: @hairline;
 }
 
+/* the footer; textbox-title above sets its own colour and alignment */
 textbox {
-    font: "Inter 9.5";
+    font: "Inter 9";
     text-color: @text-dim;
+    horizontal-align: 0.5;
 }

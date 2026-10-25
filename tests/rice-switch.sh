@@ -5,8 +5,8 @@
 # 3. A chosen row still reaches the switch.
 # 4. Empty or path-like rice names are rejected.
 # 5. Menu content: one two-line row per rice (DISPLAY_NAME, then COMPOSITOR ·
-#    SHELL_NAME), the current rice marked active, an out-of-range index
-#    ignored, theme fallback.
+#    SHELL_NAME), a dot and the active mark on the current rice, an
+#    out-of-range index ignored, theme fallback.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -83,6 +83,8 @@ rices="$(find "$REPO/rices" -mindepth 1 -maxdepth 1 -type d | wc -l)"
 [[ "$rows" -eq "$rices" ]] || fail "expected $rices rows, got $rows"
 grep -qF '<span weight="600">end4</span>' "$TMP/rofi.stdin" || fail "end4 row has no plain title: $(cat "$TMP/rofi.stdin")"
 grep -qF '>Hyprland · end4-pC Material 3</span>' "$TMP/rofi.stdin" || fail "end4 row has no subtitle"
+[[ "$(grep -o 'alpha="80%">●' "$TMP/rofi.stdin" | wc -l)" -eq 1 ]] || fail "expected one visible dot, for the current rice"
+grep -qF 'alpha="80%">●  </span><span weight="600">end4</span>' "$TMP/rofi.stdin" || fail "the dot is not on the end4 row"
 end4_index="$(find "$REPO/rices" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | LC_ALL=C sort | grep -nx end4 | cut -d: -f1)"
 grep -A1 -x -- '-a' "$TMP/rofi.args" | tail -n1 | grep -qx "$((end4_index - 1))" || fail "current rice not marked active: $(cat "$TMP/rofi.args")"
 grep -A1 -x -- '-theme' "$TMP/rofi.args" | tail -n1 | grep -q 'rice-switch.rasi$' || fail "rice-switch.rasi not used"
