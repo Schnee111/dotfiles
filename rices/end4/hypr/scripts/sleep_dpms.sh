@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o pipefail
 # ==============================================================================
 # sleep_dpms.sh: Safe display sleep for Hyprland + Quickshell
 # ==============================================================================
@@ -15,17 +16,29 @@ fi
 # 1. State marker for monitor_watcher & monitors_safeguard
 touch /tmp/hypr-dpms-sleeping
 
-# 2. Guarantee at least 1 active Wayland output exists BEFORE physical display turns off.
-# This prevents QtWayland / Quickshell from seeing 0 outputs and aborting with qFatal.
-if ! hyprctl monitors -j | jq -e '.[] | select(.name == "HEADLESS-1")' >/dev/null 2>&1; then
-    hyprctl output create headless HEADLESS-1 >/dev/null 2>&1
-    # Verify that HEADLESS-1 is acknowledged by the compositor
+# 2. Guarantee a usable Wayland output BEFORE turning physical displays off.
+# A successful create request is not enough: the output can appear late, remain
+# disabled, or fail to appear altogether. Keep displays on in all those cases.
+anchor_ready() {
+    hyprctl monitors -j 2>/dev/null | jq -e '
+        .[] | select(.name == "HEADLESS-1" and .disabled != true and .dpmsStatus == true)
+    ' >/dev/null 2>&1
+}
+
+if ! anchor_ready; then
+    hyprctl output create headless HEADLESS-1 >/dev/null 2>&1 || true
     for _ in {1..20}; do
-        if hyprctl monitors -j | jq -e '.[] | select(.name == "HEADLESS-1")' >/dev/null 2>&1; then
+        if anchor_ready; then
             break
         fi
         sleep 0.05
     done
+fi
+
+if ! anchor_ready; then
+    rm -f /tmp/hypr-dpms-sleeping
+    echo "sleep_dpms: HEADLESS-1 is not ready; keeping physical displays powered on" >&2
+    exit 1
 fi
 
 # 3. Power off active physical displays only, keeping HEADLESS-1 alive as anchor
